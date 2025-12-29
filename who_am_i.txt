@@ -1,0 +1,1 @@
+My name is Dan, and I'm using a Titan RTX workstation with 24GB of VRAM for running local LLMs like DeepSeek-Coder-V2 and handling large context windows in RAG applications.

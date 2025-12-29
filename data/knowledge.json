@@ -1,0 +1,12 @@
+[
+    {
+        "id": "doc_001",
+        "title": "Titan RTX Setup",
+        "content": "The Titan RTX is a workstation-class GPU with 24GB of VRAM. It is ideal for running local LLMs like DeepSeek-Coder-V2 and handling large context windows in RAG applications."
+    },
+    {
+        "id": "doc_002",
+        "title": "3L Architecture",
+        "content": "The 3rd Layer (3L) architecture focuses on local-first processing, utilizing workstation hardware for primary inference (L1) and cloud resources for escalation (L2)."
+    }
+]

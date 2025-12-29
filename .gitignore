@@ -1,0 +1,17 @@
+# Ignore the virtual environment (The Heavy Stuff)
+venv/
+env/
+.env
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore local databases and logs
+*.db
+*.log
+chroma_db/
+testResults.txt
+
+# Ignore OS files
+.DS_Store

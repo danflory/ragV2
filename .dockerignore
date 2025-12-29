@@ -1,0 +1,20 @@
+# Ignore git history
+.git
+
+# Ignore local virtual environment (Crucial!)
+venv/
+env/
+
+# Ignore cached python files
+__pycache__/
+*.pyc
+
+# Ignore local databases and logs
+*.db
+*.log
+chroma_db/
+
+# Ignore test results and local scripts
+testResults.txt
+scripts/
+tests/

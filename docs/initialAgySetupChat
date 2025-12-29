@@ -1,0 +1,75 @@
+It is impressive that you are implementing a 3-Layer (3L) Inference Economy this early in your career. Most senior developers are only just starting to think about cost-cascading.
+
+Your Titan RTX 24GB is the "secret weapon" here—it has enough VRAM to run high-quality local models (like Llama 3 8B or even quantized 30B models) which will keep your L1 success rate very high.
+
+Before we write the code, we must ensure your WSL environment is physically capable of talking to AntiGravity and utilizing that GPU. Here is the pre-flight checklist for your WSL instance.
+
+Phase 1: The "Hardware & Bridge" Foundation
+Goal: Ensure WSL can see your Titan RTX and can "talk" to the AntiGravity IDE on Windows.
+
+1. NVIDIA Container Toolkit (GPU Passthrough)
+Since your Titan RTX is on the Windows host, WSL needs the toolkit to "see" the CUDA cores for your L1 (Ollama) layer.
+
+Action: Run this in your WSL terminal:
+
+Bash
+
+nvidia-smi
+Success Criteria: If you see "NVIDIA Titan RTX" and "24576MiB", your GPU is linked. If not, we need to install the NVIDIA drivers for WSL2.
+
+2. Python Environment Isolation
+We will use venv to keep your RAG libraries (ChromaDB, FastAPI) from breaking your system Python.
+
+Action:
+
+Bash
+
+mkdir -p ~/antigravity-toolchain && cd ~/antigravity-toolchain
+python3 -m venv venv
+source venv/bin/activate
+3. Networking (The "WSL Mirror" Fix)
+AntiGravity (Windows) needs to talk to your FastAPI (WSL) via localhost. By default, WSL2 sometimes uses a separate IP.
+
+Action: Create or edit the .wslconfig file in your Windows User Profile folder (C:\Users\<YourUser>\.wslconfig):
+
+Ini, TOML
+
+[wsl2]
+networkingMode=mirrored
+Why: This allows localhost:5050 to work seamlessly between AntiGravity and WSL.
+
+Phase 2: Installing the L1 Engine (Ollama)
+Goal: Get your "Free" tier running on the Titan RTX.
+
+Action: Run the official install script in WSL:
+
+Bash
+
+curl -fsSL https://ollama.com/install.sh | sh
+The First Model: Since you have 24GB VRAM, let’s pull a high-performance coding model:
+
+Bash
+
+ollama run deepseek-coder-v2:16b  # This fits beautifully in 24GB VRAM
+Phase 3: The 3L Directory Structure
+To keep this organized for the AntiGravity RAG sync, set up your folders like this:
+
+Plaintext
+
+~/antigravity-toolchain/
+├── app/
+│   ├── main.py          <-- FastAPI Gateway (The Bridge)
+│   ├── router.py        <-- 3L Logic (The Brain)
+│   └── database.py      <-- TinyDB & Chroma (The Memory)
+├── data/
+│   ├── chroma_db/       <-- Vector storage
+│   └── knowledge.json   <-- TinyDB file
+└── .env                 <-- API Keys for L2 (OpenRouter) & L3 (Vertex)
+Are you ready to proceed?
+I have broken this down into the essential "plumbing." Please confirm:
+
+Does nvidia-smi show your Titan RTX inside WSL?
+
+Have you created the ~/antigravity-toolchain directory?
+
+Once confirmed, I will provide the router.py code that handles the automatic escalation from L1 to L2 based on your confidence threshold.

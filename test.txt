@@ -1,0 +1,9 @@
+import socket
+
+def get_hardware_info():
+    hostname = socket.gethostname()
+    ip_address = socket.gethostbyname(hostname)
+    return f"Hostname: {hostname}, IP Address: {ip_address}"
+
+# User's name and hardware information
+print("My name is Dan and I am working on the Titan RTX today, using hardware:", get_hardware_info())
