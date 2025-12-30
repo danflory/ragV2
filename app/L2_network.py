@@ -1,57 +1,77 @@
 import httpx
 import logging
-from .config import CONFIG
+from .interfaces import LLMDriver
+from .config import Settings
 
-# --- Configuration ---
-API_KEY = CONFIG.L2_KEY
-BASE_URL = "https://api.deepinfra.com/v1/openai/chat/completions"
+logger = logging.getLogger("AGY_CLOUD")
 
-# THE BEAST: Qwen 3 Coder 480B Turbo (MoE)
-# Cost: ~$1.20/1M output (Cheaper than GPT-5 Mini, Smarter than 32B)
-# 35B Active Parameters means it is fast, but access to 480B knowledge.
-CLOUD_MODEL_NAME = "Qwen/Qwen3-Coder-480B-A35B-Instruct-Turbo"
-
-logger = logging.getLogger("AGY_L2")
-
-async def ask_gpt_mini(prompt_text: str) -> str:
+class UniversalCloudDriver(LLMDriver):
     """
-    L2 Handler: Sends prompt to Qwen 3 Coder 480B Turbo.
-    This is a 'Senior Engineer' class model acting as your Critic.
+    The Universal Driver.
+    Handles both OpenAI-compatible APIs (DeepInfra/DeepSeek) AND Google Gemini.
+    Auto-detects format based on the URL.
     """
-    
-    if not API_KEY:
-        logger.error("❌ L2 Key (DEEPINFRA_API_KEY) missing in .env")
-        return "[System Error: L2 Key Missing]"
+    def __init__(self, api_key: str, base_url: str, model: str):
+        self.api_key = api_key
+        self.base_url = base_url
+        self.model_name = model
+        
+    async def generate(self, prompt: str) -> str:
+        if not self.api_key:
+            return f"[System Error: Missing API Key for {self.model_name}]"
 
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
+        # 1. Detect Provider
+        is_google = "googleapis.com" in self.base_url
 
-    payload = {
-        "model": CLOUD_MODEL_NAME,
-        "messages": [
-            {"role": "system", "content": "You are a helpful, expert coding assistant. You are critical and precise."},
-            {"role": "user", "content": prompt_text}
-        ],
-        # MoE models like slightly higher temp to engage the right experts
-        "temperature": 0.6, 
-        "max_tokens": 4096
-    }
+        # 2. Build Headers & Payload accordingly
+        if is_google:
+            # === GOOGLE GEMINI MODE ===
+            url = f"{self.base_url}?key={self.api_key}"
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "contents": [{
+                    "parts": [{"text": prompt}]
+                }],
+                "generationConfig": {
+                    "temperature": 0.7
+                }
+            }
+        else:
+            # === OPENAI / DEEPINFRA / DEEPSEEK MODE ===
+            url = self.base_url
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": self.model_name,
+                "messages": [
+                    {"role": "system", "content": "You are a precise and helpful AI."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.6
+            }
 
-    try:
-        async with httpx.AsyncClient(timeout=90.0) as client:
-            response = await client.post(BASE_URL, headers=headers, json=payload)
-            
-            if response.status_code != 200:
-                logger.error(f"L2 DeepInfra Error {response.status_code}: {response.text}")
-                return f"[L2 Error: {response.status_code} - {response.text}]"
+        # 3. Fire the Request
+        try:
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                response = await client.post(url, headers=headers, json=payload)
+                
+                if response.status_code != 200:
+                    logger.error(f"Cloud Error ({self.model_name}): {response.text}")
+                    return f"[API Error {response.status_code}: {response.text}]"
 
-            data = response.json()
-            # This model often uses <think> tags. We pass them through 
-            # so you can see its reasoning in the logs.
-            return data["choices"][0]["message"]["content"]
+                data = response.json()
+                
+                # 4. Parse Response (Different paths for Google vs OpenAI)
+                if is_google:
+                    return data['candidates'][0]['content']['parts'][0]['text']
+                else:
+                    return data['choices'][0]['message']['content']
 
-    except Exception as e:
-        logger.error(f"L2 Exception: {e}")
-        return f"[L2 Error: {str(e)}]"
+        except Exception as e:
+            logger.error(f"Connection Exception: {e}")
+            return f"[Connection Error: {str(e)}]"
+
+    async def check_health(self) -> bool:
+        return bool(self.api_key)

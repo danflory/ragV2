@@ -1,110 +1,57 @@
-import logging
 import httpx
-from datetime import datetime
-from .config import config
+import logging
 from .interfaces import LLMDriver
+from .config import Settings
 
 logger = logging.getLogger("AGY_L1")
 
-class L1Driver(LLMDriver):
-    """
-    Modern L1 Driver for AntiGravity.
-    Refactored for SOLID/IoC:
-    1. Inherits from LLMDriver (Interface)
-    2. Accepts config via constructor (Dependency Injection)
-    3. Uses direct HTTPX for robust WSL networking
-    """
-    def __init__(self, base_url: str, model_name: str):
-        self.last_success = datetime.now()
-        # Dependency Injection: Store the config passed in, don't read global config
-        self.base_url = base_url.rstrip("/")
-        self.model = model_name
-
-    async def check_health(self) -> bool:
-        """
-        Implementation of LLMDriver.check_health
-        Verifies model availability using raw HTTP.
-        """
-        try:
-            async with httpx.AsyncClient() as client:
-                # 1. Hit the API tags endpoint directly
-                response = await client.get(f"{self.base_url}/api/tags")
-                
-                if response.status_code != 200:
-                    logger.error(f"❌ Ollama API returned status {response.status_code}")
-                    return False
-
-                # 2. Parse JSON
-                data = response.json()
-                models_list = data.get("models", [])
-                installed_names = [m.get("name") for m in models_list]
-                
-                # 3. Check for match using injected model name
-                if self.model in installed_names:
-                    return True
-                
-                # Handle 'latest' tag implication
-                for name in installed_names:
-                    if name and name.startswith(self.model.split(':')[0]):
-                        return True
-
-                logger.error(f"❌ Model '{self.model}' not found. Available: {installed_names}")
-                return False
-            
-        except Exception as e:
-            logger.error(f"❌ Connection to Ollama failed: {e}")
-            return False
+class LocalLlamaDriver(LLMDriver):
+    def __init__(self, config: Settings):
+        self.base_url = config.L1_URL
+        self.model_name = config.L1_MODEL
+        self.timeout = 60.0
 
     async def generate(self, prompt: str) -> str:
-        """
-        Implementation of LLMDriver.generate
-        """
-        # Verification step
-        if not await self.check_health():
-            return "ESCALATE TO L2"
+        url = f"{self.base_url}/api/generate"
+        
+        # === SYSTEM INSTRUCTION ===
+        # We wrap the user prompt to teach L1 about its new tool.
+        system_prompt = (
+            "You are the AntiGravity System Controller. "
+            "If the user asks to 'save', 'commit', 'push', or 'sync' the code, "
+            "you MUST reply with exactly this token and nothing else: <<GIT_SYNC>>\n"
+            "For all other questions, answer normally as a coding assistant.\n\n"
+            f"User: {prompt}"
+        )
+
+        payload = {
+            "model": self.model_name,
+            "prompt": system_prompt, 
+            "stream": False
+        }
 
         try:
-            # We still access config.USER_NAME for the prompt context, 
-            # as that is session data, not infrastructure config.
-            logger.info(f"🐢 L1 [{self.model}] processing for {config.USER_NAME}...")
-            
-            system_msg = f"You are an expert AI assistant helping {config.USER_NAME}."
-            
-            payload = {
-                "model": self.model,  # Use injected model
-                "prompt": prompt,
-                "system": system_msg,
-                "stream": False,
-                "options": {
-                    "num_ctx": 4096,
-                    "temperature": 0.7,
-                    "num_gpu": 1  # Force TITAN RTX usage
-                }
-            }
-
-            async with httpx.AsyncClient(timeout=60.0) as client:
-                response = await client.post(f"{self.base_url}/api/generate", json=payload)
-                
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                response = await client.post(url, json=payload)
                 if response.status_code != 200:
-                    logger.warning(f"⚠️ L1 API Error: {response.text}. Escalating...")
-                    return "ESCALATE TO L2"
+                    return f"[L1 Error: {response.status_code}]"
 
                 data = response.json()
-                self.last_success = datetime.now()
-                return data.get("response", "")
+                raw_response = data.get("response", "").strip()
+                
+                # Cleanup: Sometimes 7b models add extra spaces or quotes
+                if "<<GIT_SYNC>>" in raw_response:
+                    return "<<GIT_SYNC>>"
+                
+                return raw_response
 
         except Exception as e:
-            logger.error(f"🔥 L1 Critical Failure: {e}")
-            return "ESCALATE TO L2"
+            return f"[L1 Error: {str(e)}]"
 
-    # --- Backward Compatibility for existing Router ---
-    # These alias the new methods to the old names so router.py doesn't break
-    async def ask_local_llm(self, prompt: str) -> str:
-        return await self.generate(prompt)
-
-    async def check_model_exists(self) -> bool:
-        return await self.check_health()
-
-# --- Singleton Instantiation (The "Glue") ---
-# We manually inject the config here. In the future, a Container will do this.
-l1_engine = L1Driver(base_url=config.OLLAMA_BASE_URL, model_name=config.MODEL)
+    async def check_health(self) -> bool:
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                resp = await client.get(self.base_url)
+                return resp.status_code == 200
+        except:
+            return False

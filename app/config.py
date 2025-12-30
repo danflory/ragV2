@@ -1,36 +1,28 @@
-import os
-from pathlib import Path
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-env_path = BASE_DIR / ".env"
-load_dotenv(dotenv_path=env_path)
+class Settings(BaseSettings):
+    # === GLOBAL IDENTITY ===
+    USER_NAME: str = "Dan"
+    PORT: int = 5050
+    
+    # === LAYER 1 (Local - Titan RTX) ===
+    L1_URL: str = "http://127.0.0.1:11434"
+    L1_MODEL: str = "codellama:7b"
+    VRAM_THRESHOLD_GB: float = 2.0
+    
+    # === LAYER 2 (Cloud - Reasoning/Coding) ===
+    L2_KEY: str | None = None
+    L2_URL: str = "https://api.deepinfra.com/v1/openai/chat/completions"
+    L2_MODEL: str = "Qwen/Qwen2.5-Coder-32B-Instruct"
 
-class CONFIG:
-    # --- Server Settings ---
-    PORT = 5050
-    USER_NAME = os.getenv("USER_NAME", "Dan")
-    
-    # --- LAYER 1: LOCAL ---
-    MODEL = os.getenv("L1_MODEL", "codellama:7b")
-    
-    # FAIL-SAFE CHANGE: Default is now explicitly 127.0.0.1
-    # This fixes the connection even if .env is missing/ignored
-    OLLAMA_BASE_URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
-    
-    # --- LAYER 2: CLOUD ---
-    L2_KEY = os.getenv("DEEPINFRA_API_KEY")
-    
-    # --- LAYER 3: STRATEGY ---
-    L3_KEY = os.getenv("GOOGLE_API_KEY")
+    # === LAYER 3 (Agents - Google Gemini 3) ===
+    L3_KEY: str | None = None
+    # Default to Gemini 3 Pro Preview
+    L3_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent"
+    L3_MODEL: str = "gemini-3-pro-preview"
 
-    # --- HARDWARE ---
-    VRAM_THRESHOLD_GB = 4.0 
-    
-    # --- STORAGE ---
-    CHROMA_PATH = os.path.expanduser("~/dev_env/rag_local/chroma_db")
-    SQLITE_DB_PATH = "memory.db"
-    CHAT_HISTORY_LIMIT = 25
-    SEMANTIC_MATCH_THRESHOLD = 0.85
+    class Config:
+        env_file = ".env"
+        extra = "ignore"
 
-config = CONFIG()
+config = Settings()

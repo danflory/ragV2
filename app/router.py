@@ -1,17 +1,16 @@
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 import GPUtil
+
 from .config import config
-# OLD: from .L1_local import l1_engine
-# NEW: Import the container instead
 from .container import container
+from .reflex import execute_git_sync
 
 logger = logging.getLogger("AGY_Router")
 
 class ChatRequest(BaseModel):
     message: str
-    model_override: str = None
 
 router = APIRouter()
 
@@ -20,29 +19,28 @@ def check_vram_headroom(threshold_gb=2.0) -> bool:
         gpus = GPUtil.getGPUs()
         for gpu in gpus:
             if "TITAN RTX" in gpu.name.upper():
-                free_vram = gpu.memoryFree / 1024
-                logger.info(f"🎨 Titan RTX VRAM Free: {free_vram:.2f}GB")
-                return free_vram > threshold_gb
+                return (gpu.memoryFree / 1024) > threshold_gb
         return True
-    except Exception as e:
-        logger.warning(f"⚠️ VRAM Check failed: {e}")
+    except:
         return True
 
 @router.post("/chat")
 async def chat_endpoint(request: ChatRequest):
-    # 1. Hardware Guard
-    if config.MODEL == "deepseek-coder-v2:16b":
-        if not check_vram_headroom(config.VRAM_THRESHOLD_GB):
-            logger.warning("⛔ VRAM Constrained. Bypassing L1.")
-            return {"response": "ESCALATE TO L2 (VRAM Limit)"}
+    # 1. Hardware Guard (Fixed Variable Name)
+    # We check config.L1_MODEL instead of config.MODEL
+    if config.L1_MODEL == "deepseek-coder-v2:16b" and not check_vram_headroom(config.VRAM_THRESHOLD_GB):
+        return {"response": "ESCALATE TO L2 (VRAM Limit)"}
 
-    # 2. Try Local L1 Inference
-    # NEW: Use the container to get the driver
-    # Note: We use the standardized .generate() method now!
-    response = await container.l1_driver.generate(request.message)
+    # 2. Get L1 Response
+    response_text = await container.l1_driver.generate(request.message)
     
-    # 3. Handle Escalation
-    if response == "ESCALATE TO L2":
+    # 3. === REFLEX INTERCEPTOR ===
+    if response_text == "<<GIT_SYNC>>":
+        action_log = execute_git_sync()
+        return {"response": action_log}
+    
+    # 4. Handle Escalation
+    if response_text == "ESCALATE TO L2":
         return {"response": "ESCALATE TO L2"}
     
-    return {"response": response}
+    return {"response": response_text}
