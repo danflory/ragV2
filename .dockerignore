@@ -1,20 +1,8 @@
-# Ignore git history
 .git
-
-# Ignore local virtual environment (Crucial!)
 venv/
 env/
-
-# Ignore cached python files
 __pycache__/
 *.pyc
-
-# Ignore local databases and logs
-*.db
 *.log
-chroma_db/
-
-# Ignore test results and local scripts
+# Do not ignore chroma_db here if you want it to persist via volumes
 testResults.txt
-scripts/
-tests/

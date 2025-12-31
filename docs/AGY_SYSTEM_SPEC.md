@@ -1,92 +1,128 @@
+You are absolutely right. The previous code block broke because I nested a triple-backtick block (```) inside another triple-backtick block. This confuses the markdown renderer and cuts off the text (often around Section 5 or 6).
+
+Here is the **AGY_SYSTEM_SPEC.md** enclosed in a **quadruple-backtick** block. This will render correctly so you can copy the entire thing, including the inner code blocks, without it breaking.
+
+```markdown
 # AntiGravity RAG - System Specification
-**Version:** 0.3.0 (Solid Foundation)
-**Status:** Stable / Native Execution
-**Repo:** https://github.com/danflory/ragV2.git
+
+**Version:** 3.1.0 (Agentic, RAG-Enabled, Secured)
+**Status:** In Development / Dockerization Phase
+**Repo:** [https://github.com/danflory/ragV2.git](https://github.com/danflory/ragV2.git)
 
 ## 1. Core Philosophy
+
 The AntiGravity RAG is a **3-Layer Cognitive Pipeline** designed to balance speed, cost, and intelligence.
-- **L1 (Reflex):** Local, Free, Fast. Runs on Titan RTX (24GB). Handles ~80% of routine traffic.
-- **L2 (Reasoning):** Cloud (DeepSeek/Claude/GPT). High IQ, cost-per-token. Used for escalation.
-- **L3 (Deep Research):** Agentic. Long-running tasks, web search, synthesis. (Future)
+
+* **L1 (Reflex):** Local, Free, Fast. Runs on Titan RTX (24GB). Handles routine traffic and **Action Reflexes**.
+* **L2 (Reasoning):** Cloud (DeepSeek/Qwen via DeepInfra). High IQ for complex logic and refactoring.
+* **L3 (Deep Research):** Agentic flagship (Gemini 3 Pro). Used for deep document analysis and synthesis.
 
 ## 2. Architecture & Design Patterns
-The system strictly enforces **SOLID Principles** and **Inversion of Control (IoC)** to prevent "Split Brain" issues.
+
+The system enforces **SOLID Principles** and **Modular Open Systems Approach (MOSA)** to ensure scalability and prevent "Split Brain" issues.
 
 ### 2.1 The Dependency Injection Flow
-1. **Config:** Holds raw settings (via Pydantic).
-2. **Container:** The *only* place where `Config` meets `Code`. Instantiates drivers.
-3. **Router:** Asks the `Container` for services. Never imports drivers directly.
-4. **Driver:** Receives config via `__init__`. Stateless.
+
+1. **Config:** Loads settings from `.env` using Pydantic.
+2. **Container:** The central switchboard. It instantiates drivers and the **Memory Core**.
+3. **Orchestrator:** The "Brain" that manages the RAG loop: Retrieve -> Augment -> Generate.
+4. **Router:** The API entry point. Delegating to the Orchestrator or Container.
 
 ### 2.2 The Interface Contract (`interfaces.py`)
-All drivers (L1, L2, L3) must inherit from `LLMDriver` and implement:
-- `async def generate(self, prompt: str) -> str`
-- `async def check_health(self) -> bool`
 
-## 3. Technical Stack
-- **Runtime:** Python 3.12+ (WSL2 / Ubuntu)
-- **API Framework:** FastAPI (Async)
-- **Networking:** `httpx` (Direct HTTP calls, no SDK wrappers)
-- **Inference Server:** Ollama (External Process on Host)
-- **Hardware Target:** NVIDIA Titan RTX (24GB VRAM)
+All drivers must inherit from `LLMDriver` to maintain interoperability:
 
-## 4. Current File Structure
+* `async def generate(self, prompt: str) -> str`
+* `async def check_health(self) -> bool`
+
+## 3. Reflex Security (The "Gatekeeper" Protocol)
+
+To prevent "hallucinated destruction" or secret leakage without hindering speed, all **Reflex Actions** (Shell/Git) must pass through a strict, automated safety filter.
+
+### 3.1 The "Trust but Verify" Loop
+Reflexes are not executed directly. They are **proposed** by L1 and **validated** by the Gatekeeper module before execution.
+
+1.  **Proposal:** L1 generates a shell command or file write.
+2.  **Static Analysis (The Filter):**
+    * **Syntax Check:** `ast.parse()` ensures generated Python is valid.
+    * **Secret Scanning:** Regex validation prevents committing `.env` keys or high-entropy strings.
+    * **Destructive Command Blocklist:** Blocks `rm -rf`, `mkfs`, or modifying `.git` internals directly.
+3.  **L2 Escalation (The Judge):**
+    * If a diff exceeds **50 lines** or touches `core/*.py`, it triggers an asynchronous L2 Review.
+    * *Action:* The Reflex is held; L2 approves/rejects; L1 is notified of the verdict.
+4.  **Execution:** Only safe, validated actions are executed.
+
+### 3.2 Git Hygiene
+* **Pre-Commit Hook (Internal):** The system runs `ruff check` and `black --check` on the proposed file. If it fails, the commit is rejected, and L1 is ordered to fix syntax.
+* **Atomic Rollback:** If a "Reflex" breaks the build (detected via `pytest` run), the system automatically reverts the last commit.
+
+## 4. Technical Stack
+
+* **Runtime:** Python 3.12+ (Docker on WSL2 / Ubuntu)
+* **Vector DB:** ChromaDB (Persistent Storage via Docker Volume)
+* **Embedder:** `sentence-transformers/all-MiniLM-L6-v2` (Local GPU Acceleration)
+* **API Framework:** FastAPI (Async)
+* **Containerization:** Docker Desktop w/ NVIDIA Container Toolkit (Hardware Unlocked)
+* **Hardware Target:** NVIDIA Titan RTX (24GB VRAM), 32GB System RAM, 8 vCPUs
+
+## 5. System Structure
+
 ```text
 /rag_local
 ├── app/
 │   ├── main.py          # Entry Point (Uvicorn)
-│   ├── router.py        # API Routes (Delegates to Container)
-│   ├── container.py     # IoC Switchboard (Wires Drivers)
-│   ├── interfaces.py    # Abstract Base Classes
-│   ├── config.py        # Pydantic Settings (Reads .env)
-│   └── L1_local.py      # Concrete Driver (Ollama/HTTPX)
-├── tests/
-│   ├── test_ioc_refactor.py  # Verifies Driver Contracts
-│   └── test_ioc_baseline.py  # Verifies Router Escalation
-├── docs/
-│   └── AGY_SYSTEM_SPEC.md    # THIS FILE
-├── requirements.txt
-└── .gitignore
+│   ├── router.py        # API Routes (Reflex & Chat)
+│   ├── container.py     # IoC Switchboard
+│   ├── orchestrator.py  # RAG Pipeline Commander (Retrieve -> Generate)
+│   ├── memory.py        # ChromaDB Wrapper (Long-term Memory)
+│   ├── ingestor.py      # Codebase Ingestion & Shredding (Chunking)
+│   ├── reflex.py        # Motor Functions (Git Sync / Shell Actions)
+│   ├── safety.py        # NEW: Gatekeeper Logic (Linting, Scanning, Blocking)
+│   ├── config.py        # Pydantic Settings
+│   ├── database.py      # Low-level DB Connection & Logging
+│   └── L1_local.py      # Local Driver (Ollama/HTTPX)
+├── data/
+│   └── chroma_db/       # Persistent Vector Store (Volume Mapped)
+├── tests/               # Validation Suite
+├── manage_memory.py     # Root CLI for Ingestion
+├── docker-compose.yml   # Infrastructure Orchestrator
+└── Dockerfile           # Environment Blueprint
 ```
 
-## 5. Critical Configuration (Environment)
-The application is configured via a `.env` file or System Environment Variables.
+## 6. RAG Implementation Details
 
-### 5.1 Required Variables (Keys)
-| Variable Name | Default Value | Description |
-| :--- | :--- | :--- |
-| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Point to the Host's Ollama instance. |
-| `MODEL` | `codellama:7b` | The active model tag. |
-| `USER_NAME` | `Dan` | Used for system prompt context personalization. |
-| `PORT` | `5050` | The port the FastAPI server listens on. |
-| `VRAM_THRESHOLD_GB` | `2.0` | Minimum free GB required on Titan RTX before 16B+ models load. |
+### 6.1 Ingestion & Chunking
 
-### 5.2 Hardware Guards
-- **VRAM Guard:** `router.py` checks `GPUtil` before loading heavy models (e.g., `deepseek-coder-v2:16b`).
-- **Networking:** In Native mode (current), use `127.0.0.1`. In Docker mode, use `host.docker.internal`.
+* **Strategy:** Sliding window chunking with overlap to preserve context at boundaries.
+* **Parameters:** ~800 character chunk size with 100 character overlap.
+* **File Hierarchy:** Hierarchical parsing prioritizing headings for better retrieval.
 
-## 6. Development Rules (For AI Agents)
-1. **Never Hardcode Imports:** If you need a driver, get it from `app.container`.
-2. **Respect the Interface:** If you add L2, you MUST implement `generate()` and `check_health()`.
-3. **Async Everything:** All I/O (Network/DB) must be `async/await`.
-4. **Test Driven:** If you refactor a core component, run `pytest tests/test_ioc_refactor.py` immediately.
+### 6.2 Retrieval & Augmentation
 
-## 7. Project Roadmap & Status
+* **Top-K:** Retrieves the top 3 most relevant chunks per query.
+* **Context Injection:** Code chunks are injected into the System Prompt before being sent to the LLM.
+
+## 7. Development Rules
+
+1. **Docker First:** All tests and execution should happen within the container.
+2. **Verified Reflexes:** The Reflex System must pass the **Gatekeeper Check** (Lint + Secret Scan) before any commit. Unverified code is never pushed to origin.
+3. **Atomic Commits:** Small, frequent commits are preferred over massive dumps.
+4. **No SDK Bloat:** Use direct HTTP calls (`httpx`) over heavyweight SDK wrappers where possible.
+5. **Contextual Awareness:** The AI must always look at the retrieved code context before answering architectural questions.
+
+## 8. Project Roadmap & Status
+
 | Status | Task | Description |
 | :--- | :--- | :--- |
-| **DONE** | Environment Setup | WSL2, Python 3.12, venv, and dependencies installed. |
-| **DONE** | Networking Fix | Resolved "Split Brain" between Windows host and WSL container. |
-| **DONE** | Architecture Design | Defined 3-Layer (L1/L2/L3) logic and Interface contracts. |
-| **DONE** | IoC Implementation | Created `container.py` to decouple Router from Drivers. |
-| **DONE** | L1 Driver (Local) | Implemented `codellama:7b` driver with async `httpx`. |
-| **DONE** | Hardware Guard | Added `GPUtil` checks to prevent VRAM OOM crashes. |
-| **DONE** | Native Verification | Verified full pipeline (Curl -> API -> GPU) without Docker. |
-| **DONE** | Version Control | Initialized Git, created `.gitignore`, pushed to GitHub `ragV2`. |
-| **DONE** | Documentation | Created System Specification (`AGY_SYSTEM_SPEC.md`). |
-| **DONE** | L2 Driver (Cloud) | Implement `L2_cloud.py` for Anthropic/DeepSeek API escalation. |
-| **TODO** | Vector Database | Install ChromaDB and implement document ingestion. |
-| **TODO** | RAG Logic | Connect Retrieval step before L1 Generation. |
-| **TODO** | Frontend UI | Build a simple Streamlit or React interface (replace Curl). |
-| **TODO** | Docker Stabilization | Fix WSL2 deadlock to enable full containerization. |
-| **DONE** | L3 Agents | Implement autonomous web-search/deep-research agents. |
-| **TODO** | CI/CD Pipeline | Automate testing on GitHub Actions. |
+| **DONE** | L1/L2/L3 Drivers | Full 3-tier cognitive pipeline operational. |
+| **DONE** | Reflex System | Git Add/Commit/Push automated via L1 intent. |
+| **IN PROG** | Dockerization | Stable container with GPU passthrough and persistent volumes. |
+| **TODO** | Gatekeeper Module | Implement `safety.py` for static analysis and secret scanning. |
+| **TODO** | Memory Layer | ChromaDB integrated with automated code chunking. |
+| **TODO** | **Memory Pruning** | **Automated cleanup of stale/deprecated chunks to prevent vector rot.** |
+| **TODO** | **Auto-Formatter** | **Trigger `black` via Reflex before every Git Commit.** |
+| **TODO** | Web Search | Integrate L3 with Tavily/DDG. Results must be summarized by L2 before Context Injection. |
+| **TODO** | Frontend UI | Replace Curl with a simple web interface. |
+| **TODO** | Requirements Ingest | Index project requirements for "Requirements-First" dev. |
+
+```

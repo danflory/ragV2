@@ -17,9 +17,13 @@ class Settings(BaseSettings):
 
     # === LAYER 3 (Agents - Google Gemini 3) ===
     L3_KEY: str | None = None
-    # Default to Gemini 3 Pro Preview
     L3_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent"
     L3_MODEL: str = "gemini-3-pro-preview"
+
+    # === MEMORY (Chroma Docker) ===
+    # "chroma_db" is the hostname defined in docker-compose
+    CHROMA_URL: str = "http://chroma_db:8000" 
+    CHROMA_COLLECTION: str = "agy_knowledge"
 
     class Config:
         env_file = ".env"

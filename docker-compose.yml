@@ -1,22 +1,40 @@
-version: '3.8'
-
 services:
+  # SERVICE 1: THE BRAIN & NERVOUS SYSTEM
   rag_app:
     build: .
     container_name: agy_rag_backend
     ports:
       - "5050:5050"
-    environment:
-      # OLLAMA_URL: Point to the special Docker DNS for "The Host Machine"
-      - OLLAMA_URL=http://host.docker.internal:11434
-      - PORT=5050
-      - USER_NAME=Dan
-      - MODEL=codellama:7b
-    # This extra_hosts entry is the magic bridge for Linux/WSL containers
+    env_file:
+      - .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      # Optional: Mount code for live reloading during dev
-      # - ./app:/app/app
-      # Persistent memory (SQLite) mapping
-      - ./memory.db:/app/memory.db
+      - .:/app
+      # Note: We NO LONGER mount ./data/chroma_db here. 
+      # The app talks to the server, it doesn't touch the files.
+    depends_on:
+      - chroma_db
+    shm_size: '8gb'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    restart: "no"
+
+  # SERVICE 2: THE MEMORY (Vector Store)
+  chroma_db:
+    image: chromadb/chroma:latest
+    container_name: agy_chroma
+    volumes:
+      # This is where the DB actually saves its files
+      - ./data/chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+    ports:
+      - "8000:8000" # Exposed so you can debug from Windows if needed
+    networks:
+      default:
