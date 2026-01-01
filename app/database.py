@@ -66,16 +66,20 @@ class Database:
             await self.pool.close()
             logger.info("🛑 POSTGRES POOL CLOSED.")
 
-    async def clear_history(self):
-        """Truncates the history table."""
+    async def clear_history(self) -> int:
+        """Deletes all rows from the history table and returns the count."""
         if not self.pool:
-            return
+            return 0
         try:
             async with self.pool.acquire() as conn:
-                await conn.execute("TRUNCATE TABLE history")
-            logger.info("🗑️ CHAT HISTORY CLEARED.")
+                # DELETE returns 'DELETE n' where n is the row count
+                status = await conn.execute("DELETE FROM history")
+                count = int(status.split()[1]) if status.startswith("DELETE") else 0
+                logger.info(f"🗑️ CHAT HISTORY CLEARED: {count} messages purged.")
+                return count
         except Exception as e:
             logger.error(f"❌ CLEAR HISTORY FAILURE: {e}")
+            return 0
 
     async def log_usage(self, model: str, layer: str, prompt_tokens: int, completion_tokens: int, duration_ms: int):
         """Logs model usage statistics."""

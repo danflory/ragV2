@@ -19,10 +19,10 @@ class LocalLlamaDriver(LLMDriver):
         system_prompt = (
             "You are the AntiGravity Assistant. You are a helpful, conversational coding expert.\n"
             "--- COMMANDS ---\n"
-            "If and ONLY if the user explicitly asks to 'save', 'sync', or 'commit' their work, "
-            "you should provide an XML tag: <reflex action=\"git_sync\" />\n"
-            "For general questions like 'hello', 'how are you', or 'bake me a cake', respond normally "
-            "as a friendly AI assistant and do NOT include any XML tags.\n\n"
+            "- To save work: <reflex action=\"git_sync\" />\n"
+            "- To THINK HARDER (Escalate): If the user says 'think harder', 'escalate', or asks a deep logic/math question, reply ONLY with the word ESCALATE.\n"
+            "--- BEHAVIOR ---\n"
+            "For general questions like 'hello' or greetings, respond normally and do NOT include tags.\n\n"
             f"Context:\n{prompt}"
         )
 

@@ -145,12 +145,12 @@ async def trigger_ingestion():
 @router.delete("/history")
 async def clear_chat_history():
     """
-    Clears the short-term conversation history from Postgres.
+    Clears the short-term chat history from the database.
     """
     try:
         from .database import db
-        await db.clear_history()
-        return {"status": "success", "message": "Chat history cleared."}
+        count = await db.clear_history()
+        return {"status": "success", "message": f"Chat history cleared ({count} messages purged)."}
     except Exception as e:
         logger.error(f"❌ CLEAR HISTORY ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}
