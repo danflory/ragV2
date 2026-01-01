@@ -88,12 +88,18 @@ async def execute_git_sync(message: str = "Auto-sync by AntiGravity") -> str:
             )
             output = result.stdout + result.stderr.strip()
             
+            # Special handling for Push errors on auth
+            if cmd == "git push" and result.returncode != 0:
+                if "could not read Username" in output or "Authentication failed" in output:
+                     log_output.append(f"$ {cmd} -> ⚠️ SKIPPED (Auth required). Changes committed locally.")
+                     continue
+            
             if result.returncode != 0 and "nothing to commit" not in output:
                  return f"⚠️ GIT ERROR on '{cmd}':\n{output}"
             
             log_output.append(f"$ {cmd} -> {output}")
 
-        return f"✅ GIT SYNC COMPLETE:\n" + "\n".join(log_output)
+        return f"✅ GIT SYNC COMPLETE (Local):\n" + "\n".join(log_output)
 
     except Exception as e:
         return f"💥 GIT EXCEPTION: {str(e)}"
