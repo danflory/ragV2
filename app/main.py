@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .router import router as chat_router
@@ -25,11 +25,16 @@ async def lifespan(app: FastAPI):
     await db.disconnect()
     print("🛑 AGY Shutting down...")
 
-app = FastAPI(title="Google AntiGravity API", version="0.6", lifespan=lifespan)
+app = FastAPI(
+    title="AntiGravity RAG Server",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
+# CORS CONFIGURATION
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], # In development, allow all. Change this for production.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

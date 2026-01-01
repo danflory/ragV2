@@ -140,6 +140,74 @@ async def clear_chat_history():
         logger.error(f"❌ CLEAR HISTORY ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}
 
+@router.get("/stats/summary")
+async def get_stats_summary():
+    """
+    Returns a high-level summary of usage statistics for the dashboard.
+    """
+    try:
+        from .database import db
+        if not db.pool:
+            return {"status": "error", "message": "Database not connected"}
+            
+        async with db.pool.acquire() as conn:
+            totals = await conn.fetchrow('''
+                SELECT 
+                    COUNT(*) as total_requests,
+                    SUM(prompt_tokens) as total_prompt,
+                    SUM(completion_tokens) as total_completion,
+                    AVG(duration_ms) as avg_latency
+                FROM usage_stats
+            ''')
+            
+            breakdown = await conn.fetch('''
+                SELECT model, layer, COUNT(*) as count
+                FROM usage_stats
+                GROUP BY model, layer
+            ''')
+            
+            return {
+                "status": "success",
+                "summary": {
+                    "total_requests": totals["total_requests"] or 0,
+                    "total_tokens": (totals["total_prompt"] or 0) + (totals["total_completion"] or 0),
+                    "avg_latency_ms": float(totals["avg_latency"] or 0),
+                },
+                "breakdown": [dict(row) for row in breakdown]
+            }
+    except Exception as e:
+        logger.error(f"❌ STATS SUMMARY ERROR: {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.get("/health/detailed")
+async def get_detailed_health():
+    """
+    Checks connectivity for all microservices.
+    """
+    from .database import db
+    from .memory import VectorStore
+    
+    health = {
+        "api": "online",
+        "postgres": "online" if db.is_ready() else "offline",
+        "chroma": "offline",
+        "ollama": "offline"
+    }
+    
+    # Check Ollama
+    if await container.l1_driver.check_health():
+        health["ollama"] = "online"
+        
+    # Check Chroma
+    try:
+        # Simple check if memory exists and responds
+        if container.memory and container.memory.collection:
+             health["chroma"] = "online"
+    except:
+        pass
+        
+    return {"status": "success", "health": health}
+
 class PullRequest(BaseModel):
     model: str
 

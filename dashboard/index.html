@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AntiGravity Nexus</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="nexus-container">
+        <!-- HEADER / NAVIGATION -->
+        <header class="nexus-header">
+            <div class="logo-area">
+                <span class="logo-icon">▲</span>
+                <h1>ANTIGRAVITY<span>NEXUS</span></h1>
+            </div>
+            <div class="status-badge" id="detailed-status">
+                <span class="status-dot"></span>
+                SYSTEM: INITIALIZING...
+            </div>
+        </header>
+
+        <!-- GRID LAYOUT -->
+        <div class="nexus-grid">
+            
+            <!-- LEFT COLUMN: STATS HUD -->
+            <section class="pane stats-hud glass">
+                <div class="pane-header">
+                    <h2><span class="icon">📈</span> PERFORMANCE METRICS</h2>
+                </div>
+                <div class="stats-content">
+                    <div class="stat-card">
+                        <label>TOTAL REQUESTS</label>
+                        <div class="value" id="stat-requests">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>TOKENS CONSUMED</label>
+                        <div class="value" id="stat-tokens">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>AVG LATENCY</label>
+                        <div class="value" id="stat-latency">--</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER COLUMN: CHAT TERMINAL -->
+            <section class="pane chat-pane glass">
+                <div class="pane-header">
+                    <h2><span class="icon">💬</span> AGY_TERMINAL_V1</h2>
+                </div>
+                <div class="chat-history" id="chat-messages">
+                    <div class="message system">
+                        <span class="prefix">[SYSTEM]</span> Welcome to AntiGravity Nexus. Awaiting signal...
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="user-input" placeholder="Enter prompt or command..." autocomplete="off">
+                    <button id="send-btn">TRANSMIT</button>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: MANAGEMENT & TOOLS -->
+            <section class="pane tools-pane glass">
+                <div class="pane-header">
+                    <h2><span class="icon">🛠️</span> COMMAND CENTER</h2>
+                </div>
+                <div class="tools-content">
+                    <div class="tool-group">
+                        <h3>MODEL MANAGER</h3>
+                        <div class="input-row">
+                            <input type="text" id="model-name" placeholder="model:tag">
+                            <button id="pull-btn" class="btn-sm">PULL</button>
+                        </div>
+                    </div>
+                    <div class="tool-group">
+                        <h3>KNOWLEDGE BASE</h3>
+                        <button id="ingest-btn" class="btn-wide">FORCE RE-SCAN (INGEST)</button>
+                    </div>
+                    <div class="tool-group">
+                        <h3>MEMORY</h3>
+                        <button id="clear-btn" class="btn-wide btn-danger">PURGE CHAT HISTORY</button>
+                    </div>
+                </div>
+                
+                <div class="service-health" id="service-health-grid">
+                    <div class="service-item" data-service="ollama">OLLAMA <span class="dot"></span></div>
+                    <div class="service-item" data-service="chroma">CHROMA <span class="dot"></span></div>
+                    <div class="service-item" data-service="postgres">POSTGRES <span class="dot"></span></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
