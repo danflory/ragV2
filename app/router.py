@@ -42,6 +42,16 @@ def parse_reflex_action(response_text: str):
 
     return None, None
 
+def strip_reflex_tags(text: str) -> str:
+    """
+    Removes all <reflex> tags from the response text to leave only the conversational chat.
+    """
+    # Remove full tags with content
+    text = re.sub(r'<reflex action=".*?">.*?</reflex>', '', text, flags=re.DOTALL)
+    # Remove self-closing tags
+    text = re.sub(r'<reflex action=".*?"\s*/>', '', text)
+    return text.strip()
+
 @router.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     logger.info(f"📨 USER: {request.message}")
@@ -63,22 +73,23 @@ async def chat_endpoint(request: ChatRequest):
     
     # 2. PARSE ACTION (Unified)
     action_type, payload = parse_reflex_action(l1_response)
+    clean_l1_text = strip_reflex_tags(l1_response)
     
     # 3. INTERCEPT & EXECUTE
     if action_type:
         logger.info(f"⚡ ACTION DETECTED: {action_type}")
+        result_msg = ""
         if action_type == "git_sync":
-            result = await execute_git_sync(payload) 
-            return {"response": f"🤖 **Git Sync Triggered:**\n\n{result}"}
-        
-        # If shell/write came from L1 (unlikely but possible), handle them
-        if action_type == "shell":
-            result = await execute_shell(payload)
-            return {"response": result}
+            sync_result = await execute_git_sync(payload) 
+            result_msg = f"🤖 **Git Sync Triggered:**\n\n{sync_result}"
+        elif action_type == "shell":
+            result_msg = await execute_shell(payload)
         elif action_type == "write":
             path, content = payload
-            result = await write_file(path, content)
-            return {"response": result}
+            result_msg = await write_file(path, content)
+
+        final_msg = f"{clean_l1_text}\n\n{result_msg}".strip()
+        return {"response": final_msg}
 
     # 4. ESCALATION CHECK
     # If L1 says ESCALATE, returns an error, or is too short, we go to L2
@@ -95,17 +106,21 @@ async def chat_endpoint(request: ChatRequest):
         
         # Parse potential L2 actions
         l2_action, l2_payload = parse_reflex_action(l2_response)
+        clean_l2_text = strip_reflex_tags(l2_response)
+
         if l2_action:
+             result_msg = ""
              if l2_action == "git_sync":
                  sync_result = await execute_git_sync(l2_payload)
-                 return {"response": sync_result}
+                 result_msg = sync_result
              elif l2_action == "shell":
-                 result = await execute_shell(l2_payload)
-                 return {"response": result}
+                 result_msg = await execute_shell(l2_payload)
              elif l2_action == "write":
                  path, content = l2_payload
-                 result = await write_file(path, content)
-                 return {"response": result}
+                 result_msg = await write_file(path, content)
+            
+             final_msg = f"{clean_l2_text}\n\n{result_msg}".strip()
+             return {"response": final_msg}
         
         return {"response": l2_response}
 

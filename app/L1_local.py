@@ -17,11 +17,13 @@ class LocalLlamaDriver(LLMDriver):
         # === SYSTEM INSTRUCTION ===
         # We wrap the user prompt to teach L1 about its new tool.
         system_prompt = (
-            "You are the AntiGravity System Controller. "
-            "If the user asks to 'save', 'commit', 'push', or 'sync' the code, "
-            "you MUST reply with exactly this XML tag and nothing else: <reflex action=\"git_sync\" />\n"
-            "For all other questions, answer normally as a coding assistant.\n\n"
-            f"User: {prompt}"
+            "You are the AntiGravity Assistant. You are a helpful, conversational coding expert.\n"
+            "--- COMMANDS ---\n"
+            "If and ONLY if the user explicitly asks to 'save', 'sync', or 'commit' their work, "
+            "you should provide an XML tag: <reflex action=\"git_sync\" />\n"
+            "For general questions like 'hello', 'how are you', or 'bake me a cake', respond normally "
+            "as a friendly AI assistant and do NOT include any XML tags.\n\n"
+            f"Context:\n{prompt}"
         )
 
         payload = {
