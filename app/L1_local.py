@@ -19,7 +19,7 @@ class LocalLlamaDriver(LLMDriver):
         system_prompt = (
             "You are the AntiGravity System Controller. "
             "If the user asks to 'save', 'commit', 'push', or 'sync' the code, "
-            "you MUST reply with exactly this token and nothing else: <<GIT_SYNC>>\n"
+            "you MUST reply with exactly this XML tag and nothing else: <reflex action=\"git_sync\" />\n"
             "For all other questions, answer normally as a coding assistant.\n\n"
             f"User: {prompt}"
         )
@@ -40,8 +40,8 @@ class LocalLlamaDriver(LLMDriver):
                 raw_response = data.get("response", "").strip()
                 
                 # Cleanup: Sometimes 7b models add extra spaces or quotes
-                if "<<GIT_SYNC>>" in raw_response:
-                    return "<<GIT_SYNC>>"
+                if '<reflex action="git_sync"' in raw_response:
+                    return '<reflex action="git_sync" />'
                 
                 return raw_response
 
@@ -54,4 +54,29 @@ class LocalLlamaDriver(LLMDriver):
                 resp = await client.get(self.base_url)
                 return resp.status_code == 200
         except:
+            return False
+
+    async def ensure_model(self) -> bool:
+        """Checks if model exists, if not, pulls it."""
+        check_url = f"{self.base_url}/api/tags"
+        pull_url = f"{self.base_url}/api/pull"
+        
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                # 1. Check if exists
+                resp = await client.get(check_url)
+                if resp.status_code == 200:
+                    models_data = resp.json().get('models')
+                    if models_data:
+                        models = [m['name'] for m in models_data]
+                        if self.model_name in models or f"{self.model_name}:latest" in models:
+                            logger.info(f"✅ Model {self.model_name} already present.")
+                            return True
+                
+                # 2. Pull if missing
+                logger.info(f"📥 Pulling model {self.model_name} (this may take a while)...")
+                await client.post(pull_url, json={"name": self.model_name, "stream": False}, timeout=300.0)
+                return True
+        except Exception as e:
+            logger.error(f"❌ Failed to ensure model: {e}")
             return False

@@ -1,6 +1,6 @@
 
 # AntiGravity RAG - Session Context
-**Generated:** 2025-12-31 16:05:11
+**Generated:** 2025-12-31 19:48:03
 **System:** Titan RTX (Local) + DeepInfra (Cloud)
 **App State:** Docker Microservices
 
@@ -46,11 +46,12 @@ You are the **AntiGravity Architect**, an expert AI partner for the "AntiGravity
 ---
 
 ### 3. STRATEGIC ROADMAP (The Docker Evolution)
+**STATUS: Task One (VectorStore) is currently ON HOLD.**
 
 #### PHASE 1: THE MEMORY (Current Focus)
 * [x] **Infrastructure:** Provision `chroma_db` container.
 * [x] **Connection:** Verify Network Link (Brain -> Memory).
-* [ ] **Software:** Implement `VectorStore` class (In Progress - Waiting on Build).
+* [ ] **Software:** Implement `VectorStore` class [ON HOLD]
 * [ ] **Verification:** Pass `tests/test_memory_logic.py`.
 * [ ] **Feature:** "Ingest" - Build the document reader (`app/ingest.py`).
 
@@ -65,7 +66,7 @@ You are the **AntiGravity Architect**, an expert AI partner for the "AntiGravity
 * **Why:** True portability. The project becomes "Run anywhere," not "Run on Dan's specific Windows setup."
 
 #### BACKLOG / TECH DEBT
-* **Protocol Mismatch:** Refactor L1 to use `<reflex action="git_sync">` instead of `<<GIT_SYNC>>`.
+* **Protocol Mismatch:** [RESOLVED] All layers now use `<reflex action="git_sync">`.
 * **Secret Hygiene:** Scan codebase for hardcoded keys before pushing to public repo.
 
 
@@ -100,13 +101,18 @@ rag_local/
             AGY_Architecture_Spec.md
             AGY_HARDWARE_CTX.md
             001_core_architecture.md
+            003_security_gatekeeper.md
             AGY_SYSTEM_SPEC.md
             established per Function Cycle.md
             TO DO.md
             DansRig.md
             ROADMAP.md
             dan's updated rig
+            005_development_protocols.md
+            004_hardware_operations.md
+            explanationOfBigPictureWithListOfTheParts.md
             002_vector_memory.md
+            000_MASTER_OVERVIEW.md
             initialAgySetupChat
             AntiGravityDevPlan.md
         rag_local/

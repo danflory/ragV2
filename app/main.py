@@ -3,17 +3,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .router import router as chat_router
 from .config import config
-from .L1_local import l1_engine
+from .container import container
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # STARTUP: Initialize Postgres Connection
+    from .database import db
+    await db.connect()
+    
     # STARTUP: Verify L1 Model is pulled and ready
-    print(f"🚀 AGY Starting up... Target L1: {config.MODEL}")
-    is_ready = await l1_engine.check_model_exists()
-    if not is_ready:
-        print("⚠️ WARNING: L1 Model not found. L1 calls will auto-escalate to L2.")
+    print(f"🚀 AGY Starting up... Target L1: {config.L1_MODEL}")
+    
+    # Check health and pull model if needed
+    is_ready = await container.l1_driver.check_health()
+    if is_ready:
+        await container.l1_driver.ensure_model()
+    else:
+        print("⚠️ WARNING: L1 Backend (Ollama) not responding. L1 calls will fail or escalate.")
     yield
-    # SHUTDOWN: Logic for closing DB connections can go here
+    # SHUTDOWN
+    await db.disconnect()
     print("🛑 AGY Shutting down...")
 
 app = FastAPI(title="Google AntiGravity API", version="0.6", lifespan=lifespan)
@@ -32,6 +41,6 @@ app.include_router(chat_router)
 async def health():
     return {
         "status": "online",
-        "active_L1_model": config.MODEL,
+        "active_L1_model": config.L1_MODEL,
         "mode": "3L-Hybrid"
     }

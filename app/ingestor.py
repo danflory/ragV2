@@ -1,40 +1,52 @@
 import os
 import logging
-from .memory import memory
+import uuid
+from .memory import VectorStore
 
-logger = logging.getLogger("AGY_INGEST")
+logger = logging.getLogger("AGY_INGESTOR")
 
-class SimpleIngestor:
-    def __init__(self, chunk_size=800, overlap=100):
-        self.chunk_size = chunk_size
-        self.overlap = overlap
+class DocumentIngestor:
+    """
+    Scans the local docs/ directory and populates the Vector Memory.
+    """
+    def __init__(self, vector_store: VectorStore):
+        self.store = vector_store
+        from .config import config
+        self.docs_path = config.DOCS_PATH
 
-    def ingest_project(self):
-        """Walks the directory and feeds ChromaDB."""
-        valid_ext = ('.py', '.md', '.env', 'Dockerfile', '.yml', '.txt')
-        exclude = {'.git', 'venv', '__pycache__', 'chroma_db', 'data'}
+    def chunk_text(self, text: str, size: int = 1000) -> list[str]:
+        """Simple break by size for now."""
+        return [text[i:i+size] for i in range(0, len(text), size)]
 
-        logger.info("🚀 Starting ingestion...")
-        for root, dirs, files in os.walk("."):
-            dirs[:] = [d for d in dirs if d not in exclude]
+    def ingest_all(self):
+        """Walks the docs/ folder and ingest everything."""
+        if not self.store:
+            logger.error("❌ INGESTOR: No Vector Store connection.")
+            return
+
+        if not os.path.exists(self.docs_path):
+            logger.warning(f"⚠️ INGESTOR: Directory {self.docs_path} not found.")
+            return
+
+        logger.info(f"🚀 INGESTOR: Scanning {self.docs_path}...")
+        
+        for root, _, files in os.walk(self.docs_path):
             for file in files:
-                if file.endswith(valid_ext):
-                    self._process_file(os.path.join(root, file))
+                if file.endswith(".md"):
+                    full_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(full_path, self.docs_path)
+                    
+                    try:
+                        with open(full_path, "r", encoding="utf-8") as f:
+                            content = f.read()
+                            
+                        chunks = self.chunk_text(content)
+                        metadatas = [{"source": rel_path} for _ in chunks]
+                        ids = [f"{rel_path}_{uuid.uuid4().hex[:8]}" for _ in chunks]
+                        
+                        self.store.add_texts(chunks, metadatas, ids)
+                        logger.info(f"   + Ingested {file} ({len(chunks)} chunks)")
+                    except Exception as e:
+                        logger.error(f"   - Failed to ingest {file}: {e}")
 
-    def _process_file(self, path):
-        try:
-            with open(path, 'r', encoding='utf-8') as f:
-                text = f.read()
-            
-            # Simple Chunking Logic
-            chunks = [text[i:i + self.chunk_size] for i in range(0, len(text), self.chunk_size - self.overlap)]
-            
-            for idx, chunk in enumerate(chunks):
-                doc_id = f"{path}_#_{idx}"
-                memory.add_document(doc_id, chunk, {"path": path, "chunk": idx})
-            
-            logger.info(f"✅ Indexed: {path} ({len(chunks)} chunks)")
-        except Exception as e:
-            logger.error(f"❌ Failed {path}: {e}")
-
-ingestor = SimpleIngestor()
+        logger.info("✅ INGESTOR COMPLETE.")

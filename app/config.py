@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     PORT: int = 5050
     
     # === LAYER 1 (Local - Titan RTX) ===
-    L1_URL: str = "http://127.0.0.1:11434"
+    L1_URL: str = "http://ollama:11434"
     L1_MODEL: str = "codellama:7b"
     VRAM_THRESHOLD_GB: float = 2.0
     
@@ -21,9 +21,16 @@ class Settings(BaseSettings):
     L3_MODEL: str = "gemini-3-pro-preview"
 
     # === MEMORY (Chroma Docker) ===
-    # "chroma_db" is the hostname defined in docker-compose
     CHROMA_URL: str = "http://chroma_db:8000" 
     CHROMA_COLLECTION: str = "agy_knowledge"
+    DOCS_PATH: str = "/app/docs"
+
+    # === DATABASE (Postgres) ===
+    DB_HOST: str = "postgres_db"
+    DB_PORT: int = 5432
+    DB_USER: str = "agy_user"
+    DB_PASS: str = "agy_pass"
+    DB_NAME: str = "chat_history"
 
     class Config:
         env_file = ".env"

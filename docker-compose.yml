@@ -1,5 +1,5 @@
 services:
-  # SERVICE 1: THE BRAIN & NERVOUS SYSTEM
+  # SERVICE 1: THE BRAIN (Backend)
   rag_app:
     build: .
     container_name: agy_rag_backend
@@ -9,12 +9,17 @@ services:
       - .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - HF_HOME=/app/data/.huggingface
+      - L1_URL=http://ollama:11434
     volumes:
       - .:/app
-      # Note: We NO LONGER mount ./data/chroma_db here. 
-      # The app talks to the server, it doesn't touch the files.
+      - ./data/huggingface:/app/data/.huggingface
     depends_on:
       - chroma_db
+      - postgres_db
+      - ollama
     shm_size: '8gb'
     deploy:
       resources:
@@ -30,11 +35,44 @@ services:
     image: chromadb/chroma:latest
     container_name: agy_chroma
     volumes:
-      # This is where the DB actually saves its files
       - ./data/chroma_data:/chroma/chroma
     environment:
       - IS_PERSISTENT=TRUE
     ports:
-      - "8000:8000" # Exposed so you can debug from Windows if needed
+      - "8000:8000"
+    networks:
+      default:
+
+        # SERVICE 3: THE AMNESIA FIX (Chat History)
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: agy_postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER:-agy_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
+      - POSTGRES_DB=${DB_NAME:-chat_history}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres_data:/var/lib/postgresql/data
+    networks:
+      default:
+
+        # SERVICE 4: THE BRAIN (Local Inference)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: agy_ollama
+    volumes:
+      - ./data/ollama_models:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
     networks:
       default:

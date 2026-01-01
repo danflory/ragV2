@@ -1,95 +1,119 @@
-import os
-import shutil
 import logging
-import asyncio
-import json
-import sqlite3
+import os
 import chromadb
 from datetime import datetime
-from chromadb.config import Settings
-from .config import CONFIG
+from sentence_transformers import SentenceTransformer
+from .config import config
 
-# FIX: Use getattr() for class attributes, not .get()
-# Also fixed variable name to match config.py (CHROMA_PATH vs CHROMA_DB_PATH)
-CHROMA_PATH = getattr(CONFIG, "CHROMA_PATH", "./rag_local/chroma_db")
-HISTORY_LIMIT = getattr(CONFIG, "CHAT_HISTORY_LIMIT", 25)
+from .database import db
 
-logger = logging.getLogger("AGY_Memory")
+logger = logging.getLogger("AGY_MEMORY")
 
-# Ensure DB Directory Exists
-if not os.path.exists(CHROMA_PATH):
-    os.makedirs(CHROMA_PATH)
-
-# Initialize Clients
-try:
-    chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
-    collection = chroma_client.get_or_create_collection(name="agy_knowledge")
-    logger.info(f"✅ ChromaDB loaded at {CHROMA_PATH}")
-except Exception as e:
-    logger.error(f"❌ ChromaDB Init Failed: {e}")
-    collection = None
-
-# --- SQLite for Chat History ---
-DB_FILE = "chat_history.db"
-
-def init_sqlite():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS history 
-                 (id INTEGER PRIMARY KEY, role TEXT, content TEXT, timestamp DATETIME)''')
-    conn.commit()
-    conn.close()
-
-init_sqlite()
+# --- POSTGRES: SHORT-TERM CONVERSATION HISTORY ---
 
 async def save_interaction(role: str, content: str):
-    """Saves a single message to SQLite history."""
-    try:
-        conn = sqlite3.connect(DB_FILE)
-        c = conn.cursor()
-        c.execute("INSERT INTO history (role, content, timestamp) VALUES (?, ?, ?)", 
-                  (role, content, datetime.now()))
-        
-        # Prune old history
-        c.execute(f"DELETE FROM history WHERE id NOT IN (SELECT id FROM history ORDER BY id DESC LIMIT {HISTORY_LIMIT})")
-        
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        logger.error(f"Save History Error: {e}")
+    """Saves a single message to Postgres history."""
+    if not db.is_ready():
+        logger.warning("⚠️ DB NOT READY: Skipping history save.")
+        return
 
-async def retrieve_memory_context(query: str) -> str:
-    """
-    Retrieves recent chat history (SQLite) + relevant docs (ChromaDB).
-    """
-    context_str = ""
-    
-    # 1. Get Recent Chat History
     try:
-        conn = sqlite3.connect(DB_FILE)
-        c = conn.cursor()
-        c.execute(f"SELECT role, content FROM history ORDER BY id ASC")
-        rows = c.fetchall()
-        conn.close()
-        
-        history_text = "\n".join([f"{r[0].upper()}: {r[1]}" for r in rows])
-        context_str += f"--- CHAT HISTORY ---\n{history_text}\n\n"
+        async with db.pool.acquire() as conn:
+            await conn.execute("INSERT INTO history (role, content, timestamp) VALUES ($1, $2, $3)", 
+                              role, content, datetime.now())
+            
+            # Prune old history (Configurable limit)
+            limit = 25 
+            await conn.execute(f"DELETE FROM history WHERE id NOT IN (SELECT id FROM history ORDER BY id DESC LIMIT {limit})")
     except Exception as e:
-        logger.error(f"History Retrieve Error: {e}")
+        logger.error(f"❌ HISTORY ERROR: {e}")
 
-    # 2. Get RAG Documents (if meaningful query)
-    if collection and len(query) > 5:
+async def retrieve_short_term_memory() -> str:
+    """Retrieves recent chat history formatted for the LLM."""
+    if not db.is_ready():
+        return ""
+
+    try:
+        async with db.pool.acquire() as conn:
+            rows = await conn.fetch("SELECT role, content FROM history ORDER BY id ASC")
+            
+        if not rows:
+            return ""
+            
+        history_text = "\n".join([f"{r['role'].upper()}: {r['content']}" for r in rows])
+        return f"--- CHAT HISTORY ---\n{history_text}\n"
+    except Exception as e:
+        logger.error(f"❌ RETRIEVE ERROR: {e}")
+        return ""
+
+# --- CHROMA: LONG-TERM VECTOR MEMORY ---
+class VectorStore:
+    def __init__(self):
+        """
+        Initializes connection to ChromaDB Docker Service & Local Embedder.
+        """
+        self.client = None
+        self.collection = None
+        self.embedder = None
+        self._initialize_connection()
+
+    def _initialize_connection(self):
+        # 1. Connect to Docker Service (Not local file!)
+        logger.info(f"🔌 CONNECTING TO MEMORY at {config.CHROMA_URL}...")
         try:
-            results = collection.query(
-                query_texts=[query],
-                n_results=3
+            self.client = chromadb.HttpClient(
+                host="chroma_db", # Internal docker hostname
+                port=8000
             )
-            if results["documents"]:
-                docs = results["documents"][0]
-                context_str += "--- RELEVANT DOCUMENTS ---\n"
-                context_str += "\n".join(docs)
-                context_str += "\n"
+            
+            # 2. Get/Create Collection
+            self.collection = self.client.get_or_create_collection(
+                name=config.CHROMA_COLLECTION,
+                metadata={"hnsw:space": "cosine"}
+            )
+            logger.info("✅ VECTOR DB CONNECTED.")
         except Exception as e:
-            logger.error(f"RAG Retrieve Error: {e}")
+            logger.error(f"❌ VECTOR DB FAILURE: {e}")
+            # We don't raise here, instead we allow the app to boot without memory if it fails
+            # But the container.py should handle this if it wants to be strict.
+            self.client = None
+            self.collection = None
 
-    return context_str
+        # 3. Load Embedding Model (Runs on GPU if available)
+        if self.client:
+            logger.info("🧠 LOADING EMBEDDING MODEL (all-MiniLM-L6-v2)...")
+            try:
+                self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+                logger.info("✅ EMBEDDING MODEL READY.")
+            except Exception as e:
+                logger.critical(f"❌ MODEL LOAD FAILED: {e}")
+                self.embedder = None
+
+    def add_texts(self, texts: list[str], metadatas: list[dict], ids: list[str]):
+        """Embeds and saves text chunks."""
+        if not texts: return
+
+        try:
+            embeddings = self.embedder.encode(texts).tolist()
+            self.collection.add(
+                documents=texts,
+                embeddings=embeddings,
+                metadatas=metadatas,
+                ids=ids
+            )
+            logger.info(f"💾 MEMORY: Stored {len(texts)} chunks.")
+        except Exception as e:
+            logger.error(f"❌ ADD ERROR: {e}")
+
+    def search(self, query: str, n_results=5) -> list[str]:
+        """Embeds query and searches Chroma."""
+        try:
+            query_embedding = self.embedder.encode([query]).tolist()
+            results = self.collection.query(
+                query_embeddings=query_embedding,
+                n_results=n_results
+            )
+            return results['documents'][0] if results['documents'] else []
+        except Exception as e:
+            logger.error(f"❌ SEARCH ERROR: {e}")
+            return []

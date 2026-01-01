@@ -1,24 +1,59 @@
-import chromadb
-from chromadb.config import Settings
-import os
+import logging
+import asyncpg
+from .config import config
 
-# Define the path to your data folder
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "chroma_db")
+logger = logging.getLogger("AGY_DATABASE")
 
-def get_db_client():
-    # This connects to the actual files on your disk
-    client = chromadb.PersistentClient(path=DATA_DIR)
-    return client
+class Database:
+    """
+    Asynchronous Postgres Driver for AntiGravity.
+    Manages connection pooling and core DB operations.
+    """
+    def __init__(self):
+        self.pool = None
 
-def log_inference(status, query, cost=0.0):
-    # For now, a simple heartbeat log
-    print(f"[LOG] {status}: {query} (Cost: ${cost})")
+    async def connect(self):
+        """Initializes the connection pool."""
+        if self.pool:
+            return
 
-# Test Heartbeat
-if __name__ == "__main__":
-    try:
-        client = get_db_client()
-        print(f"✅ ChromaDB heartbeat success! Data stored at: {DATA_DIR}")
-        print(f"Current collections: {client.list_collections()}")
-    except Exception as e:
-        print(f"❌ ChromaDB heartbeat failed: {e}")
+        try:
+            logger.info(f"🔌 CONNECTING TO POSTGRES at {config.DB_HOST}:{config.DB_PORT}...")
+            self.pool = await asyncpg.create_pool(
+                user=config.DB_USER,
+                password=config.DB_PASS,
+                database=config.DB_NAME,
+                host=config.DB_HOST,
+                port=config.DB_PORT,
+                min_size=1,
+                max_size=10
+            )
+            logger.info("✅ POSTGRES POOL READY.")
+            
+            # Ensure table exists (Reflexive Schema)
+            async with self.pool.acquire() as conn:
+                await conn.execute('''
+                    CREATE TABLE IF NOT EXISTS history (
+                        id SERIAL PRIMARY KEY,
+                        role VARCHAR(50) NOT NULL,
+                        content TEXT NOT NULL,
+                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    );
+                ''')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_history_timestamp ON history(timestamp);')
+                
+        except Exception as e:
+            logger.error(f"❌ DATABASE CONNECTION FAILURE: {e}")
+            self.pool = None
+
+    async def disconnect(self):
+        """Closes the connection pool."""
+        if self.pool:
+            await self.pool.close()
+            logger.info("🛑 POSTGRES POOL CLOSED.")
+
+    def is_ready(self) -> bool:
+        return self.pool is not None
+
+# Singleton Instance
+db = Database()

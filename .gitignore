@@ -10,6 +10,7 @@ __pycache__/
 # Ignore local databases and logs
 *.db
 *.log
+data/
 chroma_db/
 testResults.txt
 

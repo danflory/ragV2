@@ -4,5 +4,6 @@ env/
 __pycache__/
 *.pyc
 *.log
-# Do not ignore chroma_db here if you want it to persist via volumes
+data/
+.dockerignore
 testResults.txt

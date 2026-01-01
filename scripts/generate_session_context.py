@@ -3,49 +3,56 @@ import datetime
 
 # --- CONFIGURATION ---
 OUTPUT_FILE = "docs/AGY_SESSION_CONTEXT.md"
-IGNORE_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules", ".idea", "chroma_db", "site-packages"}
-IGNORE_FILES = {".DS_Store", "poetry.lock", "package-lock.json", "LICENSE"}
 
-# --- MANUAL CONTEXT (The Strategic Brain) ---
+# FILES TO IGNORE IN TREE
+IGNORE_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules", ".idea", "chroma_db", "site-packages", "data"}
+IGNORE_FILES = {".DS_Store", "poetry.lock", "package-lock.json", "LICENSE", "AGY_SESSION_CONTEXT.md"}
+
+# --- HEADER ---
 STRATEGY_HEADER = """
 # AntiGravity RAG - Session Context
 **Generated:** {timestamp}
-**L2 Provider:** DeepInfra (DeepSeek/Qwen)
-**App State:** Dockerization / Security Hardening
+**System:** Titan RTX (Local) + DeepInfra (Cloud)
+**App State:** Docker Microservices
 
-## 1. IMMEDIATE TODO LIST
-* [CRITICAL] **Secret Hygiene:** Scan codebase for hardcoded keys and move to `.env`.
-* [HIGH] **Docker:** Finalize `docker-compose.yml` for GPU passthrough.
-* [MED] **L2 Driver:** Verify `DeepInfra` integration in `L2_network.py`.
-* [MED] **Gatekeeper:** Implement pre-commit hooks for safety.
-
-## 2. RECENT CHANGES (The Delta)
-* Split Spec into Hardware (Static) and App (Dynamic).
-* Deprecated OpenRouter.
-* Enforced 32GB RAM limit in documentation.
 """
 
 def get_project_root():
     """Smart detection of project root."""
     current_dir = os.getcwd()
-    # If we see 'app' folder, we are at root
     if os.path.exists(os.path.join(current_dir, "app")):
         return current_dir
-    # If we see 'rag_local', we are one level up
     if os.path.exists(os.path.join(current_dir, "rag_local")):
         return os.path.join(current_dir, "rag_local")
     return current_dir
 
+def read_section(startpath, relative_path, section_title):
+    """Generic helper to read a markdown file and wrap it as a section."""
+    full_path = os.path.join(startpath, relative_path)
+    content = ""
+    
+    if os.path.exists(full_path):
+        try:
+            with open(full_path, "r", encoding="utf-8") as f:
+                # We strip the existing headers to avoid markdown nesting chaos
+                raw_text = f.read().strip()
+                content = f"\n{raw_text}\n"
+        except Exception as e:
+            content = f"\n*Error reading {relative_path}: {e}*\n"
+    else:
+        content = f"\n*Missing {relative_path} - Please create this file.*\n"
+
+    # Return formatted section
+    return f"\n---\n{content}\n"
+
 def generate_tree(startpath):
     """Generates a visual file tree."""
     tree_str = "## 3. PHYSICAL FILE MAP\n```text\n"
-    # Just show the root folder name
     tree_str += f"{os.path.basename(startpath)}/\n"
     
     for root, dirs, files in os.walk(startpath):
         dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
         
-        # Calculate indentation
         level = root.replace(startpath, '').count(os.sep)
         if root == startpath:
             level = -1
@@ -53,13 +60,11 @@ def generate_tree(startpath):
         indent = ' ' * 4 * (level + 1)
         subindent = ' ' * 4 * (level + 2)
         
-        # Don't print the root line again, logic handles subfolders
         if root != startpath:
             tree_str += '{}{}/\n'.format(indent, os.path.basename(root))
         
         for f in files:
             if f not in IGNORE_FILES:
-                # If at root, strict indent
                 if root == startpath:
                      tree_str += '    {}\n'.format(f)
                 else:
@@ -67,19 +72,21 @@ def generate_tree(startpath):
     tree_str += "```\n"
     return tree_str
 
-def read_key_files(startpath):
-    """Reads content of critical files for context."""
+def read_key_code_files(startpath):
+    """Reads content of critical source code."""
     CRITICAL_FILES = [
         "app/main.py",
         "app/config.py",
         "app/L2_network.py",
         "app/router.py",
+        "app/memory.py",
+        "app/container.py",
         "Dockerfile",
         "docker-compose.yml",
-        ".env.example" # Never read .env directly!
+        ".env.example"
     ]
     
-    content_str = "## 4. CRITICAL FILE CONTENTS\n"
+    content_str = "## 4. CRITICAL SOURCE CODE\n"
     for rel_path in CRITICAL_FILES:
         full_path = os.path.join(startpath, rel_path)
         if os.path.exists(full_path):
@@ -97,23 +104,41 @@ def read_key_files(startpath):
 
 def main():
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    target_dir = get_project_root()
+    root = get_project_root()
     
-    print(f"🔍 Scanning Project Root: {target_dir}")
+    print(f"🔍 Compiling Context from: {root}")
     
+    # 1. HEADER
     output = STRATEGY_HEADER.format(timestamp=timestamp)
-    output += "\n---\n"
-    output += generate_tree(target_dir)
-    output += "\n---\n"
-    output += read_key_files(target_dir)
     
-    # Ensure docs dir exists
-    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+    # 2. HARDWARE CONTEXT (Static)
+    # Reads docs/AGY_HARDWARE_CTX.md and injects it
+    print("   + Injecting Hardware Spec...")
+    output += read_section(root, "docs/AGY_HARDWARE_CTX.md", "HARDWARE CONTEXT")
     
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    # 3. STRATEGIC ROADMAP (Dynamic Plan)
+    # Reads docs/ROADMAP.md and injects it
+    print("   + Injecting Roadmap...")
+    output += read_section(root, "docs/ROADMAP.md", "STRATEGIC ROADMAP")
+    
+    # 4. FILE TREE (Reality)
+    print("   + Generating File Tree...")
+    output += "\n---\n"
+    output += generate_tree(root)
+    
+    # 5. CODE (The Implementation)
+    print("   + Reading Critical Code...")
+    output += "\n---\n"
+    output += read_key_code_files(root)
+    
+    # SAVE
+    outfile_path = os.path.join(root, OUTPUT_FILE)
+    os.makedirs(os.path.dirname(outfile_path), exist_ok=True)
+    
+    with open(outfile_path, "w", encoding="utf-8") as f:
         f.write(output)
     
-    print(f"✅ Context generated: {OUTPUT_FILE}")
+    print(f"✅ COMPILED: {OUTPUT_FILE}")
 
 if __name__ == "__main__":
     main()
