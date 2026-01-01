@@ -37,8 +37,25 @@ async def execute_shell(command: str) -> str:
 
         if result.returncode == 0:
             return f"✅ SUCCESS:\n{output}"
-        else:
-            return f"⚠️ FAILED (Code {result.returncode}):\n{output}"
+        
+        # Tool Presence / Capability Resilience
+        if result.returncode == 127:
+            if "bq: not found" in output:
+                return (
+                    "🛠️ CAPABILITY STATUS: The BigQuery CLI (`bq`) is not active in this container.\n\n"
+                    "**Guidance:**\n"
+                    "1. To query BigQuery, please use the `google-cloud-bigquery` Python library.\n"
+                    "2. If you specifically need the CLI, the Google Cloud SDK must be installed in the Docker image."
+                )
+            if "gcloud: not found" in output:
+                return (
+                    "🛠️ CAPABILITY STATUS: The Google Cloud SDK (`gcloud`) is not active in this container.\n\n"
+                    "**Guidance:**\n"
+                    "1. Most cloud operations can be performed via the `google-cloud-*` Python client libraries.\n"
+                    "2. Authenticate using a Service Account Key if needed."
+                )
+
+        return f"⚠️ FAILED (Code {result.returncode}):\n{output}"
 
     except subprocess.TimeoutExpired:
         return "⏱️ TIMEOUT: Command took too long."

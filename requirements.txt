@@ -34,6 +34,11 @@ transformers>=4.39.0
 huggingface-hub>=0.22.0
 tokenizers>=0.15.0
 
+# Omni-RAG (Hybrid Search)
+qdrant-client>=1.7.0
+minio>=7.2.0
+FlagEmbedding>=1.2.0
+
 # Database (Postgres)
 asyncpg>=0.29.0
 

@@ -7,16 +7,12 @@
     <title>AntiGravity Nexus</title>
     <link rel="stylesheet" href="style.css?v=1.1">
     <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Segoe+UI:wght@400;600&display=swap"
         rel="stylesheet">
 </head>
 
 <body>
-    <div class="background-blobs">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+    <!-- No blobs here, keeping it clean for professional look -->
 
     <main class="nexus-container">
         <!-- HEADER / NAVIGATION -->
@@ -72,7 +68,7 @@
                 </div>
                 <div class="chat-input-area">
                     <input type="text" id="user-input" placeholder="Enter prompt or command..." autocomplete="off">
-                    <button id="send-btn">TRANSMIT</button>
+                    <button id="send-btn" class="send-btn-primary">TRANSMIT</button>
                 </div>
             </section>
 
@@ -108,6 +104,7 @@
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="app.js?v=1.1"></script>
 </body>
 

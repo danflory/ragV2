@@ -121,16 +121,39 @@ function appendMessage(role, content) {
 
 function updateMessage(id, content, layer = null) {
     const div = document.getElementById(`msg-${id}`);
-    if (div) {
-        div.innerHTML = div.innerHTML.split('</span>')[0] + '</span> ' + content;
+    if (!div) return;
 
-        if (layer) {
-            const badge = document.createElement('div');
-            badge.className = `message-badge badge-${layer.toLowerCase()}`;
-            badge.innerText = layer.toUpperCase();
-            div.prepend(badge);
-        }
+    // Reset content area (keep prefix if it exists)
+    const prefixSpan = div.querySelector('.prefix');
+    const prefixHTML = prefixSpan ? prefixSpan.outerHTML + ' ' : '';
+
+    let reasoningHTML = '';
+    let answerText = content;
+
+    // 1. EXTRACT THINKING / REASONING
+    const thinkMatch = content.match(/<think>([\s\S]*?)<\/think>/i);
+    if (thinkMatch) {
+        const reasoning = thinkMatch[1].trim();
+        reasoningHTML = `<div class="thinking-block">${reasoning}</div>`;
+        answerText = content.replace(/<think>[\s\S]*?<\/think>/i, '').trim();
     }
+
+    // 2. RENDER MARKDOWN
+    let renderedAnswer = answerText;
+    if (window.marked) {
+        // Simple markdown parsing
+        renderedAnswer = marked.parse(answerText);
+    }
+
+    // 3. APPLY TO UI
+    div.innerHTML = `
+        ${layer ? `<div class="message-badge badge-${layer.toLowerCase()}">${layer.toUpperCase()}</div>` : ''}
+        ${prefixHTML}
+        ${reasoningHTML}
+        <div class="answer-content">${renderedAnswer}</div>
+    `;
+
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 }
 
 function showNotify(text, isError = false) {

@@ -57,7 +57,7 @@ async def chat_endpoint(request: ChatRequest):
     logger.info(f"📨 USER: {request.message}")
 
     # 1. FORCED ESCALATION CHECK
-    forced_escalate = request.message.strip().startswith("\\escalate")
+    forced_escalate = request.message.strip().startswith("\\L2")
     l1_response = ""
 
     # --- SAVE USER MESSAGE TO HISTORY ---
@@ -129,7 +129,7 @@ async def chat_endpoint(request: ChatRequest):
         # If forced, strip the trigger word from the prompt we send to L2
         actual_msg = request.message
         if forced_escalate:
-            actual_msg = actual_msg.replace("\\escalate", "", 1).strip()
+            actual_msg = actual_msg.replace("\\L2", "", 1).strip()
 
         full_prompt = f"{system_hint}{history_block}{context_hint}User: {actual_msg}"
         l2_response = await container.l2_driver.generate(full_prompt)

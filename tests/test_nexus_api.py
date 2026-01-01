@@ -6,14 +6,17 @@ BASE_URL = "http://localhost:5050"
 
 @pytest.mark.asyncio
 async def test_health_detailed():
-    """Verifies the detailed health endpoint returns the correct structure."""
+    """Verifies the detailed health endpoint returns the correct structure.
+    Note: With dual-GPU setup, we now have ollama (generation) and ollama_embed (embeddings)
+    """
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.get(f"{BASE_URL}/health/detailed")
         assert resp.status_code == 200
         data = resp.json()
         assert data["status"] == "success"
         assert "health" in data
-        assert "ollama" in data["health"]
+        assert "ollama" in data["health"]  # GPU 0 - Generation
+        assert "ollama_embed" in data["health"] # GPU 1 - Embeddings
         assert "postgres" in data["health"]
 
 @pytest.mark.asyncio
