@@ -73,6 +73,8 @@ async def execute_git_sync(message: str = "Auto-sync by AntiGravity") -> str:
 
         commands = [
             "git config --global --add safe.directory /app",
+            "git config --global user.email 'antigravity@internal.ai'",
+            "git config --global user.name 'AntiGravity Agent'",
             "git add .",
             f'git commit -m "{message}"',
             "git push"
