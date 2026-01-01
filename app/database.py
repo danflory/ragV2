@@ -81,6 +81,38 @@ class Database:
             logger.error(f"❌ CLEAR HISTORY FAILURE: {e}")
             return 0
 
+    async def get_recent_history(self, limit: int = 5):
+        """Fetches the last N messages from the history table."""
+        if not self.pool:
+            return []
+        try:
+            async with self.pool.acquire() as conn:
+                rows = await conn.fetch('''
+                    SELECT role, content FROM (
+                        SELECT role, content, timestamp 
+                        FROM history 
+                        ORDER BY timestamp DESC 
+                        LIMIT $1
+                    ) subquery
+                    ORDER BY timestamp ASC
+                ''', limit)
+                return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"❌ FETCH HISTORY FAILURE: {e}")
+            return []
+
+    async def save_history(self, role: str, content: str):
+        """Saves a message to the history table."""
+        if not self.pool:
+            return
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute('''
+                    INSERT INTO history (role, content) VALUES ($1, $2)
+                ''', role, content)
+        except Exception as e:
+            logger.error(f"❌ SAVE HISTORY FAILURE: {e}")
+
     async def log_usage(self, model: str, layer: str, prompt_tokens: int, completion_tokens: int, duration_ms: int):
         """Logs model usage statistics."""
         if not self.pool:

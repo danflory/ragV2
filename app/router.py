@@ -56,6 +56,15 @@ def strip_reflex_tags(text: str) -> str:
 async def chat_endpoint(request: ChatRequest):
     logger.info(f"📨 USER: {request.message}")
 
+    # 1. FORCED ESCALATION CHECK
+    forced_escalate = request.message.strip().startswith("\\escalate")
+    l1_response = ""
+
+    # --- SAVE USER MESSAGE TO HISTORY ---
+    from .database import db
+    if not forced_escalate:
+        await db.save_history("user", request.message)
+    
     # 0. RETRIEVAL (RAG)
     context_hint = ""
     if container.memory:
@@ -68,8 +77,11 @@ async def chat_endpoint(request: ChatRequest):
             logger.error(f"⚠️ RAG SEARCH FAILED: {e}")
 
     # 1. LAYER 1: LOCAL GENERATION (The Reflex)
-    # L1 handles simple commands and basic chat.
-    l1_response = await container.l1_driver.generate(f"{context_hint}{request.message}")
+    # Skip L1 if we are forcing escalation
+    if forced_escalate:
+        l1_response = "ESCALATE"
+    else:
+        l1_response = await container.l1_driver.generate(f"{context_hint}{request.message}")
     
     # 2. PARSE ACTION (Unified)
     action_type, payload = parse_reflex_action(l1_response)
@@ -94,14 +106,32 @@ async def chat_endpoint(request: ChatRequest):
     # 4. ESCALATION CHECK
     # If L1 says ESCALATE, returns an error, or is too short, we go to L2
     if "ESCALATE" in l1_response or "L1 Error" in l1_response or len(l1_response) < 2:
-        logger.info("🚀 ESCALATING TO L2...")
+        logger.info("🚀 ESCALATING TO L2 (with History)...")
+        
+        # --- CONTEXT BUILDING (History) ---
+        from .database import db
+        history_rows = await db.get_recent_history(limit=5)
+        history_block = ""
+        if history_rows:
+            history_block = "--- RECENT CONVERSATION HISTORY ---\n"
+            for h in history_rows:
+                history_block += f"{h['role'].upper()}: {h['content']}\n"
+            history_block += "---\n\n"
+
         system_hint = (
-            "You are an Agentic AI. You can execute commands. "
+            "You are an Agentic AI with Full Situational Awareness. "
+            "Use the conversation history and knowledge base provided to give the best answer. "
             "To run shell: <reflex action=\"shell\">command</reflex> "
             "To write file: <reflex action=\"write\" path=\"filename\">content</reflex> "
             "To save work: <reflex action=\"git_sync\">Commit Message</reflex>\n\n"
         )
-        full_prompt = f"{system_hint}{context_hint}User: {request.message}"
+        
+        # If forced, strip the trigger word from the prompt we send to L2
+        actual_msg = request.message
+        if forced_escalate:
+            actual_msg = actual_msg.replace("\\escalate", "", 1).strip()
+
+        full_prompt = f"{system_hint}{history_block}{context_hint}User: {actual_msg}"
         l2_response = await container.l2_driver.generate(full_prompt)
         
         # Parse potential L2 actions
@@ -120,10 +150,13 @@ async def chat_endpoint(request: ChatRequest):
                  result_msg = await write_file(path, content)
             
              final_msg = f"{clean_l2_text}\n\n{result_msg}".strip()
+             await db.save_history("ai", final_msg)
              return {"response": final_msg}
         
+        await db.save_history("ai", l2_response)
         return {"response": l2_response}
 
+    await db.save_history("ai", l1_response)
     return {"response": l1_response}
 
 @router.post("/ingest")
