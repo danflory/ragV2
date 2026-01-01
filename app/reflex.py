@@ -72,6 +72,7 @@ async def execute_git_sync(message: str = "Auto-sync by AntiGravity") -> str:
             message = f"AGY Auto-sync: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
         commands = [
+            "git config --global --add safe.directory /app",
             "git add .",
             f'git commit -m "{message}"',
             "git push"
