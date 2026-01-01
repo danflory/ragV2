@@ -20,9 +20,11 @@ We currently support two distinct initialization patterns due to the nature of t
 * **Target:** `DeepInfraDriver`
 * **Injection Pattern:** **Explicit Constructor Injection**
 * **Signature:** `__init__(self, api_key: str, base_url: str, model: str)`
-* **Reasoning:** Cloud drivers are "dumb pipes." They only need authentication and a target.
-* **Pros:** Loose coupling. The driver can be used in other projects easily; it knows nothing about our `Settings` class.
-* **Cons:** Signature must change if we add new required parameters.
+
+#### Type C: The Research Driver (L3 - Gemini 3 Pro)
+* **Target:** `GeminiDriver` (Vertex AI / Google)
+* **Role:** High-context synthesis and research.
+* **Injection Pattern:** **Explicit Constructor Injection**
 
 ## 2. THE CONTAINER (The "Switchboard")
 * **File:** `app/container.py`
@@ -33,6 +35,6 @@ We currently support two distinct initialization patterns due to the nature of t
 * **Rule:** The rest of the application (`router.py`) **MUST NEVER** instantiate a driver directly. It must always import `container`.
 
 ## 3. THE REFLEX SYSTEM (The "Nervous System")
-* **Rule:** L2 is the *only* entity allowed to request side-effects (File Writes/Shell).
+* **Rule:** Actions are proposed by L1/L2 and validated.
 * **Gatekeeper:** `app/safety.py` sits between the Router and the Reflex (`app/reflex.py`).
 * **Flow:** L2 (Thought) -> XML Tag -> Router (Parse) -> Safety (Check) -> Reflex (Act).
