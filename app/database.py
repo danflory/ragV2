@@ -52,6 +52,17 @@ class Database:
             await self.pool.close()
             logger.info("🛑 POSTGRES POOL CLOSED.")
 
+    async def clear_history(self):
+        """Truncates the history table."""
+        if not self.pool:
+            return
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute("TRUNCATE TABLE history")
+            logger.info("🗑️ CHAT HISTORY CLEARED.")
+        except Exception as e:
+            logger.error(f"❌ CLEAR HISTORY FAILURE: {e}")
+
     def is_ready(self) -> bool:
         return self.pool is not None
 

@@ -13,7 +13,7 @@
 * [x] **Software:** Implement `app/database.py` (Async PG Driver).
 * [x] **Verification:** History survives container restart.
 
-#### PHASE 3: THE BRAIN TRANSPLANT (Future Focus)
+#### PHASE 3: THE BRAIN TRANSPLANT (COMPLETED)
 * **Goal:** Eliminate host-dependency on Ollama.
 * **Action:** Move L1 (Ollama) into a Docker service with GPU passthrough.
 * **Why:** True portability. The project becomes "Run anywhere."
