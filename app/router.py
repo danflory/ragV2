@@ -126,3 +126,16 @@ async def trigger_ingestion():
     except Exception as e:
         logger.error(f"❌ INGESTION ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}
+
+@router.delete("/history")
+async def clear_chat_history():
+    """
+    Clears the short-term conversation history from Postgres.
+    """
+    try:
+        from .database import db
+        await db.clear_history()
+        return {"status": "success", "message": "Chat history cleared."}
+    except Exception as e:
+        logger.error(f"❌ CLEAR HISTORY ENDPOINT ERROR: {e}")
+        return {"status": "error", "message": str(e)}
