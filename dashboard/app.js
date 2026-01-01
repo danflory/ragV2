@@ -7,6 +7,7 @@ const elements = {
     sendBtn: document.getElementById('send-btn'),
     statRequests: document.getElementById('stat-requests'),
     statTokens: document.getElementById('stat-tokens'),
+    statL2Tokens: document.getElementById('stat-l2-tokens'),
     statLatency: document.getElementById('stat-latency'),
     detailedStatus: document.getElementById('detailed-status'),
     modelInput: document.getElementById('model-name'),
@@ -55,6 +56,7 @@ async function refreshStats() {
             const { summary } = data;
             elements.statRequests.innerText = summary.total_requests;
             elements.statTokens.innerText = summary.total_tokens.toLocaleString();
+            elements.statL2Tokens.innerText = summary.l2_tokens ? summary.l2_tokens.toLocaleString() : '0';
             elements.statLatency.innerText = `${Math.round(summary.avg_latency_ms)}ms`;
         }
     } catch (e) { console.error("Stats fetch failed", e); }

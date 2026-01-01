@@ -204,7 +204,8 @@ async def get_stats_summary():
                     COUNT(*) as total_requests,
                     SUM(prompt_tokens) as total_prompt,
                     SUM(completion_tokens) as total_completion,
-                    AVG(duration_ms) as avg_latency
+                    AVG(duration_ms) as avg_latency,
+                    SUM(CASE WHEN layer = 'L2' THEN prompt_tokens + completion_tokens ELSE 0 END) as l2_tokens
                 FROM usage_stats
             ''')
             
@@ -219,6 +220,7 @@ async def get_stats_summary():
                 "summary": {
                     "total_requests": totals["total_requests"] or 0,
                     "total_tokens": (totals["total_prompt"] or 0) + (totals["total_completion"] or 0),
+                    "l2_tokens": totals["l2_tokens"] or 0,
                     "avg_latency_ms": float(totals["avg_latency"] or 0),
                 },
                 "breakdown": [dict(row) for row in breakdown]
