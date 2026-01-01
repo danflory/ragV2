@@ -101,7 +101,7 @@ async def chat_endpoint(request: ChatRequest):
             result_msg = await write_file(path, content)
 
         final_msg = f"{clean_l1_text}\n\n{result_msg}".strip()
-        return {"response": final_msg}
+        return {"response": final_msg, "layer": "L1"}
 
     # 4. ESCALATION CHECK
     # If L1 says ESCALATE, returns an error, or is too short, we go to L2
@@ -151,13 +151,13 @@ async def chat_endpoint(request: ChatRequest):
             
              final_msg = f"{clean_l2_text}\n\n{result_msg}".strip()
              await db.save_history("ai", final_msg)
-             return {"response": final_msg}
+             return {"response": final_msg, "layer": "L2"}
         
         await db.save_history("ai", l2_response)
-        return {"response": l2_response}
+        return {"response": l2_response, "layer": "L2"}
 
     await db.save_history("ai", l1_response)
-    return {"response": l1_response}
+    return {"response": l1_response, "layer": "L1"}
 
 @router.post("/ingest")
 async def trigger_ingestion():

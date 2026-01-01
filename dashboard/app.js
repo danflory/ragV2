@@ -37,7 +37,7 @@ async function triggerChat() {
         });
 
         const data = await response.json();
-        updateMessage(loadingId, data.response);
+        updateMessage(loadingId, data.response, data.layer);
 
         // Refresh stats after a chat
         refreshStats();
@@ -117,10 +117,17 @@ function appendMessage(role, content) {
     return id;
 }
 
-function updateMessage(id, content) {
+function updateMessage(id, content, layer = null) {
     const div = document.getElementById(`msg-${id}`);
     if (div) {
         div.innerHTML = div.innerHTML.split('</span>')[0] + '</span> ' + content;
+
+        if (layer) {
+            const badge = document.createElement('div');
+            badge.className = `message-badge badge-${layer.toLowerCase()}`;
+            badge.innerText = layer.toUpperCase();
+            div.prepend(badge);
+        }
     }
 }
 

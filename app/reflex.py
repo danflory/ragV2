@@ -25,6 +25,16 @@ async def execute_shell(command: str) -> str:
         )
         
         output = result.stdout + result.stderr
+        
+        # Special check for Git Auth failures in general shell commands
+        if "git" in command.lower() and result.returncode != 0:
+            if "could not read Username" in output or "Authentication failed" in output:
+                return (
+                    "⚠️ GIT AUTH REQUIRED: This command requires a GitHub username/password or SSH key. "
+                    "Since we are in a headless container, please run this command from your host terminal "
+                    "if authentication is needed."
+                )
+
         if result.returncode == 0:
             return f"✅ SUCCESS:\n{output}"
         else:
