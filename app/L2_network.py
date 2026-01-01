@@ -44,6 +44,18 @@ class DeepInfraDriver(LLMDriver):
                     return f"[{error_msg}]"
 
                 data = response.json()
+                
+                # --- STATS CAPTURE ---
+                from .database import db
+                usage = data.get("usage", {})
+                await db.log_usage(
+                    model=self.model_name,
+                    layer="L2",
+                    prompt_tokens=usage.get("prompt_tokens", 0),
+                    completion_tokens=usage.get("completion_tokens", 0),
+                    duration_ms=0 # DeepInfra doesn't always provide duration in JSON
+                )
+                
                 return data['choices'][0]['message']['content']
 
         except Exception as e:

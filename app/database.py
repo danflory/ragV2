@@ -42,6 +42,20 @@ class Database:
                 ''')
                 await conn.execute('CREATE INDEX IF NOT EXISTS idx_history_timestamp ON history(timestamp);')
                 
+                # 2. USAGE STATS TABLE
+                await conn.execute('''
+                    CREATE TABLE IF NOT EXISTS usage_stats (
+                        id SERIAL PRIMARY KEY,
+                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        model VARCHAR(100),
+                        layer VARCHAR(10),
+                        prompt_tokens INTEGER,
+                        completion_tokens INTEGER,
+                        duration_ms INTEGER
+                    );
+                ''')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_usage_timestamp ON usage_stats(timestamp);')
+                
         except Exception as e:
             logger.error(f"❌ DATABASE CONNECTION FAILURE: {e}")
             self.pool = None
@@ -62,6 +76,20 @@ class Database:
             logger.info("🗑️ CHAT HISTORY CLEARED.")
         except Exception as e:
             logger.error(f"❌ CLEAR HISTORY FAILURE: {e}")
+
+    async def log_usage(self, model: str, layer: str, prompt_tokens: int, completion_tokens: int, duration_ms: int):
+        """Logs model usage statistics."""
+        if not self.pool:
+            return
+        
+        try:
+            async with self.pool.acquire() as conn:
+                await conn.execute('''
+                    INSERT INTO usage_stats (model, layer, prompt_tokens, completion_tokens, duration_ms)
+                    VALUES ($1, $2, $3, $4, $5)
+                ''', model, layer, prompt_tokens, completion_tokens, duration_ms)
+        except Exception as e:
+            logger.error(f"❌ LOG USAGE FAILURE: {e}")
 
     def is_ready(self) -> bool:
         return self.pool is not None

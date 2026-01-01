@@ -39,6 +39,21 @@ class LocalLlamaDriver(LLMDriver):
                 data = response.json()
                 raw_response = data.get("response", "").strip()
                 
+                # --- STATS CAPTURE ---
+                from .database import db
+                prompt_tokens = data.get("prompt_eval_count", 0)
+                completion_tokens = data.get("eval_count", 0)
+                # Ollama duration is in nanoseconds
+                duration_ms = data.get("total_duration", 0) // 1_000_000 
+                
+                await db.log_usage(
+                    model=self.model_name,
+                    layer="L1",
+                    prompt_tokens=prompt_tokens,
+                    completion_tokens=completion_tokens,
+                    duration_ms=duration_ms
+                )
+                
                 # Cleanup: Sometimes 7b models add extra spaces or quotes
                 if '<reflex action="git_sync"' in raw_response:
                     return '<reflex action="git_sync" />'

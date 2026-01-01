@@ -139,3 +139,30 @@ async def clear_chat_history():
     except Exception as e:
         logger.error(f"❌ CLEAR HISTORY ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}
+
+class PullRequest(BaseModel):
+    model: str
+
+@router.post("/model/pull")
+async def pull_model_endpoint(request: PullRequest):
+    """
+    Triggers an asynchronous model pull in the Ollama container.
+    """
+    try:
+        # We temporarily change the driver's target model to the requested one
+        old_model = container.l1_driver.model_name
+        container.l1_driver.model_name = request.model
+        
+        # Trigger pull (non-blocking in our implementation)
+        success = await container.l1_driver.ensure_model()
+        
+        # Revert driver model (the endpoint is for management, not permanent switch)
+        container.l1_driver.model_name = old_model
+        
+        if success:
+            return {"status": "success", "message": f"Pulling {request.model}..."}
+        else:
+            return {"status": "error", "message": f"Failed to initiate pull for {request.model}"}
+    except Exception as e:
+        logger.error(f"❌ MODEL PULL ENDPOINT ERROR: {e}")
+        return {"status": "error", "message": str(e)}
