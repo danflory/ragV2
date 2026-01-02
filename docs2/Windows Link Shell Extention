@@ -1,0 +1,258 @@
+Here is the comprehensive documentation formatted as a clean, organized Markdown file.
+
+---
+
+# Link Shell Extension (LSE) Documentation
+
+## Overview
+
+The **NTFS file system** supports a facility known as **Hardlinks**. Hardlinks provide the ability to keep a single copy of a file yet have it appear in multiple folders (directories). Standard Windows facilities for creating these (like `fsutil` or POSIX `ln`) are limited to the command prompt, which can be tedious.
+
+**Link Shell Extension (LSE)** allows for the creation of Hardlinks, Junctions, Volume Mountpoints, and Symbolic Links (collectively referred to as **Links**) via Windows Explorer. It creates a folder cloning process that utilizes Hardlinks or Symbolic Links and a copy process that takes care of Junctions, Symbolic Links, and Hardlinks.
+
+### Supported Platforms
+
+* **Windows Versions:** Windows 7, 8, and 10 (and Legacy support for NT4/2000/XP).
+* **File Systems:** NTFS (Required for Hardlinks/Junctions). FAT file systems are **not** supported.
+
+---
+
+## Installation
+
+The current user must have **administrator privileges** to install the software.
+
+### Standard Installation
+
+Run the install program `HardLinkShellExt_$(platform).exe`.
+
+* **Default Location:** `C:\Program Files\LinkShellExtension`
+* **SmartScreen Warning:** On Windows 10, if SmartScreen blocks the app, choose **'Install Anyway'**.
+* **Explorer Restart:** `Explorer.exe` must be restarted to make LSE active. You can postpone this during the interactive install.
+
+### Command Line Installation (Silent)
+
+LSE supports switches for batch installation:
+
+* **Silent Mode:** `/S` (No prompts; restarts Explorer immediately after install).
+* **Language:** `/Language=English`
+* *Available:* English, Chinese, Czech, French, German, Greek, Italian, Japanese, Korean, Polish, Portuguese, Russian, Slovak, Spanish, Swedish, Turkish, Ukrainian.
+
+
+* **Directory:** `/D=C:\Path\To\Install`
+* **No VcRedist Check:** `/noredist` (Useful if VcRedist is already installed but not detected).
+
+**Example:**
+
+```cmd
+HardLinkShellExt_$(platform).exe /S /Language=English /D=C:\Program Files\LSE
+
+```
+
+### Package Managers
+
+**Chocolatey:**
+
+```cmd
+choco install linkshellextension
+
+```
+
+**Winget:**
+
+```cmd
+winget install HermannSchinagl.LinkShellExtension
+
+```
+
+---
+
+## Using Link Shell Extension
+
+### Basic Usage: Pick and Drop
+
+The core functionality relies on a "Copy/Paste" metaphor using the Context Menu (Right-Click).
+
+1. **Pick Link Source:** Select the file(s) or folder(s) you want to link *from*. Right-click and select **Pick Link Source**.
+2. **Drop As...:** Navigate to the destination folder. Right-click and select **Drop As...**
+3. **Select Link Type:** Choose from Hardlink, Junction, Symbolic Link, Clone, etc.
+
+> **Note:** To cancel a pending operation, right-click the background of a folder and select **Cancel Link Creation**.
+
+### Feature Breakdown
+
+#### 1. Hardlinks
+
+* **Definition:** Keeps a single copy of a file appearing in multiple folders. Changes to one affect all.
+* **Creation:** Pick file(s) -> Drop As -> **Hardlink**.
+* **Auto Rename:** LSE handles naming conflicts by appending ` - Hardlink (n)` if creating a link in the same folder.
+* **Icons:** Adds a customizable "Red Arrow" overlay to distinguish hardlinks.
+
+#### 2. Junctions
+
+* **Definition:** Linkages among directories (folders).
+* **Creation:** Pick folder -> Drop As -> **Junction**.
+* **Icons:** Marked with a chain link overlay.
+* **Network Support:** Can target mapped network drives (though UNC paths may have limitations in standard Explorer).
+
+#### 3. Symbolic Links
+
+* **Definition:** Transparent pathways to data objects. Unlike Hardlinks, these can span different volumes.
+* **Support:** Windows 7/8/10.
+* **Creation:** Pick file/folder -> Drop As -> **Symbolic Link**.
+* **Relative vs Absolute:** LSE defaults to **Relative** links if possible. This can be toggled in the configuration.
+* **Privileges:** Requires Elevation (UAC) unless "Developer Mode" is enabled in Windows 10 or specific Group Policies are set (`SE_CREATE_SYMBOLIC_LINK_NAME`).
+
+#### 4. Smart Copy
+
+Creates a copy of a directory structure while preserving the inner hardlink structure and inner junction/symbolic link relations.
+
+* **Saturated Hardlinks:** If a file is hardlinked multiple times *within* the source folder structure, Smart Copy preserves these links in the destination.
+* **Unsaturated Hardlinks:** If a file is linked to a file *outside* the source folder, the link is broken in the copy (it becomes a distinct file).
+* **Command Line:** `ln.exe --copy`
+
+#### 5. Smart Move
+
+Allows renaming or moving folders containing complex links. LSE intercepts the move operation to update Junction/Symlink targets so links do not break.
+
+#### 6. Clones (Hardlink or Symbolic)
+
+Replicates a folder tree structure where the files within are **Links** to the original files, not copies.
+
+* **Hardlink Clone:** Uses minimal disk space; limited to the same NTFS volume.
+* **Symbolic Link Clone:** Can span volumes.
+
+#### 7. Smart Mirror
+
+Synchronizes a Source folder to a Destination.
+
+* Copies items with different timestamps.
+* Deletes items in Destination not present in Source.
+* Preserves Hardlink/Junction relations.
+
+#### 8. DeLorean Copy (Incremental Backup)
+
+Uses Hardlink Cloning to create versioned backups.
+
+1. **Phase 1:** Initial Smart Copy.
+2. **Phase 2 (Subsequent drops):** Hardlink Clones the previous backup (taking almost no space).
+3. **Phase 3:** Mirrors the current source changes into the new backup.
+
+* *Result:* Each backup folder looks full and complete, but unchanged files share data on the disk via hardlinks.
+
+---
+
+## Advanced Handling
+
+### Outer Junctions / Symbolic Links
+
+When copying a folder that contains links pointing *outside* that folder ("Outer Links"), LSE offers three handling methods:
+
+1. **Crop:** Breaks the link. The destination will not contain the linked folder.
+2. **Unroll (Default):** Follows the link and copies the *content* of the target into the destination.
+3. **Splice:** Creates a new junction/link in the destination pointing back to the *original* target.
+
+### Backup Mode
+
+Enables copying of ACLs (permissions) and Encrypted Files, even without standard access rights.
+
+* **Requirement:** User needs `SE_BACKUP_NAME` and `SE_RESTORE_NAME` privileges.
+* **Usage:** Useful for SmartCopy, SmartMirror, and DeLorean Copy.
+
+### Remote Capabilities (SMB)
+
+LSE supports creating Remote Hardlinks, Junctions, and Symlinks within SMB mapped network NTFS drives.
+
+* *Note:* SMB 2.0+ does not support identifying if a remote file is a hardlink, so overlay icons may not appear on remote drives.
+
+---
+
+## Configuration Tool (`LSEConfig`)
+
+LSE includes a configuration utility to tweak settings:
+
+* **Language:** Switch UI language.
+* **Smart Move:** Enable/Disable.
+* **Remote Capabilities:** Disable to improve Explorer performance on slow networks.
+* **Outer Link Handling:** Set default to Crop, Unroll, or Splice.
+* **Symlink Creation:** Force Relative or Absolute.
+* **Overlay Icons:** Customize icons, change priorities, or disable them.
+
+---
+
+## Command Line Utility (`ln.exe`)
+
+LSE includes a command line tool equivalent to the GUI features.
+
+| Feature | Switch |
+| --- | --- |
+| **Smart Copy** | `ln.exe --copy` |
+| **Smart Move** | `ln.exe --move` |
+| **Clone** | `ln.exe --recursive` |
+| **List Hardlinks** | `ln.exe --enum` or `--list` |
+| **DeLorean Copy** | `ln.exe` (context dependent) |
+| **Probe Filesystem** | `ln.exe --probefs x:` |
+
+---
+
+## FAQ & Troubleshooting
+
+**Q: Explorer shows "The specified path does not exist" when clicking a Symlink to an .exe.**
+
+* **A:** This is a known Explorer bug. It works via command prompt or third-party file managers.
+
+**Q: Overlay icons do not show up.**
+
+* **A:** Windows limits the number of Overlay Handlers (11 slots in Win10). Other apps (like Dropbox) may have pushed LSE out. You can manually boost priority in the Registry at `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers` by prepending spaces to the LSE entry names.
+
+**Q: Smart Move isn't working on Read-Only folders.**
+
+* **A:** If a `desktop.ini` specifies a LocalizedResourceName and the folder is read-only, Explorer fails to call the hook. This is an Explorer bug.
+
+**Q: Can I use this on ReFS?**
+
+* **A:** Yes, LSE supports ReFS (which gained Hardlink support in v3.5).
+
+---
+
+## Download
+
+* **All Windows (64-bit & 32-bit included):** [Link Shell Extension (3.76Mb)](https://www.google.com/search?q=https://schinagl.priv.at/nt/hardlinkshellext/HardLinkShellExt_X64.exe)
+* **Legacy (XP/2000):** Versions 3.8.7.2 are available for older systems.
+
+### Contact / Support
+
+* **Author:** Hermann Schinagl
+* **Donations:** Accepted via PayPal or Bitcoin (see official site).
+
+---
+---
+#Summary
+---
+---
+The tool you are describing is **Link Shell Extension** (LSE).
+
+It is a widely used Windows utility that integrates into File Explorer to make creating complex file system links (like symbolic links, hard links, and junctions) accessible via a simple right-click menu, avoiding the need for the command line.
+
+### How it matches your description:
+
+* **"Pick Link Source"**: This is the first option you select on the file or folder you want to link *from*. It effectively "copies" the path to the tool's internal clipboard.
+* **"Drop As..."**: When you right-click in the destination folder, this menu appears, offering options like **Symbolic Link**, **Junction**, **Hardlink**, **Smart Copy**, and **Clones**.
+
+### Key Features
+
+* **Symbolic Links (Symlinks):** Acts like a shortcut but is treated by the system as the actual file/folder. Useful for moving bulky folders (like game data or application caches) to a different drive while tricking the software into thinking it's still in the original location.
+* **Hard Links:** Creates a directory entry that points to the exact same data on the disk as the original file. If you delete one, the file data remains until all hard links are deleted.
+* **Junctions:** Similar to symbolic links but specifically for directories; often used for redirecting folders within the same local computer.
+
+### Where to find it
+
+The tool is maintained by Hermann Schinagl. It is free to download, though the website retains a very "classic" simpler internet aesthetic.
+
+* **Official Website:** `https://schinagl.priv.at/nt/hardlinkshellext/linkshellextension.html`
+
+---
+
+**Would you like a quick explanation of the difference between a Hard Link and a Symbolic Link to know which one to use?**
+
+[Create Symbolic Links, Hard Links & Junctions With Link Shell Extension](https://www.youtube.com/watch?v=wARRyQjp2js)
+This video is relevant because it demonstrates exactly how to use the "Pick Link Source" and "Drop As" features of Link Shell Extension that you recalled.

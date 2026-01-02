@@ -1,9 +1,9 @@
 # 000_MASTER_OVERVIEW.md
 # STATUS: ACTIVE
-# VERSION: 3.1.0
+# VERSION: 3.3.0
 
 ## 1. CORE PHILOSOPHY
-AntiGravity is a **3-Layer Cognitive Pipeline** designed for "Inference Economy"—maximizing local hardware while leveraging cloud IQ for complex reasoning.
+**Gravitas** is a **3-Layer Cognitive Pipeline** designed for "Inference Economy"—maximizing local hardware while leveraging cloud IQ for complex reasoning.
 
 *   **L1 (Reflex):** Local, Free, Fast. Runs on Titan RTX (24GB). Handles routine traffic and **Action Reflexes**.
 *   **L2 (Reasoning):** Cloud (DeepSeek/Qwen via DeepInfra). High IQ for complex logic and refactoring.

@@ -1,5 +1,35 @@
-### TODO: Standardize Agentic Action Protocol (DONE)
-* **Priority:** COMPLETED
-* **Context:** Standardized to XML `<reflex>` tags across all layers.
-* **Goal:** Refactored L1 and router to use a unified parser.
-* **Benefit:** Enabled a single, unified parser in `router.py` (DRY Principle).
+# AntiGravity Session Tasks
+> **Protocol:** Micro-tasks for the current coding session.
+> **Rule:** When a task is complete, mark with [x] and add a brief Result note.
+
+## Phase 18: Omni-RAG Robustness (Current Session)
+
+### 1. Memory Hygiene (The "Vector Rot" Fix)
+- [x] **Create Test:** `tests/test_memory_pruning.py` to verify deletion of old chunks before ingestion.
+- [x] **Implement:** `prune_source_vectors(source_id)` in `app/memory.py`.
+- [x] **Integrate:** Call pruning logic inside `ingest_text` or the ingestor workflow.
+
+### 2. The Gatekeeper (Safety Middleware)
+- [ ] **Create Test:** `tests/test_safety_logic.py` (Mock dangerous commands and ensure blockage).
+- [ ] **Implement:** `app/safety.py` with `validate_syntax()` and `scan_secrets()`.
+- [ ] **Refactor:** Update `app/reflex.py` to import and use `safety.check()` before execution.
+
+### 3. Dual-GPU Resilience
+- [ ] **Create Test:** `tests/test_embed_breaker.py` (Simulate GPU 1 downtime).
+- [ ] **Implement:** Add Circuit Breaker to `memory.add_texts` (Fallback to CPU or error gracefully).
+
+
+### 4. System Telemetry (Infrastructure)
+> **Goal:** Build the logging pipeline first so other modules can use it.
+- [ ] **Schema:** Add `CREATE TABLE system_telemetry` to `app/database.py`.
+- [ ] **Implement:** Create `app/telemetry.py` with `TelemetryLogger` class (async/non-blocking).
+- [ ] **Integrate:** Register `telemetry` singleton in `app/container.py`.
+
+### 5. Hardware Safety (Active Defense)
+> **Goal:** Use telemetry to protect the hardware.
+- [ ] **Implement:** Add `check_vram()` to `L1_local.py`.
+- [ ] **Coordinate:** Inside `check_vram`, call `await telemetry.log("VRAM_CHECK", ...)` to record status.
+- [ ] **Logic:** If Free VRAM < 2GB:
+    - Log event: `await telemetry.log("VRAM_LOCKOUT", ...)`
+    - Raise `OverloadError` to stop generation safely.
+

@@ -2,7 +2,7 @@ import subprocess
 import logging
 import os
 from datetime import datetime
-from .safety import validate_command, validate_python_syntax, scan_for_secrets
+from .safety import check
 
 logger = logging.getLogger("AGY_REFLEX")
 
@@ -10,7 +10,7 @@ async def execute_shell(command: str) -> str:
     """
     Executes a shell command in the container.
     """
-    if not validate_command(command):
+    if not check(command=command):
         return "❌ SECURITY BLOCK: Command failed Gatekeeper check."
 
     logger.info(f"⚡ EXECUTING: {command}")
@@ -68,22 +68,19 @@ async def write_file(filepath: str, content: str) -> str:
     """
     if ".." in filepath or filepath.startswith("/"):
         return "❌ PATH ERROR: Relative paths only (security)."
-        
-    if scan_for_secrets(content):
-        return "❌ SECURITY BLOCK: Content contains secrets."
 
-    if filepath.endswith(".py") and not validate_python_syntax(content):
-        return "❌ SYNTAX ERROR: Python code does not compile. Write rejected."
+    if not check(content=content, filepath=filepath):
+        return "❌ SECURITY BLOCK: Content failed Gatekeeper check."
 
     try:
         # FIX: Only create directory if path implies one
         directory = os.path.dirname(filepath)
         if directory:
             os.makedirs(directory, exist_ok=True)
-        
+
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
-            
+
         logger.info(f"💾 WROTE: {filepath} ({len(content)} bytes)")
         return f"✅ FILE SAVED: {filepath}"
 

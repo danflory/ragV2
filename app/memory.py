@@ -117,3 +117,67 @@ class VectorStore:
         except Exception as e:
             logger.error(f"❌ SEARCH ERROR: {e}")
             return []
+
+    async def prune_source_vectors(self, source_id: str) -> int:
+        """
+        Memory Hygiene: Remove old vectors for a source before ingestion.
+        Prevents "Vector Rot" by ensuring only current content is retained.
+
+        Args:
+            source_id: The source identifier (e.g., "app/main.py")
+
+        Returns:
+            Number of chunks deleted
+        """
+        try:
+            # Get all documents with their metadata
+            results = self.collection.get()
+
+            if not results or not results.get('ids'):
+                return 0
+
+            # Find IDs that match the source_id
+            ids_to_delete = []
+            for i, metadata in enumerate(results.get('metadatas', [])):
+                if metadata and metadata.get('source') == source_id:
+                    ids_to_delete.append(results['ids'][i])
+
+            if not ids_to_delete:
+                return 0
+
+            # Delete the old chunks
+            self.collection.delete(ids=ids_to_delete)
+            logger.info(f"🧹 PRUNED: {len(ids_to_delete)} old chunks for {source_id}")
+
+            return len(ids_to_delete)
+
+        except Exception as e:
+            logger.error(f"❌ PRUNE ERROR: Failed to prune {source_id}: {e}")
+            return 0
+
+    async def ingest_text(self, text: str, metadata: dict):
+        """
+        Dependency injection method for processing individual text documents.
+        Wraps the synchronous add_texts method for async compatibility.
+        Part of the system's data processing pipeline.
+        """
+        import uuid
+        import asyncio
+
+        # Memory Hygiene: Prune old vectors before ingestion
+        source_id = metadata.get('source', 'unknown')
+        pruned_count = await self.prune_source_vectors(source_id)
+
+        # Generate unique ID for this document
+        doc_id = f"{source_id}_{uuid.uuid4().hex[:8]}"
+
+        # Convert to list format expected by add_texts
+        texts = [text]
+        metadatas = [metadata]
+        ids = [doc_id]
+
+        # Execute synchronously in thread pool to avoid blocking the event loop
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, self.add_texts, texts, metadatas, ids)
+
+        logger.info(f"📥 INGESTED: {source_id} ({len(text)} chars, pruned {pruned_count} old chunks)")
