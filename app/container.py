@@ -4,6 +4,7 @@ from .L1_local import LocalLlamaDriver
 from .L2_network import DeepInfraDriver
 from .memory import VectorStore, save_interaction, retrieve_short_term_memory
 from .ingestor import DocumentIngestor
+from .telemetry import telemetry
 
 logger = logging.getLogger("AGY_CONTAINER")
 
@@ -36,7 +37,10 @@ class Container:
             self.ingestor = DocumentIngestor(self.memory)
         else:
             self.ingestor = None
-            
+
+        # 5. TELEMETRY
+        self.telemetry = telemetry
+
         logger.info("✅ CONTAINER READY.")
 
 # Singleton Instance

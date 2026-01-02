@@ -55,6 +55,20 @@ class Database:
                     );
                 ''')
                 await conn.execute('CREATE INDEX IF NOT EXISTS idx_usage_timestamp ON usage_stats(timestamp);')
+
+                # 3. SYSTEM TELEMETRY TABLE
+                await conn.execute('''
+                    CREATE TABLE IF NOT EXISTS system_telemetry (
+                        id SERIAL PRIMARY KEY,
+                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        event_type VARCHAR(100) NOT NULL,
+                        component VARCHAR(50),
+                        value NUMERIC,
+                        metadata JSONB,
+                        status VARCHAR(20)
+                    );
+                ''')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_telemetry_timestamp ON system_telemetry(timestamp);')
                 
         except Exception as e:
             logger.error(f"❌ DATABASE CONNECTION FAILURE: {e}")

@@ -21,9 +21,9 @@
 
 ### 4. System Telemetry (Infrastructure)
 > **Goal:** Build the logging pipeline first so other modules can use it.
-- [ ] **Schema:** Add `CREATE TABLE system_telemetry` to `app/database.py`.
-- [ ] **Implement:** Create `app/telemetry.py` with `TelemetryLogger` class (async/non-blocking).
-- [ ] **Integrate:** Register `telemetry` singleton in `app/container.py`.
+- [x] **Schema:** Add `CREATE TABLE system_telemetry` to `app/database.py`.
+- [x] **Implement:** Create `app/telemetry.py` with `TelemetryLogger` class (async/non-blocking).
+- [x] **Integrate:** Register `telemetry` singleton in `app/container.py`.
 
 ### 5. Hardware Safety (Active Defense)
 > **Goal:** Use telemetry to protect the hardware.

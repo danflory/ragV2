@@ -74,9 +74,9 @@ class TestEmbeddingCircuitBreaker:
         """Test graceful failure when both GPU and CPU embedding fail."""
         store = VectorStore()
 
-        # Mock embedder that fails on both GPU and CPU attempts
+        # Mock embedder that fails on GPU
         mock_embedder = MagicMock()
-        mock_embedder.encode.side_effect = RuntimeError("All embedding devices failed")
+        mock_embedder.encode.side_effect = RuntimeError("GPU failed")
         store.embedder = mock_embedder
 
         store.collection = MagicMock()
@@ -86,9 +86,13 @@ class TestEmbeddingCircuitBreaker:
         metadatas = [{"source": "test.py"}]
         ids = ["test_id_1"]
 
-        # Should raise an exception after all fallbacks fail
-        with pytest.raises(RuntimeError, match="embedding"):
-            store.add_texts(texts, metadatas, ids)
+        # Mock CPU embedding to also fail
+        with patch('app.memory.SentenceTransformer') as mock_sentence_transformer:
+            mock_sentence_transformer.side_effect = RuntimeError("CPU failed")
+
+            # Should raise an exception after all fallbacks fail
+            with pytest.raises(RuntimeError, match="Embedding failed on both GPU and CPU"):
+                store.add_texts(texts, metadatas, ids)
 
     def test_empty_texts_handling(self):
         """Test that empty text lists are handled gracefully."""
@@ -106,12 +110,18 @@ class TestEmbeddingCircuitBreaker:
         store = VectorStore()
         store.embedder = None  # Simulate initialization failure
 
+        # Mock ChromaDB collection since initialization would have failed
+        store.collection = MagicMock()
+        store.client = MagicMock()
+
         texts = ["Test document"]
         metadatas = [{"source": "test.py"}]
         ids = ["test_id_1"]
 
-        # Should handle gracefully (current implementation just returns)
-        store.add_texts(texts, metadatas, ids)
+        # Should raise RuntimeError when embedder is not initialized
+        # (CPU fallback is attempted but will fail due to our code change)
+        with pytest.raises(RuntimeError, match="Embedder not initialized"):
+            store.add_texts(texts, metadatas, ids)
 
     @patch('app.memory.SentenceTransformer')
     def test_embedder_initialization_failure(self, mock_sentence_transformer):
@@ -124,10 +134,11 @@ class TestEmbeddingCircuitBreaker:
         # Should handle initialization failure gracefully
         assert store.embedder is None
 
-        # add_texts should not crash even without embedder
+        # add_texts should raise error since embedder was never initialized
         store.collection = MagicMock()
         store.client = MagicMock()
-        store.add_texts(["test"], [{"source": "test"}], ["id1"])
+        with pytest.raises(RuntimeError, match="Embedder not initialized"):
+            store.add_texts(["test"], [{"source": "test"}], ["id1"])
 
 if __name__ == "__main__":
     pytest.main([__file__])

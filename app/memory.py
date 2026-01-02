@@ -104,6 +104,11 @@ class VectorStore:
                 raise RuntimeError("Embedder not initialized")
         except Exception as gpu_error:
             logger.warning(f"⚠️ GPU EMBEDDING FAILED: {gpu_error}")
+            
+            # Don't try CPU fallback if embedder was never initialized
+            if "Embedder not initialized" in str(gpu_error):
+                raise RuntimeError("Embedder not initialized")
+            
             embedding_device = "CPU"
 
             # Fallback to CPU embedding
