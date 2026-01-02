@@ -16,3 +16,9 @@ testResults.txt
 
 # Ignore OS files
 .DS_Store
+
+# Ignore docs2/tmp and all subdirectories
+docs2/tmp/
+
+# Ignore Scripts/Tmp and all subdirectories
+Scripts/Tmp/
