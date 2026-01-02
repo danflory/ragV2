@@ -90,25 +90,60 @@ class VectorStore:
                 self.embedder = None
 
     def add_texts(self, texts: list[str], metadatas: list[dict], ids: list[str]):
-        """Embeds and saves text chunks."""
+        """Embeds and saves text chunks with circuit breaker for GPU resilience."""
         if not texts: return
 
+        # Circuit Breaker: Try GPU embedding first, fallback to CPU
+        embeddings = None
+        embedding_device = "GPU"
+
         try:
-            embeddings = self.embedder.encode(texts).tolist()
+            if self.embedder:
+                embeddings = self.embedder.encode(texts).tolist()
+            else:
+                raise RuntimeError("Embedder not initialized")
+        except Exception as gpu_error:
+            logger.warning(f"⚠️ GPU EMBEDDING FAILED: {gpu_error}")
+            embedding_device = "CPU"
+
+            # Fallback to CPU embedding
+            try:
+                cpu_embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+                embeddings = cpu_embedder.encode(texts).tolist()
+                logger.info("✅ CPU EMBEDDING FALLBACK: Successfully used CPU for embedding")
+            except Exception as cpu_error:
+                logger.error(f"❌ CPU EMBEDDING FAILED: {cpu_error}")
+                raise RuntimeError(f"Embedding failed on both GPU and CPU: GPU error: {gpu_error}, CPU error: {cpu_error}")
+
+        # Store in vector database
+        try:
             self.collection.add(
                 documents=texts,
                 embeddings=embeddings,
                 metadatas=metadatas,
                 ids=ids
             )
-            logger.info(f"💾 MEMORY: Stored {len(texts)} chunks.")
+            logger.info(f"💾 MEMORY: Stored {len(texts)} chunks via {embedding_device}.")
         except Exception as e:
-            logger.error(f"❌ ADD ERROR: {e}")
+            logger.error(f"❌ VECTOR DB ADD ERROR: {e}")
+            raise
 
     def search(self, query: str, n_results=5) -> list[str]:
-        """Embeds query and searches Chroma."""
+        """Embeds query and searches Chroma with circuit breaker resilience."""
         try:
-            query_embedding = self.embedder.encode([query]).tolist()
+            # Circuit Breaker: Try GPU embedding first, fallback to CPU
+            if self.embedder:
+                try:
+                    query_embedding = self.embedder.encode([query]).tolist()
+                except Exception as gpu_error:
+                    logger.warning(f"⚠️ GPU SEARCH EMBEDDING FAILED: {gpu_error}, falling back to CPU")
+                    cpu_embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+                    query_embedding = cpu_embedder.encode([query]).tolist()
+            else:
+                # No embedder initialized, use CPU
+                cpu_embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
+                query_embedding = cpu_embedder.encode([query]).tolist()
+
             results = self.collection.query(
                 query_embeddings=query_embedding,
                 n_results=n_results

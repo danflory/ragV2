@@ -10,13 +10,13 @@
 - [x] **Integrate:** Call pruning logic inside `ingest_text` or the ingestor workflow.
 
 ### 2. The Gatekeeper (Safety Middleware)
-- [ ] **Create Test:** `tests/test_safety_logic.py` (Mock dangerous commands and ensure blockage).
-- [ ] **Implement:** `app/safety.py` with `validate_syntax()` and `scan_secrets()`.
-- [ ] **Refactor:** Update `app/reflex.py` to import and use `safety.check()` before execution.
+- [x] **Create Test:** `tests/test_safety_logic.py` (Mock dangerous commands and ensure blockage).
+- [x] **Implement:** `app/safety.py` with `validate_syntax()` and `scan_secrets()`.
+- [x] **Refactor:** Update `app/reflex.py` to import and use `safety.check()` before execution.
 
 ### 3. Dual-GPU Resilience
-- [ ] **Create Test:** `tests/test_embed_breaker.py` (Simulate GPU 1 downtime).
-- [ ] **Implement:** Add Circuit Breaker to `memory.add_texts` (Fallback to CPU or error gracefully).
+- [x] **Create Test:** `tests/test_embed_breaker.py` (Simulate GPU 1 downtime).
+- [x] **Implement:** Add Circuit Breaker to `memory.add_texts` (Fallback to CPU or error gracefully).
 
 
 ### 4. System Telemetry (Infrastructure)
@@ -32,4 +32,3 @@
 - [ ] **Logic:** If Free VRAM < 2GB:
     - Log event: `await telemetry.log("VRAM_LOCKOUT", ...)`
     - Raise `OverloadError` to stop generation safely.
-
