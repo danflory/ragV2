@@ -7,8 +7,6 @@ class LLMDriver(ABC):
     async def generate(self, prompt: str) -> str: pass
     @abstractmethod
     async def check_health(self) -> bool: pass
-    @abstractmethod
-    async def load_model(self, model_name: str) -> bool: pass
 
 class ObjectStore(ABC):
     """Contract for Blob Storage (MinIO/S3)."""

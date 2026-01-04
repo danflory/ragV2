@@ -1,64 +1,57 @@
-import os
-import sys
+import pytest
 import asyncio
-import chromadb
-from datetime import datetime
-
-# Add the project root to sys.path so we can import 'app'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from app.memory import VectorStore, save_interaction, retrieve_short_term_memory
+from app.memory import QdrantVectorStore, save_interaction, retrieve_short_term_memory
+from app.storage import MinioConnector
 from app.database import db
 
-async def test_memory_logic():
-    print("🧪 PROBE: Testing Hybrid Memory System...")
-    
-    # 0. INITIALIZE DB
-    await db.connect()
-    if not db.is_ready():
-        print("   ❌ DATABASE: Failed to initialize connection pool.")
-        return
-    
-    # 1. TEST VECTOR STORE (Chroma)
-    print("\n[1] Testing Vector Store (Long-term)...")
-    try:
-        store = VectorStore()
-        
-        test_text = "AntiGravity uses a hybrid memory architecture."
-        test_id = f"test_hybrid_{datetime.now().strftime('%M%S')}"
-        
-        store.add_texts(
-            texts=[test_text],
-            metadatas=[{"source": "test_script"}],
-            ids=[test_id]
-        )
-        
-        results = store.search("hybrid memory", n_results=1)
-        if results and "hybrid memory architecture" in results[0]:
-            print("   ✅ VECTOR: Stored & Retrieved successfully.")
-        else:
-            print(f"   ❌ VECTOR FAILED. Got: {results}")
-    except Exception as e:
-         print(f"   ❌ VECTOR CRASH: {e}")
+@pytest.fixture(scope="module")
+def storage():
+    """Initializes Minio storage for testing."""
+    return MinioConnector(
+        endpoint="localhost:9000",
+        access_key="minioadmin",
+        secret_key="minioadmin",
+        bucket_name="test-bucket",
+        secure=False
+    )
 
-    # 2. TEST POSTGRES (Short-term)
-    print("\n[2] Testing Postgres (Short-term)...")
+@pytest.fixture(scope="module")
+def memory(storage):
+    """Initializes Qdrant memory for testing."""
+    return QdrantVectorStore(
+        storage=storage,
+        host="localhost",
+        port=6333
+    )
+
+@pytest.mark.asyncio
+async def test_qdrant_omni_rag_flow(memory):
+    """Verifies the full ingestion and search flow using Qdrant + MinIO."""
+    test_text = "Omni-RAG separates vectors from blobs to optimize RAM and GPU usage."
+    metadata = {"source": "test_logic", "type": "architecture"}
+    
+    # 1. Test Ingestion
+    success = await memory.ingest(test_text, metadata)
+    assert success is True, "Ingestion failed"
+    
+    # 2. Test Search (Retrieval)
+    # Adding a small sleep to allow Qdrant to index (though Qdrant is usually fast)
+    await asyncio.sleep(1)
+    results = await memory.search("separation of vectors and blobs", top_k=1)
+    
+    assert len(results) > 0, "No results returned from search"
+    assert "Omni-RAG" in results[0], f"Expected text not found in result: {results[0]}"
+
+@pytest.mark.asyncio
+async def test_short_term_memory_postgres():
+    """Verifies that short-term conversation history still works in Postgres."""
+    await db.connect()
     try:
-        await save_interaction("user", "Hello Memory!")
-        await save_interaction("assistant", "Hello Human!")
+        await save_interaction("user", "Hello logic test!")
+        await save_interaction("assistant", "Logic test acknowledged.")
         
         history = await retrieve_short_term_memory()
-        if "USER: Hello Memory!" in history and "ASSISTANT: Hello Human!" in history:
-                print("   ✅ POSTGRES: History saved & retrieved.")
-        else:
-                print(f"   ❌ POSTGRES FAILED. Got:\n{history}")
-    except Exception as e:
-        print(f"   ❌ POSTGRES CRASH: {e}")
-
-    # 3. SHUTDOWN
-    await db.disconnect()
-    
-    print("\n🎉 MEMORY SYSTEMS VERIFIED.")
-
-if __name__ == "__main__":
-    asyncio.run(test_memory_logic())
+        assert "USER: Hello logic test!" in history
+        assert "ASSISTANT: Logic test acknowledged." in history
+    finally:
+        await db.disconnect()

@@ -27,8 +27,8 @@
 
 ### 5. Hardware Safety (Active Defense)
 > **Goal:** Use telemetry to protect the hardware.
-- [ ] **Implement:** Add `check_vram()` to `L1_local.py`.
-- [ ] **Coordinate:** Inside `check_vram`, call `await telemetry.log("VRAM_CHECK", ...)` to record status.
-- [ ] **Logic:** If Free VRAM < 2GB:
+- [x] **Implement:** Add `check_vram()` to `L1_local.py`.
+- [x] **Coordinate:** Inside `check_vram`, call `await telemetry.log("VRAM_CHECK", ...)` to record status.
+- [x] **Logic:** If Free VRAM < 2GB:
     - Log event: `await telemetry.log("VRAM_LOCKOUT", ...)`
     - Raise `OverloadError` to stop generation safely.

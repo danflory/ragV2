@@ -12,6 +12,9 @@ logger = logging.getLogger("AGY_ROUTER")
 class ChatRequest(BaseModel):
     message: str
 
+class ModeRequest(BaseModel):
+    mode: str
+
 router = APIRouter()
 
 def parse_reflex_action(response_text: str):
@@ -284,3 +287,19 @@ async def pull_model_endpoint(request: PullRequest):
     except Exception as e:
         logger.error(f"❌ MODEL PULL ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}
+
+@router.post("/system/mode")
+async def switch_system_mode(request: ModeRequest):
+    """
+    Switches the system between RAG and DEV modes (Mutually Exclusive).
+    """
+    success = await container.switch_mode(request.mode)
+    if success:
+        return {
+            "status": "success", 
+            "message": f"System switched to {request.mode} mode.",
+            "current_mode": container.current_mode,
+            "model": container.l1_driver.model_name
+        }
+    else:
+        return {"status": "error", "message": f"Failed to switch to {request.mode} mode."}

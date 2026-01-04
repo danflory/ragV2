@@ -1,0 +1,9 @@
+3. Immediate Action: Generate Artifacts
+I am ready to generate the Interface Definitions (app/interfaces.py) to support this new architecture. This will be the "Scaffolding" the Coder needs to implement MinioConnector and QdrantVectorStore correctly.
+
+Shall I output the updated app/interfaces.py now?
+
+onfirms the architectural gap: you have Unit Tests for the Future (Qdrant) running against Legacy Code (Chroma).
+
+To close this gap without "Spaghetti Code," I have generated the Architectural Artifacts (Interfaces & Templates). These are the non-negotiable blueprints the Coder must follow.
+

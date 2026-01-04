@@ -1,7 +1,10 @@
 import httpx
 import logging
+import GPUtil
 from .interfaces import LLMDriver
 from .config import Settings
+from .telemetry import telemetry
+from .exceptions import OverloadError
 
 logger = logging.getLogger("AGY_L1")
 
@@ -11,7 +14,15 @@ class LocalLlamaDriver(LLMDriver):
         self.model_name = config.L1_MODEL
         self.timeout = 60.0
 
+    async def load_model(self, model_name: str) -> bool:
+        """Switches the active model and ensures it is available."""
+        logger.info(f"🔄 Switching L1 model to: {model_name}")
+        self.model_name = model_name
+        return await self.ensure_model()
+
     async def generate(self, prompt: str) -> str:
+        # Check VRAM before generation to prevent overload
+        await self.check_vram()
         url = f"{self.base_url}/api/generate"
         
         # === SYSTEM INSTRUCTION ===
@@ -97,3 +108,73 @@ class LocalLlamaDriver(LLMDriver):
         except Exception as e:
             logger.error(f"❌ Failed to ensure model: {e}")
             return False
+
+    async def check_vram(self) -> dict:
+        """
+        Check VRAM usage and implement overload protection.
+        
+        Returns:
+            dict: VRAM information including total, used, and free memory per GPU
+            
+        Raises:
+            OverloadError: If free VRAM is less than 2GB on any GPU
+        """
+        try:
+            gpus = GPUtil.getGPUs()
+            vram_info = []
+            
+            for gpu in gpus:
+                total_vram = gpu.memoryTotal / 1024  # Convert to GB
+                used_vram = gpu.memoryUsed / 1024
+                free_vram = gpu.memoryFree / 1024
+                
+                gpu_info = {
+                    'id': gpu.id,
+                    'total_gb': round(total_vram, 2),
+                    'used_gb': round(used_vram, 2),
+                    'free_gb': round(free_vram, 2)
+                }
+                vram_info.append(gpu_info)
+                
+                # Log VRAM check
+                await telemetry.log(
+                    event_type="VRAM_CHECK",
+                    component="L1",
+                    value=free_vram,
+                    metadata={
+                        'gpu_id': gpu.id,
+                        'total_vram_gb': total_vram,
+                        'used_vram_gb': used_vram
+                    },
+                    status="OK"
+                )
+                
+                # Check for overload condition
+                if free_vram < 2.0:  # Less than 2GB free
+                    await telemetry.log(
+                        event_type="VRAM_LOCKOUT",
+                        component="L1",
+                        value=free_vram,
+                        metadata={
+                            'gpu_id': gpu.id,
+                            'total_vram_gb': total_vram,
+                            'used_vram_gb': used_vram
+                        },
+                        status="ERROR"
+                    )
+                    raise OverloadError(
+                        message=f"VRAM overload detected on GPU {gpu.id}: {free_vram:.2f}GB free < 2GB threshold",
+                        resource_type="VRAM",
+                        current_value=free_vram,
+                        threshold=2.0
+                    )
+            
+            return vram_info
+            
+        except OverloadError:
+            # Re-raise overload errors
+            raise
+        except Exception as e:
+            logger.error(f"❌ VRAM CHECK FAILED: {e}")
+            # Don't raise exception for monitoring failures, just log and continue
+            return []

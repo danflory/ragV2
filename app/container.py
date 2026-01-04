@@ -2,7 +2,8 @@ import logging
 from .config import config
 from .L1_local import LocalLlamaDriver
 from .L2_network import DeepInfraDriver
-from .memory import VectorStore, save_interaction, retrieve_short_term_memory
+from .memory import QdrantVectorStore, save_interaction, retrieve_short_term_memory
+from .storage import MinioConnector
 from .ingestor import DocumentIngestor
 from .telemetry import telemetry
 
@@ -11,9 +12,10 @@ logger = logging.getLogger("AGY_CONTAINER")
 class Container:
     """
     The IoC Container (Switchboard).
+    Updated for Omni-RAG Phase 4.1.
     """
     def __init__(self):
-        logger.info("🔧 INTIALIZING DEPENDENCY CONTAINER...")
+        logger.info("🔧 INITIALIZING DEPENDENCY CONTAINER (Omni-RAG Phase 4.1)...")
         
         # 1. LAYER 1: LOCAL REFLEX (Ollama)
         self.l1_driver = LocalLlamaDriver(config=config)
@@ -25,23 +27,78 @@ class Container:
             model=config.L2_MODEL
         )
         
-        # 3. MEMORY: VECTOR STORE (Chroma)
+        # 3. STORAGE: BLOB STORE (MinIO)
         try:
-            self.memory = VectorStore()
+            self.storage = MinioConnector(
+                endpoint=config.MINIO_ENDPOINT,
+                access_key=config.MINIO_ACCESS_KEY,
+                secret_key=config.MINIO_SECRET_KEY,
+                bucket_name=config.MINIO_BUCKET,
+                secure=config.MINIO_SECURE
+            )
+            logger.info("✅ STORAGE (MinIO) READY.")
+        except Exception as e:
+            logger.error(f"❌ STORAGE INIT FAILURE: {e}")
+            self.storage = None
+
+        # 4. MEMORY: VECTOR STORE (Qdrant)
+        try:
+            if self.storage:
+                self.memory = QdrantVectorStore(
+                    storage=self.storage,
+                    host=config.QDRANT_HOST,
+                    port=config.QDRANT_PORT
+                )
+                logger.info("✅ MEMORY (Qdrant) READY.")
+            else:
+                logger.warning("⚠️ Cannot initialize memory without valid storage connector.")
+                self.memory = None
         except Exception as e:
             logger.error(f"⚠️ RUNNING WITHOUT VECTOR MEMORY: {e}")
             self.memory = None
             
-        # 4. INGESTOR
-        if self.memory:
-            self.ingestor = DocumentIngestor(self.memory)
+        # 5. INGESTOR
+        if self.memory and self.storage:
+            self.ingestor = DocumentIngestor(
+                vector_store=self.memory, 
+                storage=self.storage
+            )
         else:
             self.ingestor = None
 
-        # 5. TELEMETRY
+        # 6. TELEMETRY
         self.telemetry = telemetry
 
-        logger.info("✅ CONTAINER READY.")
+        # 7. STATE MANAGEMENT
+        self.current_mode = config.DEFAULT_MODE
+
+        logger.info(f"✅ CONTAINER READY (Mode: {self.current_mode}).")
+
+    async def switch_mode(self, target_mode: str) -> bool:
+        """
+        Mutually Exclusive Mode Switch (VRAM Management).
+        """
+        if target_mode == self.current_mode:
+            logger.info(f"Already in {target_mode} mode.")
+            return True
+        
+        # Resolve model name from config
+        new_model = config.MODEL_MAP.get(target_mode)
+        if not new_model:
+            logger.error(f"Unknown mode: {target_mode}")
+            return False
+            
+        logger.info(f"🔄 SWITCHING SYSTEM MODE: {self.current_mode} -> {target_mode}")
+        
+        # Switch model in L1
+        success = await self.l1_driver.load_model(new_model)
+        if success:
+            self.current_mode = target_mode
+            logger.info(f"✅ Mode switched to {target_mode}")
+            return True
+        else:
+            logger.error(f"❌ Failed to switch mode to {target_mode}")
+            return False
 
 # Singleton Instance
 container = Container()

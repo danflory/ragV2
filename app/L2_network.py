@@ -14,6 +14,12 @@ class DeepInfraDriver(LLMDriver):
         self.base_url = base_url
         self.model_name = model
         
+    async def load_model(self, model_name: str) -> bool:
+        """Updates the target model for L2."""
+        logger.info(f"🔄 Switching L2 model to: {model_name}")
+        self.model_name = model_name
+        return True
+
     async def generate(self, prompt: str) -> str:
         if not self.api_key:
             return "❌ CONFIG ERROR: DeepInfra API Key missing in `.env`."

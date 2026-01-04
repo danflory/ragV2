@@ -1,3 +1,6 @@
+
+#Current State: The file only defines LLMDriver. New State: We must define the Contracts for Storage (MinIO) and Memory (Qdrant) to enforce Dependency Injection.
+
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional, Any
 
@@ -7,8 +10,6 @@ class LLMDriver(ABC):
     async def generate(self, prompt: str) -> str: pass
     @abstractmethod
     async def check_health(self) -> bool: pass
-    @abstractmethod
-    async def load_model(self, model_name: str) -> bool: pass
 
 class ObjectStore(ABC):
     """Contract for Blob Storage (MinIO/S3)."""

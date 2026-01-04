@@ -1,13 +1,13 @@
 # AntiGravity RAG - Dual-GPU Architecture Specification
 **Version:** 4.0.0 (Omni-RAG / Dual-GPU / Production-Scale)  
-**Updated:** 2026-01-01  
+**Updated:** 2026-01-02  
 **Hardware:** Dual NVIDIA GPUs (Titan RTX 24GB + GTX 1060 6GB)
 
 ## 1. Executive Summary
 
-The AntiGravity RAG has evolved into a **Production-Grade Hybrid RAG Architecture** optimized for processing thousands of pages with precision retrieval. The system now leverages **dual NVIDIA GPUs** for parallel processing and implements **Dense + Sparse hybrid vector search** via Qdrant.
+The AntiGravity RAG has evolved into a **Production-Grade Hybrid RAG Architecture** optimized for processing thousands of pages with precision retrieval. The system leverages **dual NVIDIA GPUs** for parallel processing and implements **Dense + Sparse hybrid vector search** via Qdrant.
 
-### Key Upgrades (v4.0)
+### Key Features (v4.0)
 - **Dual-GPU Architecture**: Titan RTX for generation, GTX 1060 for embeddings
 - **Hybrid Vector Search**: Dense (semantic) + Sparse (lexical) via BGE-M3
 - **Object Storage**: MinIO for raw document persistence
@@ -124,7 +124,7 @@ top_3 = ranked[:3]  # Precision hits
 ### Service Matrix
 | Service | Container | GPU | Port | Purpose |
 |---------|-----------|-----|------|---------|
-| `rag_app` | `agy_rag_backend` | 0 | 5050 | API + Orchestration |
+| `gravitas_mcp` | `agy_mcp` | - | 8000 | Main Application (Sleep Infinity) |
 | `ollama` | `agy_ollama` | 0 | 11434 | Generation (Gemma-2-27B) |
 | `ollama_embed` | `agy_ollama_embed` | 1 | 11435 | Embeddings (Nomic/BGE) |
 | `qdrant` | `agy_qdrant` | - | 6333 | Vector DB |
@@ -227,10 +227,26 @@ top_3 = ranked[:3]  # Precision hits
 
 ---
 
-## 10. Future Enhancements
+## 10. Advanced System Features
+
+### 10.1 Memory Hygiene
+- **Automatic Pruning:** Removes stale vector chunks to prevent "Vector Rot"
+- **Source-Based Management:** Tracks document sources for clean updates
+
+### 10.2 Circuit Breaker Patterns
+- **GPU Resilience:** Falls back to CPU embedding on GPU failures
+- **Graceful Degradation:** Maintains functionality during partial outages
+
+### 10.3 Telemetry & Monitoring
+- **VRAM Logging:** Continuous monitoring with OverloadError protection
+- **Usage Statistics:** Detailed L1/L2 usage tracking in Postgres
+- **System Events:** Comprehensive telemetry for performance analysis
+
+---
+
+## 11. Future Enhancements
 
 - **Knowledge Graph:** Neo4j for entity relationships
 - **Multi-Modal:** Image + PDF OCR ingestion
 - **Streaming Responses:** SSE for real-time generation
 - **A/B Testing:** Compare retrieval strategies
-- **Auto-Tuning:** Dynamic chunk size optimization

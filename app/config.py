@@ -9,6 +9,15 @@ class Settings(BaseSettings):
     L1_URL: str = "http://ollama:11434"
     L1_MODEL: str = "codellama:7b"
     VRAM_THRESHOLD_GB: float = 2.0
+
+    # === MODES (State Machine) ===
+    MODE_RAG: str = "rag"
+    MODE_DEV: str = "dev"
+    DEFAULT_MODE: str = "rag"
+    MODEL_MAP: dict[str, str] = {
+        "rag": "gemma2:27b",
+        "dev": "deepseek-coder-v2"
+    }
     
     # === LAYER 2 (Cloud - Reasoning/Coding) ===
     L2_KEY: str | None = None
@@ -20,7 +29,17 @@ class Settings(BaseSettings):
     L3_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent"
     L3_MODEL: str = "gemini-3-pro-preview"
 
-    # === MEMORY (Chroma Docker) ===
+    # === MEMORY & STORAGE (Omni-RAG) ===
+    QDRANT_HOST: str = "agy_qdrant"
+    QDRANT_PORT: int = 6333
+    
+    MINIO_ENDPOINT: str = "agy_minio:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET: str = "gravitas-blobs"
+    MINIO_SECURE: bool = False
+
+    # Deprecated (Chroma)
     CHROMA_URL: str = "http://chroma_db:8000" 
     CHROMA_COLLECTION: str = "agy_knowledge"
     DOCS_PATH: str = "/app/docs"

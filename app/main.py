@@ -46,6 +46,6 @@ app.include_router(chat_router)
 async def health():
     return {
         "status": "online",
-        "active_L1_model": config.L1_MODEL,
-        "mode": "3L-Hybrid"
+        "active_L1_model": container.l1_driver.model_name,
+        "mode": container.current_mode
     }

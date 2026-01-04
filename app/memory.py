@@ -1,10 +1,14 @@
 import logging
-import os
-import chromadb
-from datetime import datetime
+import uuid
+import asyncio
+from typing import List, Dict, Optional, Any
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
-from .config import config
+from datetime import datetime
 
+from .interfaces import VectorMemory, ObjectStore
+from .config import config
 from .database import db
 
 logger = logging.getLogger("AGY_MEMORY")
@@ -46,178 +50,108 @@ async def retrieve_short_term_memory() -> str:
         logger.error(f"❌ RETRIEVE ERROR: {e}")
         return ""
 
-# --- CHROMA: LONG-TERM VECTOR MEMORY ---
-class VectorStore:
-    def __init__(self):
-        """
-        Initializes connection to ChromaDB Docker Service & Local Embedder.
-        """
-        self.client = None
-        self.collection = None
-        self.embedder = None
-        self._initialize_connection()
+# --- QDRANT: LONG-TERM OMNI-RAG MEMORY ---
 
-    def _initialize_connection(self):
-        # 1. Connect to Docker Service (Not local file!)
-        logger.info(f"🔌 CONNECTING TO MEMORY at {config.CHROMA_URL}...")
+class QdrantVectorStore(VectorMemory):
+    """Implementation of VectorMemory using Qdrant (Indices) and ObjectStore (Blobs)."""
+
+    def __init__(self, storage: ObjectStore, host: str = "localhost", port: int = 6333):
+        self.storage = storage
+        self.collection_name = "agy_knowledge"
+        self.embedding_model_name = 'all-MiniLM-L6-v2'
+        self.vector_size = 384 # For all-MiniLM-L6-v2
+        
+        logger.info(f"🔌 CONNECTING TO QDRANT at {host}:{port}...")
+        self.client = QdrantClient(host=host, port=port)
+        
+        logger.info(f"🧠 LOADING EMBEDDING MODEL ({self.embedding_model_name})...")
+        self.embedder = SentenceTransformer(self.embedding_model_name)
+        
+        self._ensure_collection()
+
+    def _ensure_collection(self):
+        """Creates the Qdrant collection if it doesn't exist."""
         try:
-            self.client = chromadb.HttpClient(
-                host="chroma_db", # Internal docker hostname
-                port=8000
-            )
-            
-            # 2. Get/Create Collection
-            self.collection = self.client.get_or_create_collection(
-                name=config.CHROMA_COLLECTION,
-                metadata={"hnsw:space": "cosine"}
-            )
-            logger.info("✅ VECTOR DB CONNECTED.")
+            if not self.client.collection_exists(self.collection_name):
+                self.client.create_collection(
+                    collection_name=self.collection_name,
+                    vectors_config=models.VectorParams(
+                        size=self.vector_size, 
+                        distance=models.Distance.COSINE
+                    ),
+                )
+                logger.info(f"✅ Created Qdrant collection: {self.collection_name}")
         except Exception as e:
-            logger.error(f"❌ VECTOR DB FAILURE: {e}")
-            # We don't raise here, instead we allow the app to boot without memory if it fails
-            # But the container.py should handle this if it wants to be strict.
-            self.client = None
-            self.collection = None
+            logger.error(f"❌ QDRANT COLLECTION ERROR: {e}")
 
-        # 3. Load Embedding Model (Runs on GPU if available)
-        if self.client:
-            logger.info("🧠 LOADING EMBEDDING MODEL (all-MiniLM-L6-v2)...")
-            try:
-                self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
-                logger.info("✅ EMBEDDING MODEL READY.")
-            except Exception as e:
-                logger.critical(f"❌ MODEL LOAD FAILED: {e}")
-                self.embedder = None
-
-    def add_texts(self, texts: list[str], metadatas: list[dict], ids: list[str]):
-        """Embeds and saves text chunks with circuit breaker for GPU resilience."""
-        if not texts: return
-
-        # Circuit Breaker: Try GPU embedding first, fallback to CPU
-        embeddings = None
-        embedding_device = "GPU"
-
+    async def search(self, query: str, top_k: int = 5) -> List[str]:
+        """
+        Omni-RAG Search:
+        1. Embed query.
+        2. Search Qdrant for indices.
+        3. Fetch blobs from Storage using blob_key.
+        """
         try:
-            if self.embedder:
-                embeddings = self.embedder.encode(texts).tolist()
-            else:
-                raise RuntimeError("Embedder not initialized")
-        except Exception as gpu_error:
-            logger.warning(f"⚠️ GPU EMBEDDING FAILED: {gpu_error}")
+            # 1. Embed Query (using to_thread for sync embedder)
+            query_vector = await asyncio.to_thread(self.embedder.encode, query)
             
-            # Don't try CPU fallback if embedder was never initialized
-            if "Embedder not initialized" in str(gpu_error):
-                raise RuntimeError("Embedder not initialized")
+            # 2. Search Qdrant
+            response = self.client.query_points(
+                collection_name=self.collection_name,
+                query=query_vector.tolist(),
+                limit=top_k
+            )
             
-            embedding_device = "CPU"
-
-            # Fallback to CPU embedding
-            try:
-                cpu_embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
-                embeddings = cpu_embedder.encode(texts).tolist()
-                logger.info("✅ CPU EMBEDDING FALLBACK: Successfully used CPU for embedding")
-            except Exception as cpu_error:
-                logger.error(f"❌ CPU EMBEDDING FAILED: {cpu_error}")
-                raise RuntimeError(f"Embedding failed on both GPU and CPU: GPU error: {gpu_error}, CPU error: {cpu_error}")
-
-        # Store in vector database
-        try:
-            self.collection.add(
-                documents=texts,
-                embeddings=embeddings,
-                metadatas=metadatas,
-                ids=ids
-            )
-            logger.info(f"💾 MEMORY: Stored {len(texts)} chunks via {embedding_device}.")
-        except Exception as e:
-            logger.error(f"❌ VECTOR DB ADD ERROR: {e}")
-            raise
-
-    def search(self, query: str, n_results=5) -> list[str]:
-        """Embeds query and searches Chroma with circuit breaker resilience."""
-        try:
-            # Circuit Breaker: Try GPU embedding first, fallback to CPU
-            if self.embedder:
-                try:
-                    query_embedding = self.embedder.encode([query]).tolist()
-                except Exception as gpu_error:
-                    logger.warning(f"⚠️ GPU SEARCH EMBEDDING FAILED: {gpu_error}, falling back to CPU")
-                    cpu_embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
-                    query_embedding = cpu_embedder.encode([query]).tolist()
-            else:
-                # No embedder initialized, use CPU
-                cpu_embedder = SentenceTransformer('all-MiniLM-L6-v2', device='cpu')
-                query_embedding = cpu_embedder.encode([query]).tolist()
-
-            results = self.collection.query(
-                query_embeddings=query_embedding,
-                n_results=n_results
-            )
-            return results['documents'][0] if results['documents'] else []
+            # 3. Fetch Blobs
+            results = []
+            for point in response.points:
+                blob_key = point.payload.get("blob_key")
+                if blob_key:
+                    content = await self.storage.get(blob_key)
+                    if content:
+                        results.append(content)
+            
+            return results
         except Exception as e:
             logger.error(f"❌ SEARCH ERROR: {e}")
             return []
 
-    async def prune_source_vectors(self, source_id: str) -> int:
+    async def ingest(self, text: str, metadata: Dict[str, Any]) -> bool:
         """
-        Memory Hygiene: Remove old vectors for a source before ingestion.
-        Prevents "Vector Rot" by ensuring only current content is retained.
-
-        Args:
-            source_id: The source identifier (e.g., "app/main.py")
-
-        Returns:
-            Number of chunks deleted
+        Omni-RAG Ingestion:
+        1. Upload text to MinIO (Blob).
+        2. Embed text.
+        3. Upsert Vector + Metadata (Index) to Qdrant.
         """
         try:
-            # Get all documents with their metadata
-            results = self.collection.get()
-
-            if not results or not results.get('ids'):
-                return 0
-
-            # Find IDs that match the source_id
-            ids_to_delete = []
-            for i, metadata in enumerate(results.get('metadatas', [])):
-                if metadata and metadata.get('source') == source_id:
-                    ids_to_delete.append(results['ids'][i])
-
-            if not ids_to_delete:
-                return 0
-
-            # Delete the old chunks
-            self.collection.delete(ids=ids_to_delete)
-            logger.info(f"🧹 PRUNED: {len(ids_to_delete)} old chunks for {source_id}")
-
-            return len(ids_to_delete)
-
+            # 1. Generate Blob Key and Upload
+            blob_key = f"blob_{uuid.uuid4().hex}"
+            if not await self.storage.upload(blob_key, text):
+                logger.error("❌ INGESTION FAILED: Could not upload to storage.")
+                return False
+            
+            # 2. Embed Text
+            vector = await asyncio.to_thread(self.embedder.encode, text)
+            
+            # 3. Create Payload (Do NOT store raw text here as per Constitutional Law)
+            payload = metadata.copy()
+            payload["blob_key"] = blob_key
+            payload["timestamp"] = datetime.now().isoformat()
+            
+            # 4. Upsert to Qdrant
+            self.client.upsert(
+                collection_name=self.collection_name,
+                points=[
+                    models.PointStruct(
+                        id=str(uuid.uuid4()),
+                        vector=vector.tolist(),
+                        payload=payload
+                    )
+                ]
+            )
+            
+            logger.info(f"💾 INGESTED: {metadata.get('source', 'unknown')} blob_key={blob_key}")
+            return True
         except Exception as e:
-            logger.error(f"❌ PRUNE ERROR: Failed to prune {source_id}: {e}")
-            return 0
-
-    async def ingest_text(self, text: str, metadata: dict):
-        """
-        Dependency injection method for processing individual text documents.
-        Wraps the synchronous add_texts method for async compatibility.
-        Part of the system's data processing pipeline.
-        """
-        import uuid
-        import asyncio
-
-        # Memory Hygiene: Prune old vectors before ingestion
-        source_id = metadata.get('source', 'unknown')
-        pruned_count = await self.prune_source_vectors(source_id)
-
-        # Generate unique ID for this document
-        doc_id = f"{source_id}_{uuid.uuid4().hex[:8]}"
-
-        # Convert to list format expected by add_texts
-        texts = [text]
-        metadatas = [metadata]
-        ids = [doc_id]
-
-        # Execute synchronously in thread pool to avoid blocking the event loop
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, self.add_texts, texts, metadatas, ids)
-
-        logger.info(f"📥 INGESTED: {source_id} ({len(text)} chars, pruned {pruned_count} old chunks)")
+            logger.error(f"❌ INGESTION ERROR: {e}")
+            return False
