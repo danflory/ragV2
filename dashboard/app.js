@@ -64,6 +64,18 @@ async function refreshStats() {
     } catch (e) { console.error("Stats fetch failed", e); }
 }
 
+async function refreshFinancials() {
+    try {
+        const response = await fetch(`${API_URL}/governance/financials`);
+        const data = await response.json();
+
+        if (data.net_savings_usd !== undefined) {
+            document.getElementById('stat-savings').innerText = `$${data.net_savings_usd.toFixed(2)}`;
+            document.getElementById('stat-roi').innerText = `ROI: ${data.savings_percentage}%`;
+        }
+    } catch (e) { console.error("Financials fetch failed", e); }
+}
+
 async function refreshHealth() {
     try {
         const response = await fetch(`${API_URL}/health/detailed`);
@@ -232,5 +244,7 @@ elements.modeDevBtn.addEventListener('click', () => toggleSystemMode('DEV'));
 // --- INITIALIZE ---
 refreshStats();
 refreshHealth();
+refreshFinancials();
 setInterval(refreshStats, 5000);
 setInterval(refreshHealth, 5000); // Polling faster for VRAM (5s)
+setInterval(refreshFinancials, 30000); // ROI updates every 30s

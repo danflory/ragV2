@@ -51,6 +51,11 @@ class Settings(BaseSettings):
     DB_PASS: str = "agy_pass"
     DB_NAME: str = "chat_history"
 
+    # === GOVERNANCE (The Accountant) ===
+    REF_COST_INPUT_1K: float = 0.0025
+    REF_COST_OUTPUT_1K: float = 0.0100
+    GRAVITAS_COST_KWH: float = 0.15
+
     class Config:
         env_file = ".env"
         extra = "ignore"

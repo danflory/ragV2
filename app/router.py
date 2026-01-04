@@ -318,3 +318,16 @@ async def switch_system_mode(request: ModeRequest):
         }
     else:
         return {"status": "error", "message": f"Failed to switch to {request.mode} mode."}
+
+@router.get("/governance/financials")
+async def get_financial_report():
+    """
+    Returns the ROI and savings report from the Cost Accountant.
+    """
+    try:
+        from .governance.accountant import accountant
+        report = await accountant.calculate_roi()
+        return report
+    except Exception as e:
+        logger.error(f"❌ FINANCIALS ENDPOINT ERROR: {e}")
+        return {"status": "error", "message": str(e)}
