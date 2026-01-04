@@ -17,6 +17,7 @@ We follow a strict **Test-Driven Development (TDD)** loop for all new features:
 1.  **Small Commits:** "One feature per commit."
 2.  **Auto-Verification:** Run `pytest` and `black` before every commit via the Reflex system.
 3.  **Atomic Rollback:** If a change breaks the build, the system reverts immediately to the last known stable state.
+4.  **Changelog Maintenance:** Every significant milestone, refactor, or architectural change MUST be documented in `/CHANGELOG.md` following the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ## 4. ADVANCED DEVELOPMENT PROTOCOLS
 * **Dependency Injection:** All system components managed through `container.py` IoC container
