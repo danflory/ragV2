@@ -29,8 +29,9 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 app = FastAPI(
-    title="AntiGravity RAG Server",
-    version="1.0.0",
+    title="Gravitas Grounded Research",
+    description="Dual-GPU Production-Grade Hybrid RAG Architecture",
+    version="4.0.0",
     lifespan=lifespan
 )
 
