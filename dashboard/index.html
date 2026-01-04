@@ -49,7 +49,8 @@
                         <label>L2 TOKENS CONSUMED</label>
                         <div class="value" id="stat-l2-tokens" style="color: var(--neon-purple);">--</div>
                     </div>
-                    <div class="stat-card financials" style="border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
+                    <div class="stat-card financials"
+                        style="border-top: 1px solid #333; margin-top: 15px; padding-top: 15px;">
                         <label>NET SAVINGS (ROI)</label>
                         <div class="value" id="stat-savings" style="color: #4ade80;">$--</div>
                         <div class="stat-meta" id="stat-roi" style="font-size: 0.7rem; color: #888;">ROI: --%</div>
@@ -101,6 +102,26 @@
                             <button id="pull-btn" class="btn-sm">PULL</button>
                         </div>
                     </div>
+                    <div class="tool-group">
+                        <h3>LIBRARIAN</h3>
+                        <button id="librarian-btn" class="btn-wide"
+                            style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); border: none; font-weight: 600;">START
+                            NIGHT SHIFT (PROCESS INBOX)</button>
+                        <p class="tool-hint">Auto-process raw documents into the knowledge base.</p>
+                    </div>
+
+                    <div class="tool-group scout-card"
+                        style="border: 1px solid var(--neon-blue); padding: 12px; border-radius: 8px; background: rgba(0, 243, 255, 0.05); margin-bottom: 20px;">
+                        <h3 style="color: var(--neon-blue); margin-bottom: 8px;">🔭 DEEP RESEARCH (The Scout)</h3>
+                        <div class="input-row" style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <input type="text" id="scout-query" placeholder="Topic to research..."
+                                style="flex-grow: 1; min-width: 0;">
+                            <button id="scout-btn" class="btn-sm"
+                                style="background: var(--neon-blue); color: #000; font-weight: bold; padding: 0 15px;">DEPLOY</button>
+                        </div>
+                        <p class="tool-hint">Triggers L3 (Gemini 1.5 Pro) with Gravitas context.</p>
+                    </div>
+
                     <div class="tool-group">
                         <h3>KNOWLEDGE BASE</h3>
                         <button id="ingest-btn" class="btn-wide">FORCE RE-SCAN (INGEST)</button>

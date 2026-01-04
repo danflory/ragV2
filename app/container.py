@@ -2,6 +2,7 @@ import logging
 from .config import config
 from .L1_local import LocalLlamaDriver
 from .L2_network import DeepInfraDriver
+from .L3_google import GoogleGeminiDriver
 from .memory import QdrantVectorStore, save_interaction, retrieve_short_term_memory
 from .storage import MinioConnector
 from .ingestor import DocumentIngestor
@@ -25,6 +26,12 @@ class Container:
             api_key=config.L2_KEY,
             base_url=config.L2_URL,
             model=config.L2_MODEL
+        )
+
+        # 3. LAYER 3: DEEP RESEARCH (Google Gemini)
+        self.l3_driver = GoogleGeminiDriver(
+            api_key=config.L3_KEY,
+            model=config.L3_MODEL
         )
         
         # 3. STORAGE: BLOB STORE (MinIO)
@@ -71,6 +78,14 @@ class Container:
 
         # 7. STATE MANAGEMENT
         self.current_mode = config.DEFAULT_MODE
+
+        # 8. AGENTS: THE LIBRARIAN
+        from .agents.librarian import LibrarianAgent
+        self.librarian = LibrarianAgent(container=self)
+
+        # 9. AGENTS: THE SCOUT
+        from .agents.scout import ScoutAgent
+        self.scout = ScoutAgent(l3_driver=self.l3_driver, memory=self.memory)
 
         logger.info(f"✅ CONTAINER READY (Mode: {self.current_mode}).")
 

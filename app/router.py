@@ -15,6 +15,9 @@ class ChatRequest(BaseModel):
 class ModeRequest(BaseModel):
     mode: str
 
+class ResearchRequest(BaseModel):
+    query: str
+
 router = APIRouter()
 
 def parse_reflex_action(response_text: str):
@@ -330,4 +333,31 @@ async def get_financial_report():
         return report
     except Exception as e:
         logger.error(f"❌ FINANCIALS ENDPOINT ERROR: {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.post("/agents/librarian/run")
+async def run_librarian():
+    """
+    Manually triggers the Librarian Agent to process the inbox.
+    """
+    try:
+        result = await container.librarian.process_inbox()
+        return result
+    except Exception as e:
+        logger.error(f"❌ LIBRARIAN ENDPOINT ERROR: {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.post("/agents/scout/research")
+async def scout_research(request: ResearchRequest):
+    """
+    Triggers the Scout Agent for Deep Research.
+    """
+    try:
+        if not container.scout:
+             return {"status": "error", "message": "Scout Agent not initialized."}
+        
+        report = await container.scout.research(request.query)
+        return {"status": "success", "report": report}
+    except Exception as e:
+        logger.error(f"❌ SCOUT ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}

@@ -17,7 +17,10 @@ const elements = {
     clearBtn: document.getElementById('clear-btn'),
     healthDots: document.querySelectorAll('.service-item'),
     modeRagBtn: document.getElementById('mode-rag-btn'),
-    modeDevBtn: document.getElementById('mode-dev-btn')
+    modeDevBtn: document.getElementById('mode-dev-btn'),
+    librarianBtn: document.getElementById('librarian-btn'),
+    scoutInput: document.getElementById('scout-query'),
+    scoutBtn: document.getElementById('scout-btn')
 };
 
 // --- CORE LOGIC ---
@@ -240,6 +243,47 @@ elements.clearBtn.addEventListener('click', () => {
 
 elements.modeRagBtn.addEventListener('click', () => toggleSystemMode('RAG'));
 elements.modeDevBtn.addEventListener('click', () => toggleSystemMode('DEV'));
+
+elements.librarianBtn.addEventListener('click', async () => {
+    appendMessage('system', "🧹 STARTING LIBRARIAN (NIGHT SHIFT)...");
+    try {
+        const response = await fetch(`${API_URL}/agents/librarian/run`, { method: 'POST' });
+        const data = await response.json();
+        if (data.status === 'success') {
+            appendMessage('system', `✅ LIBRARIAN FINISHED: Processed ${data.files_processed} files.`);
+        } else {
+            appendMessage('system', `❌ LIBRARIAN FAILED: ${data.message || 'Unknown error'}`);
+        }
+    } catch (e) {
+        appendMessage('system', `❌ ERROR: ${e.message}`);
+    }
+});
+
+elements.scoutBtn.addEventListener('click', async () => {
+    const query = elements.scoutInput.value.trim();
+    if (!query) return;
+
+    appendMessage('system', `🔭 DEPLOYING SCOUT FOR: "${query}"...`);
+    elements.scoutInput.value = "";
+
+    const loadingId = appendMessage('ai', "📑 SCOUT IS RESEARCHING & SYNTHESIZING...");
+
+    try {
+        const response = await fetch(`${API_URL}/agents/scout/research`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query })
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+            updateMessage(loadingId, data.report, "L3");
+        } else {
+            updateMessage(loadingId, `❌ SCOUT FAILED: ${data.message || 'Unknown error'}`);
+        }
+    } catch (e) {
+        updateMessage(loadingId, `❌ ERROR: ${e.message}`);
+    }
+});
 
 // --- INITIALIZE ---
 refreshStats();
