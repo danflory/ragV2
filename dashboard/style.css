@@ -389,6 +389,54 @@ h3 {
     box-shadow: 0 0 5px #ff4444;
 }
 
+/* VRAM PROGRESS BAR */
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background: #252423;
+    border-radius: 3px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--office-blue);
+    transition: width 0.5s ease;
+}
+
+/* MODE TOGGLE */
+.mode-toggle-area {
+    display: flex;
+    gap: 5px;
+    background: #1b1a19;
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid var(--glass-border);
+}
+
+.btn-mode {
+    flex: 1;
+    font-size: 0.75rem;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    color: #888;
+}
+
+.btn-mode.active {
+    background: var(--office-blue);
+    color: white;
+    box-shadow: 0 0 10px rgba(90, 123, 143, 0.3);
+}
+
+.tool-hint {
+    font-size: 0.65rem;
+    color: #555;
+    margin-top: 8px;
+    line-height: 1.3;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;

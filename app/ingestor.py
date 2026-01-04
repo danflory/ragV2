@@ -12,19 +12,19 @@ class DocumentIngestor:
     Updated for Phase 4.1: Uses async ingest() and separated storage.
     """
     def __init__(self, vector_store: VectorMemory, storage: ObjectStore):
-        self.store = vector_store
+        self.vector_store = vector_store
         self.storage = storage 
         from .config import config
         # Default docs path outside of container context might be different
         self.docs_path = config.DOCS_PATH
 
-    def chunk_text(self, text: str, size: int = 2000) -> list[str]:
-        """Simple break by size (2000 chars roughly matches token limits)."""
+    def chunk_text(self, text: str, size: int = 1000) -> list[str]:
+        """Simple break by size (1000 chars as per Phase 4.3 requirements)."""
         return [text[i:i+size] for i in range(0, len(text), size)]
 
     async def ingest_all(self):
         """Walks the docs/ folder and ingest everything."""
-        if not self.store:
+        if not self.vector_store:
             logger.error("❌ INGESTOR: No Vector Store connection.")
             return
 
@@ -36,8 +36,8 @@ class DocumentIngestor:
         
         for root, _, files in os.walk(self.docs_path):
             for file in files:
-                # Support .md and .py for research lab capabilities
-                if file.endswith((".md", ".py")):
+                # Support .md, .txt, and .py
+                if file.endswith((".md", ".txt", ".py")):
                     full_path = os.path.join(root, file)
                     rel_path = os.path.relpath(full_path, self.docs_path)
                     
@@ -53,10 +53,10 @@ class DocumentIngestor:
                                 "file_type": file.split(".")[-1]
                             }
                             # Omni-RAG: Each chunk is uploaded separately
-                            await self.store.ingest(chunk, metadata)
+                            await self.vector_store.ingest(chunk, metadata)
                             
-                        logger.info(f"   + Ingested {file} ({len(chunks)} chunks)")
+                        logger.info(f"✅ Ingested {file}: {len(chunks)} chunks")
                     except Exception as e:
-                        logger.error(f"   - Failed to ingest {file}: {e}")
+                        logger.error(f"❌ Failed to ingest {file}: {e}")
 
         logger.info("✅ INGESTOR COMPLETE.")

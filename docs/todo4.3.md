@@ -1,12 +1,12 @@
 # GRAVITAS WORK ORDER: PHASE 4.3 (The Ingestion Engine)
-# STATUS: QUEUED
+# STATUS: COMPLETED
 # CONTEXT: Connecting the File System to the new Omni-RAG Memory.
 
 ## 1. PRE-FLIGHT
-- [ ] **Review `app/container.py`:** Note that `DocumentIngestor` is initialized with `vector_store` AND `storage`.
+- [x] **Review `app/container.py`:** Note that `DocumentIngestor` is initialized with `vector_store` AND `storage`.
 
 ## 2. THE INGESTOR (Refactor)
-- [ ] **Refactor `app/ingestor.py`:**
+- [x] **Refactor `app/ingestor.py`:**
     - Update `__init__` to accept `vector_store: VectorMemory` and `storage: ObjectStore`.
     - **Logic:**
         - Walk `DOCS_PATH` (recursive).
@@ -16,19 +16,19 @@
     - **Logging:** Use `logger.info` to track progress (e.g., "Ingested file.md: 5 chunks").
 
 ## 3. THE TRIGGER (API)
-- [ ] **Update `app/router.py`:**
+- [x] **Update `app/router.py`:**
     - Ensure `POST /ingest` calls the new `ingestor.ingest_all()`.
     - (Optional) Make it a background task if you want to be fancy, but blocking is fine for MVP.
 
 ## 4. VERIFICATION (TDD)
-- [ ] **Create `tests/test_ingestion_pipeline.py`:**
+- [x] **Create `tests/test_ingestion_pipeline.py`:**
     - Mock `vector_store.ingest`.
     - Create a temporary directory with dummy `.md` files.
     - Run `ingestor.ingest_all()`.
     - **Assert:** Verify `vector_store.ingest` was called N times.
 
 ## 5. EXIT CRITERIA
-- [ ] **Run Suite:** `pytest tests/test_ingestion_pipeline.py`.
-- [ ] **Submission:** Paste:
+- [x] **Run Suite:** `pytest tests/test_ingestion_pipeline.py`.
+- [x] **Submission:** Paste:
     1.  `completed_phase4.3.md` (Receipt).
     2.  `app/ingestor.py` (The Code).

@@ -172,7 +172,7 @@ async def trigger_ingestion():
     
     try:
         # We run this in a background task if it's large, but for now blocking is okay for a dev tool
-        container.ingestor.ingest_all()
+        await container.ingestor.ingest_all()
         return {"status": "success", "message": "Knowledge ingestion complete."}
     except Exception as e:
         logger.error(f"❌ INGESTION ENDPOINT ERROR: {e}")
@@ -235,16 +235,17 @@ async def get_stats_summary():
 @router.get("/health/detailed")
 async def get_detailed_health():
     """
-    Checks connectivity for all microservices.
+    Checks connectivity for all microservices and GPU stats.
     """
     from .database import db
-    from .memory import VectorStore
+    import subprocess
     
     health = {
         "api": "online",
         "postgres": "online" if db.is_ready() else "offline",
         "chroma": "offline",
-        "ollama": "offline"
+        "ollama": "offline",
+        "gpu": {"used": 0, "total": 0, "percentage": 0}
     }
     
     # Check Ollama
@@ -253,13 +254,27 @@ async def get_detailed_health():
         
     # Check Chroma
     try:
-        # Simple check if memory exists and responds
         if container.memory and container.memory.collection:
              health["chroma"] = "online"
     except:
         pass
+
+    # Check GPU (NVIDIA)
+    try:
+        # Get first GPU's memory usage
+        res = subprocess.check_output(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits"], encoding="utf-8")
+        lines = res.strip().split("\n")
+        if lines:
+            used, total = map(int, lines[0].split(","))
+            health["gpu"] = {
+                "used": used,
+                "total": total,
+                "percentage": round((used / total) * 100, 1) if total > 0 else 0
+            }
+    except Exception as e:
+        logger.warning(f"Failed to fetch GPU stats: {e}")
         
-    return {"status": "success", "health": health}
+    return {"status": "success", "health": health, "current_mode": container.current_mode}
 
 class PullRequest(BaseModel):
     model: str

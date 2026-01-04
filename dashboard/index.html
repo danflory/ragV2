@@ -50,8 +50,11 @@
                         <div class="value" id="stat-l2-tokens" style="color: var(--neon-purple);">--</div>
                     </div>
                     <div class="stat-card">
-                        <label>AVG LATENCY</label>
-                        <div class="value" id="stat-latency">--</div>
+                        <label>VRAM USAGE (TITAN RTX)</label>
+                        <div class="value" id="stat-vram">--</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="vram-bar" style="width: 0%"></div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -78,6 +81,14 @@
                     <h2><span class="icon">🛠️</span> COMMAND CENTER</h2>
                 </div>
                 <div class="tools-content">
+                    <div class="tool-group">
+                        <h3>SYSTEM MODE</h3>
+                        <div class="mode-toggle-area">
+                            <button id="mode-rag-btn" class="btn-mode active">RAG</button>
+                            <button id="mode-dev-btn" class="btn-mode">DEV</button>
+                        </div>
+                        <p class="tool-hint">DEV mode unloads local LLM for GPU intensive tasks.</p>
+                    </div>
                     <div class="tool-group">
                         <h3>MODEL MANAGER</h3>
                         <div class="input-row">

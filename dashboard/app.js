@@ -8,13 +8,16 @@ const elements = {
     statRequests: document.getElementById('stat-requests'),
     statTokens: document.getElementById('stat-tokens'),
     statL2Tokens: document.getElementById('stat-l2-tokens'),
-    statLatency: document.getElementById('stat-latency'),
+    statVram: document.getElementById('stat-vram'),
+    vramBar: document.getElementById('vram-bar'),
     detailedStatus: document.getElementById('detailed-status'),
     modelInput: document.getElementById('model-name'),
     pullBtn: document.getElementById('pull-btn'),
     ingestBtn: document.getElementById('ingest-btn'),
     clearBtn: document.getElementById('clear-btn'),
-    healthDots: document.querySelectorAll('.service-item')
+    healthDots: document.querySelectorAll('.service-item'),
+    modeRagBtn: document.getElementById('mode-rag-btn'),
+    modeDevBtn: document.getElementById('mode-dev-btn')
 };
 
 // --- CORE LOGIC ---
@@ -57,7 +60,6 @@ async function refreshStats() {
             elements.statRequests.innerText = summary.total_requests;
             elements.statTokens.innerText = summary.total_tokens.toLocaleString();
             elements.statL2Tokens.innerText = summary.l2_tokens ? summary.l2_tokens.toLocaleString() : '0';
-            elements.statLatency.innerText = `${Math.round(summary.avg_latency_ms)}ms`;
         }
     } catch (e) { console.error("Stats fetch failed", e); }
 }
@@ -70,18 +72,56 @@ async function refreshHealth() {
         if (data.status === "success") {
             const h = data.health;
 
-            // Update HUD status
-            elements.detailedStatus.innerHTML = `<span class="status-dot"></span> NVIDIA TITAN RTX: ONLINE`;
+            // 1. Update Detailed Status Text
+            elements.detailedStatus.innerHTML = `<span class="status-dot"></span> NVIDIA TITAN RTX: ${h.gpu.percentage}% LOAD`;
 
-            // Update health grid
+            // 2. Update VRAM Stats
+            elements.statVram.innerText = `${h.gpu.used}MB / ${h.gpu.total}MB`;
+            elements.vramBar.style.width = `${h.gpu.percentage}%`;
+
+            // Adjust bar color based on load
+            if (h.gpu.percentage > 90) elements.vramBar.style.background = 'var(--office-danger)';
+            else if (h.gpu.percentage > 70) elements.vramBar.style.background = 'var(--office-purple)';
+            else elements.vramBar.style.background = 'var(--office-blue)';
+
+            // 3. Update health grid
             elements.healthDots.forEach(item => {
                 const service = item.getAttribute('data-service');
                 const status = h[service];
                 item.className = `service-item ${status}`;
             });
+
+            // 4. Update Mode Toggle Buttons
+            if (data.current_mode === 'RAG') {
+                elements.modeRagBtn.classList.add('active');
+                elements.modeDevBtn.classList.remove('active');
+            } else {
+                elements.modeDevBtn.classList.add('active');
+                elements.modeRagBtn.classList.remove('active');
+            }
         }
     } catch (e) {
         elements.detailedStatus.innerHTML = `<span class="status-dot" style="background: red;"></span> API OFFLINE`;
+    }
+}
+
+async function toggleSystemMode(targetMode) {
+    appendMessage('system', `🔄 SWITCHING ENGINE MODE: [${targetMode}]...`);
+    try {
+        const response = await fetch(`${API_URL}/system/mode`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: targetMode })
+        });
+        const data = await response.json();
+        if (data.status === 'success') {
+            showNotify(`✅ System switched to ${targetMode}`);
+            refreshHealth();
+        } else {
+            showNotify(`❌ Failed: ${data.message}`, true);
+        }
+    } catch (e) {
+        showNotify(`❌ Error: ${e.message}`, true);
     }
 }
 
@@ -111,8 +151,12 @@ function appendMessage(role, content) {
     div.className = `message ${role}`;
     div.id = `msg-${id}`;
 
-    const prefix = role === 'user' ? '[USER]' : '[AI]';
-    div.innerHTML = `<span class="prefix" style="color: ${role === 'user' ? 'var(--neon-blue)' : 'var(--neon-purple)'}">${prefix}</span> ${content}`;
+    const prefix = role === 'user' ? '[USER]' : (role === 'system' ? '[SYSTEM]' : '[AI]');
+    let color = 'var(--neon-purple)';
+    if (role === 'user') color = 'var(--neon-blue)';
+    if (role === 'system') color = '#888';
+
+    div.innerHTML = `<span class="prefix" style="color: ${color}">${prefix}</span> ${content}`;
 
     elements.chatMessages.appendChild(div);
     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
@@ -182,8 +226,11 @@ elements.clearBtn.addEventListener('click', () => {
     }
 });
 
+elements.modeRagBtn.addEventListener('click', () => toggleSystemMode('RAG'));
+elements.modeDevBtn.addEventListener('click', () => toggleSystemMode('DEV'));
+
 // --- INITIALIZE ---
 refreshStats();
 refreshHealth();
 setInterval(refreshStats, 5000);
-setInterval(refreshHealth, 10000);
+setInterval(refreshHealth, 5000); // Polling faster for VRAM (5s)

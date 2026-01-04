@@ -25,11 +25,19 @@ async def lifespan(app: FastAPI):
     await db.disconnect()
     print("🛑 AGY Shutting down...")
 
+from fastapi.staticfiles import StaticFiles
+import os
+
 app = FastAPI(
     title="AntiGravity RAG Server",
     version="1.0.0",
     lifespan=lifespan
 )
+
+# MOUNT DASHBOARD (STATIC FILES)
+dashboard_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dashboard")
+if os.path.exists(dashboard_path):
+    app.mount("/dashboard", StaticFiles(directory=dashboard_path, html=True), name="dashboard")
 
 # CORS CONFIGURATION
 app.add_middleware(
