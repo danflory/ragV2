@@ -12,10 +12,10 @@ logger = logging.getLogger("AGY_CONTAINER")
 class Container:
     """
     The IoC Container (Switchboard).
-    Updated for Omni-RAG Phase 4.1.
+    Updated for Gravitas Grounded Research Phase 4.1.
     """
     def __init__(self):
-        logger.info("🔧 INITIALIZING DEPENDENCY CONTAINER (Omni-RAG Phase 4.1)...")
+        logger.info("🔧 INITIALIZING DEPENDENCY CONTAINER (Gravitas Grounded Research Phase 4.1)...")
         
         # 1. LAYER 1: LOCAL REFLEX (Ollama)
         self.l1_driver = LocalLlamaDriver(config=config)

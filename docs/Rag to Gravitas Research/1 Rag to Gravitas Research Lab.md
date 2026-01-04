@@ -1,6 +1,6 @@
 
 Conversation with Gemini
-Omni rag high level goals
+Gravitas Grounded Research high level goals
 
 
 
@@ -37,7 +37,7 @@ I confirm I have ingested the AntiGravity RAG v4.0 specifications. I understand 
 I am ready to assist as your AntiGravity Architect.
 
 Analysis: Does "Clara" fit the AntiGravity Roadmap?
-Verdict: Yes, absolutely. The "Clara" approach (Apple's research on highly compressed memory tokens) is the logical "End Game" for your Omni-RAG specification.
+Verdict: Yes, absolutely. The "Clara" approach (Apple's research on highly compressed memory tokens) is the logical "End Game" for your Gravitas Grounded Research specification.
 
 Your current v4.0 architecture is designed for Precision Retrieval (BGE-M3 + Reranker). "Clara" represents the next evolution: Context Compression.
 
@@ -89,7 +89,7 @@ Keep the Raw Chunk in MinIO.
 
 Retrieval Time: Search against the Summary (High Semantic Match), but inject the Summary (Small Context) + Key Facts into the Context Window, rather than the whole raw block.
 
-The Adjusted Omni-RAG Plan (v4.1)
+The Adjusted Gravitas Grounded Research Plan (v4.1)
 To achieve the "Clara" effect without training a model from scratch, we add a Pre-Processing & Compression stage.
 
 Updated Pipeline (Conceptual)

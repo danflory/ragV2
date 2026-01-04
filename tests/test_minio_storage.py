@@ -17,7 +17,7 @@ async def test_minio_upload_download():
     )
     
     test_key = f"test-{uuid.uuid4()}.txt"
-    test_content = "Hello Omni-RAG! This is a test blob."
+    test_content = "Hello Gravitas Grounded Research! This is a test blob."
     
     # Test Upload
     upload_success = await connector.upload(test_key, test_content)

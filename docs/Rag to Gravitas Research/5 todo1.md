@@ -1,6 +1,6 @@
 # GRAVITAS MIGRATION PLAN: PHASE 4.1 (The Brain Transplant)
 
-**Objective:** Replace Legacy Memory (Chroma) with Omni-RAG (Qdrant + MinIO).
+**Objective:** Replace Legacy Memory (Chroma) with Gravitas Grounded Research (Qdrant + MinIO).
 
 ## 1. Storage Layer (New Feature)
 - [ ] **Create `app/storage.py`:**

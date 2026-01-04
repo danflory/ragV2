@@ -1,6 +1,6 @@
 # 004_HARDWARE_OPERATIONS.md
 # STATUS: ACTIVE
-# VERSION: 4.0.0 (Omni-RAG / Dual-GPU)
+# VERSION: 4.0.0 (Gravitas Grounded Research / Dual-GPU)
 
 ## 1. DUAL-GPU ARCHITECTURE
 The system leverages **dual NVIDIA GPUs** for parallel processing and optimal resource utilization.

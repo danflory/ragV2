@@ -42,7 +42,7 @@ class VectorMemory(ABC):
     @abstractmethod
     async def ingest(self, text: str, metadata: Dict[str, Any]) -> bool:
         """
-        Omni-RAG Logic:
+        Gravitas Grounded Research Logic:
         1. Upload text to ObjectStore.
         2. Embed text.
         3. Upload embedding + metadata to VectorDB.

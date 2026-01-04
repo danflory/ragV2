@@ -31,7 +31,7 @@ Based on these 10 files, I have refined the patterns.md to explicitly handle the
     * **MODE B (Dev/Sidecar):** Loads `deepseek-coder-v2:16b`. For IDE Autocomplete.
 * **Enforcement:** `model_manager.py` must explicitly `unload()` the active model before `pull/load()` of the target.
 
-## 3. THE OMNI-RAG SEPARATION (Memory)
+## 3. THE Gravitas Grounded Research SEPARATION (Memory)
 * **Law:** * **Vectors (Index):** Stored in **Qdrant** (GPU 1 optimized).
     * **Content (Blob):** Stored in **MinIO** (S3 Protocol).
 * **Anti-Pattern:** Storing full document text in Qdrant Payload (wastes RAM).

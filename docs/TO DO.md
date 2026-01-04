@@ -2,7 +2,7 @@
 > **Protocol:** Micro-tasks for the current coding session.
 > **Rule:** When a task is complete, mark with [x] and add a brief Result note.
 
-## Phase 18: Omni-RAG Robustness (Current Session)
+## Phase 18: Gravitas Grounded Research Robustness (Current Session)
 
 ### 1. Memory Hygiene (The "Vector Rot" Fix)
 - [x] **Create Test:** `tests/test_memory_pruning.py` to verify deletion of old chunks before ingestion.

@@ -1,6 +1,6 @@
 # 000_MASTER_OVERVIEW.md
 # STATUS: ACTIVE
-# VERSION: 4.0.0 (Omni-RAG / Dual-GPU)
+# VERSION: 4.0.0 (Gravitas Grounded Research / Dual-GPU)
 
 ## 1. CORE PHILOSOPHY
 **AntiGravity RAG** is a **Dual-GPU Production-Grade Hybrid RAG Architecture** designed for processing thousands of pages with precision retrieval. The system maximizes "Inference Economy" by cascading requests through three layers of progressive cost and capability.

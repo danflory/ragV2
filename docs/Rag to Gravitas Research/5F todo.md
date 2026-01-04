@@ -1,4 +1,4 @@
-# GRAVITAS WORK ORDER: PHASE 4.1 (Omni-RAG Migration)
+# GRAVITAS WORK ORDER: PHASE 4.1 (Gravitas Grounded Research Migration)
 # STATUS: URGENT
 # CONTEXT: Moving from ChromaDB -> Qdrant (Vectors) + MinIO (Storage)
 

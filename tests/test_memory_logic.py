@@ -27,7 +27,7 @@ def memory(storage):
 @pytest.mark.asyncio
 async def test_qdrant_omni_rag_flow(memory):
     """Verifies the full ingestion and search flow using Qdrant + MinIO."""
-    test_text = "Omni-RAG separates vectors from blobs to optimize RAM and GPU usage."
+    test_text = "Gravitas Grounded Research separates vectors from blobs to optimize RAM and GPU usage."
     metadata = {"source": "test_logic", "type": "architecture"}
     
     # 1. Test Ingestion
@@ -40,7 +40,7 @@ async def test_qdrant_omni_rag_flow(memory):
     results = await memory.search("separation of vectors and blobs", top_k=1)
     
     assert len(results) > 0, "No results returned from search"
-    assert "Omni-RAG" in results[0], f"Expected text not found in result: {results[0]}"
+    assert "Gravitas Grounded Research" in results[0], f"Expected text not found in result: {results[0]}"
 
 @pytest.mark.asyncio
 async def test_short_term_memory_postgres():

@@ -1,6 +1,6 @@
 # AntiGravity RAG - System Specification
 
-**Version:** 4.0.0 (Omni-RAG / Dual-GPU / Production-Scale)
+**Version:** 4.0.0 (Gravitas Grounded Research / Dual-GPU / Production-Scale)
 **Status:** Production-Ready / Hybrid Search Operational
 **Repo:** [https://github.com/danflory/ragV2.git](https://github.com/danflory/ragV2.git)
 

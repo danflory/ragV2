@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     L3_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent"
     L3_MODEL: str = "gemini-3-pro-preview"
 
-    # === MEMORY & STORAGE (Omni-RAG) ===
+    # === MEMORY & STORAGE (Gravitas Grounded Research) ===
     QDRANT_HOST: str = "agy_qdrant"
     QDRANT_PORT: int = 6333
     

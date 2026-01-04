@@ -1,4 +1,4 @@
-# GRAVITAS RECEIPT: PHASE 4.1 (Omni-RAG Migration)
+# GRAVITAS RECEIPT: PHASE 4.1 (Gravitas Grounded Research Migration)
 # DATE: 2026-01-03
 # STATUS: COMPLETED ✅
 

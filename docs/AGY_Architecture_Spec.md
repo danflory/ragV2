@@ -1,5 +1,5 @@
-# AntiGravity RAG: Dual-GPU Omni-RAG Architecture Specification
-**Version:** 4.0.0 (Omni-RAG / Dual-GPU / Production-Scale)
+# AntiGravity RAG: Dual-GPU Gravitas Grounded Research Architecture Specification
+**Version:** 4.0.0 (Gravitas Grounded Research / Dual-GPU / Production-Scale)
 **User:** Dan
 **Host:** Windows 11 Pro / WSL2 (Ubuntu)
 **Primary Compute:** NVIDIA Titan RTX (24GB VRAM) + GTX 1060 (6GB VRAM)

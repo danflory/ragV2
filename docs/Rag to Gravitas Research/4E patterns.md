@@ -10,10 +10,10 @@ Application: ❌ app/storage.py is missing. app/memory.py is still using ChromaD
 I am now initializing the Migration Sequence. I will provide the Constitution, the Work Order, and the Code Blueprints necessary for the Coder to execute this logic gap.
 
 # GRAVITAS ARCHITECTURAL CONSTITUTION (patterns.md)
-# STATUS: ACTIVE (Phase 4.1 Omni-RAG)
+# STATUS: ACTIVE (Phase 4.1 Gravitas Grounded Research)
 # VIOLATION STRATEGY: IMMEDIATE REJECTION
 
-## 1. THE OMNI-RAG SEPARATION PATTERN
+## 1. THE Gravitas Grounded Research SEPARATION PATTERN
 * **Principle:** "Vectors are Indices; Files are Blobs."
 * **Law:**
     1.  **Index (Qdrant):** Stores Embeddings + Metadata (`source`, `chunk_id`) ONLY.

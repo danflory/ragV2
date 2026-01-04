@@ -1,6 +1,6 @@
 # 001_CORE_ARCHITECTURE.md
 # STATUS: ACTIVE
-# VERSION: 4.0.0 (Omni-RAG / Dual-GPU)
+# VERSION: 4.0.0 (Gravitas Grounded Research / Dual-GPU)
 
 ## 1. THE DRIVER PATTERN (The "Hands")
 The system connects to LLMs via **Drivers**. These are low-level adapters that translate our internal requests into vendor-specific API calls, following the LLMDriver interface contract.

@@ -50,7 +50,7 @@ async def retrieve_short_term_memory() -> str:
         logger.error(f"❌ RETRIEVE ERROR: {e}")
         return ""
 
-# --- QDRANT: LONG-TERM OMNI-RAG MEMORY ---
+# --- QDRANT: LONG-TERM GRAVITAS GROUNDED RESEARCH MEMORY ---
 
 class QdrantVectorStore(VectorMemory):
     """Implementation of VectorMemory using Qdrant (Indices) and ObjectStore (Blobs)."""
@@ -86,7 +86,7 @@ class QdrantVectorStore(VectorMemory):
 
     async def search(self, query: str, top_k: int = 5) -> List[str]:
         """
-        Omni-RAG Search:
+        Gravitas Grounded Research Search:
         1. Embed query.
         2. Search Qdrant for indices.
         3. Fetch blobs from Storage using blob_key.
@@ -118,7 +118,7 @@ class QdrantVectorStore(VectorMemory):
 
     async def ingest(self, text: str, metadata: Dict[str, Any]) -> bool:
         """
-        Omni-RAG Ingestion:
+        Gravitas Grounded Research Ingestion:
         1. Upload text to MinIO (Blob).
         2. Embed text.
         3. Upsert Vector + Metadata (Index) to Qdrant.

@@ -1,6 +1,6 @@
 # 003_SECURITY_GATEKEEPER.md
 # STATUS: ACTIVE
-# VERSION: 4.0.0 (Omni-RAG / Dual-GPU)
+# VERSION: 4.0.0 (Gravitas Grounded Research / Dual-GPU)
 
 ## 1. THE "TRUST BUT VERIFY" LOOP
 To prevent "hallucinated destruction" or secret leakage, all **Reflex Actions** (Shell/Git) must pass through a strict, automated safety filter with multi-format validation.

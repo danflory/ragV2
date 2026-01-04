@@ -1,4 +1,4 @@
-This audit confirms the critical architectural drift: the code is running legacy logic (ChromaDB) while the spec demands Omni-RAG (Qdrant + MinIO).
+This audit confirms the critical architectural drift: the code is running legacy logic (ChromaDB) while the spec demands Gravitas Grounded Research (Qdrant + MinIO).
 
 I have finalized the Migration Plan.
 
@@ -9,7 +9,7 @@ This document is now the law. It explicitly forbids the "Anti-Pattern" of storin
 # GRAVITAS ARCHITECTURAL CONSTITUTION (patterns.md)
 # STATUS: APPROVED FOR EXECUTION
 
-## 1. THE MEMORY SEPARATION PATTERN (Omni-RAG)
+## 1. THE MEMORY SEPARATION PATTERN (Gravitas Grounded Research)
 * **Principle:** "Vectors are Indices; Files are Blobs."
 * **Law:**
     1.  **Index:** `Qdrant` stores Embeddings + Metadata (Path, ChunkID).

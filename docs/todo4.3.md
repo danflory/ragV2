@@ -1,6 +1,6 @@
 # GRAVITAS WORK ORDER: PHASE 4.3 (The Ingestion Engine)
 # STATUS: COMPLETED
-# CONTEXT: Connecting the File System to the new Omni-RAG Memory.
+# CONTEXT: Connecting the File System to the new Gravitas Grounded Research Memory.
 
 ## 1. PRE-FLIGHT
 - [x] **Review `app/container.py`:** Note that `DocumentIngestor` is initialized with `vector_store` AND `storage`.

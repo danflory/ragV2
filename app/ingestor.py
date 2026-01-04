@@ -8,7 +8,7 @@ logger = logging.getLogger("AGY_INGESTOR")
 
 class DocumentIngestor:
     """
-    Scans the local docs/ directory and populates the Omni-RAG Memory.
+    Scans the local docs/ directory and populates the Gravitas Grounded Research Memory.
     Updated for Phase 4.1: Uses async ingest() and separated storage.
     """
     def __init__(self, vector_store: VectorMemory, storage: ObjectStore):
@@ -52,7 +52,7 @@ class DocumentIngestor:
                                 "chunk_index": i,
                                 "file_type": file.split(".")[-1]
                             }
-                            # Omni-RAG: Each chunk is uploaded separately
+                            # Gravitas Grounded Research: Each chunk is uploaded separately
                             await self.vector_store.ingest(chunk, metadata)
                             
                         logger.info(f"✅ Ingested {file}: {len(chunks)} chunks")

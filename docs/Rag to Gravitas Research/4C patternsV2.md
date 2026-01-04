@@ -21,7 +21,7 @@ Action: I have finalized the "Law" to resolve the VRAM conflict via State Manage
     * **State B (DEV_MODE):** `deepseek-coder-v2` Loaded. Purpose: IDE Autocomplete, Sidecar.
 * **Enforcement:** The `Container` must expose a `switch_mode(mode: str)` method that explicitly *unloads* the current model before pulling the new one.
 
-## 2. THE OMNI-RAG SEPARATION (The Memory Pattern)
+## 2. THE Gravitas Grounded Research SEPARATION (The Memory Pattern)
 * **Principle:** "Vectors are Indices; Files are Blobs."
 * **Law:**
     1.  **Vector Store (Qdrant):** Stores *Embeddings* + *Metadata* (path, page_num) ONLY.

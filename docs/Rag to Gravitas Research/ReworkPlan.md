@@ -1,7 +1,7 @@
-Based on the comprehensive audit of your documentation and codebase, the plan focuses on synchronizing the "Legacy" implementation with the "v4.0 Omni-RAG" specification. Currently, a critical "Instruction Drift" exists: your specs describe a Dual-GPU, Qdrant-based system, but the actual code (app/memory.py, app/config.py) executes single-GPU ChromaDB logic.
+Based on the comprehensive audit of your documentation and codebase, the plan focuses on synchronizing the "Legacy" implementation with the "v4.0 Gravitas Grounded Research" specification. Currently, a critical "Instruction Drift" exists: your specs describe a Dual-GPU, Qdrant-based system, but the actual code (app/memory.py, app/config.py) executes single-GPU ChromaDB logic.
 
 1. Architectural Enforcement (The "Constitution")
-We will immediately enforce patterns.md as the immutable source of truth. This document explicitly bans "Anti-Patterns" currently present in the code, such as storing raw text payloads in the vector database. It mandates the Omni-RAG Separation Pattern, requiring that:
+We will immediately enforce patterns.md as the immutable source of truth. This document explicitly bans "Anti-Patterns" currently present in the code, such as storing raw text payloads in the vector database. It mandates the Gravitas Grounded Research Separation Pattern, requiring that:
 
 Indices (Vectors) live in Qdrant (GPU 1 optimized).
 

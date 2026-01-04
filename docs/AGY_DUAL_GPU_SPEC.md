@@ -1,5 +1,5 @@
 # AntiGravity RAG - Dual-GPU Architecture Specification
-**Version:** 4.0.0 (Omni-RAG / Dual-GPU / Production-Scale)  
+**Version:** 4.0.0 (Gravitas Grounded Research / Dual-GPU / Production-Scale)  
 **Updated:** 2026-01-02  
 **Hardware:** Dual NVIDIA GPUs (Titan RTX 24GB + GTX 1060 6GB)
 

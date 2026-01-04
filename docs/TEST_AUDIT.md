@@ -1,7 +1,7 @@
 # Test Suite Audit & Recommendations
 
 ## Audit Date: 2026-01-01
-## System Version: 4.0.0 (Dual-GPU / Omni-RAG)
+## System Version: 4.0.0 (Dual-GPU / Gravitas Grounded Research)
 
 ---
 
@@ -258,7 +258,7 @@ jobs:
 
 ## Conclusion
 
-The test suite is in **good shape** for the current v3.x architecture but requires **significant expansion** for v4.0 (Dual-GPU / Omni-RAG).
+The test suite is in **good shape** for the current v3.x architecture but requires **significant expansion** for v4.0 (Dual-GPU / Gravitas Grounded Research).
 
 **Priority:** Focus on MinIO and Qdrant integration tests to de-risk the upcoming migration.
 

@@ -13,7 +13,7 @@ test_L2_connection.py	Instantiates DeepInfraDriver directly. Reality: Valid inte
 I now have the complete picture. The "Brain" (Container/Logic) has evolved, but the "Nervous System" (Tests) still expects the old body. We must fix the code to match the Spec, and fix the Tests to match the Code.
 
 1. The Architectural Artifacts (The Blueprint)
-To ensure the Coder executes Phase 4.1 (Omni-RAG) without error, I am providing the Golden Source for the critical interfaces.
+To ensure the Coder executes Phase 4.1 (Gravitas Grounded Research) without error, I am providing the Golden Source for the critical interfaces.
 
 Artifact 1: app/interfaces.py (THE LAW) Copy this exactly. It enforces the new dependency injection rules.
 
@@ -62,7 +62,7 @@ class VectorMemory(ABC):
     @abstractmethod
     async def ingest(self, text: str, metadata: Dict[str, Any]) -> bool:
         """
-        Omni-RAG Ingestion Logic:
+        Gravitas Grounded Research Ingestion Logic:
         1. Upload raw text to ObjectStore (MinIO).
         2. Generate Embeddings (Dense + Sparse).
         3. Upload Vector + Metadata to VectorDB (Qdrant).

@@ -9,7 +9,7 @@ I have uploaded several documents that define the system's architecture, hardwar
 - **3-Layer Logic**: L1 (Local/Reflex), L2 (Cloud/Reasoning), L3 (Agentic/Research).
 - **Dual-GPU Infrastructure**: Titan RTX (24GB) for generation, GTX 1060 (6GB) for embeddings.
 - **Security**: The "Gatekeeper" protocol validates all shell/git reflexes.
-- **Current Phase**: Phase 18 (Omni-RAG) - Transitioning to hybrid search with Qdrant and MinIO object storage.
+- **Current Phase**: Phase 18 (Gravitas Grounded Research) - Transitioning to hybrid search with Qdrant and MinIO object storage.
 
 ### Your Role:
 Please assist with architectural brainstorming, strategy planning, and logic design. Do not suggest generic solutions; ensure all advice respects the specific constraints and technological choices (BGE-M3, Qdrant, MinIO, Gemma-2-27B) outlined in the attached files.

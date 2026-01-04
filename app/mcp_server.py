@@ -6,7 +6,7 @@ import os
 import argparse
 from mcp.server.fastmcp import FastMCP
 
-# --- CONTEXT: v4.0 Omni-RAG ---
+# --- CONTEXT: v4.0 Gravitas Grounded Research ---
 # Ensure we can find the 'app' module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -122,7 +122,7 @@ async def gravitas_l2_reasoning(prompt: str) -> str:
 async def get_system_status() -> str:
     """Returns the health status of the Dual-GPU Rig."""
     status = {
-        "phase": "Phase 18 (Omni-RAG)",
+        "phase": "Phase 18 (Gravitas Grounded Research)",
         "gpu_0": "Titan RTX (Active - Generation)",
         "gpu_1": "GTX 1060 (Active - Embeddings)",
         "memory": "Qdrant Hybrid + MinIO",

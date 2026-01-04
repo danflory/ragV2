@@ -1,4 +1,4 @@
-# GRAVITAS MIGRATION PROTOCOL: PHASE 4.1 (Omni-RAG)
+# GRAVITAS MIGRATION PROTOCOL: PHASE 4.1 (Gravitas Grounded Research)
 
 **Mission:** Implement the "Split-Brain" Memory Architecture (Qdrant + MinIO).
 **Constraint:** STRICT adherence to `patterns.md` and `interfaces.py`.

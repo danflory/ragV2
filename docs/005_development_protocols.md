@@ -1,6 +1,6 @@
 # 005_development_protocols.md
 # STATUS: ACTIVE
-# VERSION: 4.0.0 (Omni-RAG / Dual-GPU)
+# VERSION: 4.0.0 (Gravitas Grounded Research / Dual-GPU)
 
 ## 1. THE ARCHITECT'S OATH (TDD)
 We follow a strict **Test-Driven Development (TDD)** loop for all new features:

@@ -1,18 +1,18 @@
-# **Technical Architecture and Extensibility Report: Google Antigravity Agentic Development Platform**
+# **Technical Architecture and Extensibility Report: Gravitas Grounded Research Agentic Development Platform**
 
 ## **1\. The Paradigm Shift: From Intelligent Editing to Agentic Orchestration**
 
-The contemporary software engineering landscape is undergoing a fundamental transformation, transitioning from the era of "copilots"—which primarily offer intelligent autocomplete and localized suggestions—to the dawn of **Agentic Development Environments (ADEs)**. The Google Antigravity platform represents the vanguard of this shift, architected not merely as a text editor with Large Language Model (LLM) integration, but as a "Mission Control" center designed to orchestrate a workforce of autonomous, asynchronous agents.1 This distinction is critical for architects and platform engineers; whereas traditional Integrated Development Environments (IDEs) focus on the synchronous interaction between a human developer and their codebase, Antigravity introduces an intermediary layer of "agentic" labor capable of planning, executing, verifying, and iterating on complex engineering tasks with minimal human intervention.2
+The contemporary software engineering landscape is undergoing a fundamental transformation, transitioning from the era of "copilots"—which primarily offer intelligent autocomplete and localized suggestions—to the dawn of **Agentic Development Environments (ADEs)**. The Gravitas Grounded Research platform represents the vanguard of this shift, architected not merely as a text editor with Large Language Model (LLM) integration, but as a "Mission Control" center designed to orchestrate a workforce of autonomous, asynchronous agents.1 This distinction is critical for architects and platform engineers; whereas traditional Integrated Development Environments (IDEs) focus on the synchronous interaction between a human developer and their codebase, Gravitas Grounded Research introduces an intermediary layer of "agentic" labor capable of planning, executing, verifying, and iterating on complex engineering tasks with minimal human intervention.2
 
-The architectural philosophy underpinning Antigravity is the concept of the "Agent-First" workflow. In this paradigm, the developer's role evolves from that of an individual contributor writing lines of code to that of an architect or engineering manager supervising digital workers. The platform's interface reflects this shift: upon launch, the user is greeted not by a file tree, but by the **Agent Manager**—a dashboard dedicated to spawning, monitoring, and orchestrating parallel agentic threads.4 This "Mission Control" interface allows for the delegation of high-level objectives—such as "refactor the authentication module" or "generate a test suite for the billing API"—which the system then decomposes into actionable steps.1
+The architectural philosophy underpinning Gravitas Grounded Research is the concept of the "Agent-First" workflow. In this paradigm, the developer's role evolves from that of an individual contributor writing lines of code to that of an architect or engineering manager supervising digital workers. The platform's interface reflects this shift: upon launch, the user is greeted not by a file tree, but by the **Agent Manager**—a dashboard dedicated to spawning, monitoring, and orchestrating parallel agentic threads.4 This "Mission Control" interface allows for the delegation of high-level objectives—such as "refactor the authentication module" or "generate a test suite for the billing API"—which the system then decomposes into actionable steps.1
 
-Crucially, this system operates on a "Stack-First" protocol, treating the technology stack not as a collection of static libraries but as a dynamic cognitive layer. The agents within Antigravity do not simply generate text; they produce verifiable "Artifacts"—structured deliverables such as implementation plans, diffs, and test reports that serve as the primary medium of communication between the human architect and the synthetic workforce.3 This artifact-based workflow addresses the "black box" problem inherent in many AI tools by providing transparent, audit-ready evidence of the agent's logic and execution path.5 Furthermore, the platform integrates a headless browser subagent, enabling agents to "step out" of the code environment to perform end-to-end testing, verify UI changes, and even conduct web-based research to resolve dependencies or errors.6
+Crucially, this system operates on a "Stack-First" protocol, treating the technology stack not as a collection of static libraries but as a dynamic cognitive layer. The agents within Gravitas Grounded Research do not simply generate text; they produce verifiable "Artifacts"—structured deliverables such as implementation plans, diffs, and test reports that serve as the primary medium of communication between the human architect and the synthetic workforce.3 This artifact-based workflow addresses the "black box" problem inherent in many AI tools by providing transparent, audit-ready evidence of the agent's logic and execution path.5 Furthermore, the platform integrates a headless browser subagent, enabling agents to "step out" of the code environment to perform end-to-end testing, verify UI changes, and even conduct web-based research to resolve dependencies or errors.6
 
 For developers seeking to integrate custom model architectures, understanding this high-level paradigm is a prerequisite. The system is designed around specific cognitive expectations—latency profiles, context window sizes, and reasoning capabilities—that are codified in its **3-Layer Cognitive Pipeline**.8 Any attempt to attach a custom model hierarchy must respect the intricate balance of this "Inference Economy," ensuring that the replacement components can fulfill the rigorous demands of the Orchestrator.8
 
 ## **2\. The 3-Layer Cognitive Pipeline: Anatomy of the System Brain**
 
-The core intelligence of the Antigravity platform is not monolithic. Instead, it is distributed across a hierarchical **3-Layer Cognitive Pipeline**, a sophisticated routing system designed to optimize performance by balancing the competing constraints of speed, intelligence, and cost.8 This tiered architecture is the primary integration point for developers wishing to attach custom models, as the system explicitly routes tasks to "L1," "L2," or "L3" based on complexity and risk.
+The core intelligence of the Gravitas Grounded Research platform is not monolithic. Instead, it is distributed across a hierarchical **3-Layer Cognitive Pipeline**, a sophisticated routing system designed to optimize performance by balancing the competing constraints of speed, intelligence, and cost.8 This tiered architecture is the primary integration point for developers wishing to attach custom models, as the system explicitly routes tasks to "L1," "L2," or "L3" based on complexity and risk.
 
 ### **2.1 Layer 1 (L1): The Reflex Layer**
 
@@ -30,7 +30,7 @@ Above the reflex tier lies **L2**, the **Reasoning Layer**. This layer functions
 Infrastructure and Routing:  
 L2 is typically offloaded to high-performance cloud models to leverage greater parameter counts without consuming local VRAM. The system specification references models like DeepSeek or Qwen (accessed via providers like DeepInfra) or Claude Sonnet 4.5.8 The L2 layer is characterized by its high "IQ" and ability to perform complex logic, architectural refactoring, and safety reviews.  
 The Escalation Mechanism:  
-One of the most critical mechanisms in the Antigravity architecture is the Dynamic Selection & Escalation logic. The Orchestrator automatically routes tasks from L1 to L2 based on specific triggers. For instance, if the Gatekeeper flags an L1-proposed action as ambiguous or potentially destructive, it triggers an asynchronous L2 Review. The L1 action is held in a pending state until the L2 model analyzes the context and issues a verdict—approving, rejecting, or modifying the plan.8 When integrating a custom L2 model, it is essential that the model be capable of "critique and refinement" workflows, acting as a supervisor to the faster L1 model.
+One of the most critical mechanisms in the Gravitas Grounded Research architecture is the Dynamic Selection & Escalation logic. The Orchestrator automatically routes tasks from L1 to L2 based on specific triggers. For instance, if the Gatekeeper flags an L1-proposed action as ambiguous or potentially destructive, it triggers an asynchronous L2 Review. The L1 action is held in a pending state until the L2 model analyzes the context and issues a verdict—approving, rejecting, or modifying the plan.8 When integrating a custom L2 model, it is essential that the model be capable of "critique and refinement" workflows, acting as a supervisor to the faster L1 model.
 
 ### **2.3 Layer 3 (L3): The Deep Research Layer**
 
@@ -38,16 +38,16 @@ The apex of the cognitive hierarchy is **L3**, the **Deep Research Layer**. This
 
 Workflow and Capabilities:  
 L3 operates on a different temporal scale than L1 or L2. It is designed for asynchronous, long-horizon tasks such as "analyze the entire codebase and propose a migration strategy." This layer engages in "Thinking" loops—iterative chains of thought—to synthesize information from the vector store, the file system, and external documentation.9  
-The Omni-RAG Connection:  
-L3 is tightly integrated with the system's "Omni-RAG" (Retrieval-Augmented Generation) infrastructure. It utilizes the hybrid search capabilities of Qdrant and MinIO to retrieve and process unstructured data (PDFs, images) alongside code.8 When configuring a custom L3 model, developers must ensure the model supports large context windows (often 100k+ tokens) to effectively utilize the retrieved data. The roadmap indicates that results from L3 are often summarized by L2 before being injected back into the active context, creating a cyclical flow of information between the layers.8
+The Gravitas Grounded Research Connection:  
+L3 is tightly integrated with the system's "Gravitas Grounded Research" (Retrieval-Augmented Generation) infrastructure. It utilizes the hybrid search capabilities of Qdrant and MinIO to retrieve and process unstructured data (PDFs, images) alongside code.8 When configuring a custom L3 model, developers must ensure the model supports large context windows (often 100k+ tokens) to effectively utilize the retrieved data. The roadmap indicates that results from L3 are often summarized by L2 before being injected back into the active context, creating a cyclical flow of information between the layers.8
 
 ## **3\. Technical Integration: Attaching Custom Models**
 
-The primary objective of this technical dump is to elucidate the mechanisms for attaching a custom three-level model hierarchy. Antigravity handles this through a robust **Inversion of Control (IoC)** architecture, centered on a dependency injection container. There are two primary pathways for integration: the **Configuration Path** (using proxies and JSON configs) and the **Architectural Path** (modifying the source code drivers).
+The primary objective of this technical dump is to elucidate the mechanisms for attaching a custom three-level model hierarchy. Gravitas Grounded Research handles this through a robust **Inversion of Control (IoC)** architecture, centered on a dependency injection container. There are two primary pathways for integration: the **Configuration Path** (using proxies and JSON configs) and the **Architectural Path** (modifying the source code drivers).
 
 ### **3.1 The Inversion of Control (IoC) Container**
 
-The linchpin of Antigravity's extensibility is the app/container.py module. This file functions as the **IoC Switchboard**, the central authority responsible for instantiating the specific driver implementations for L1, L2, and L3.8
+The linchpin of Gravitas Grounded Research's extensibility is the app/container.py module. This file functions as the **IoC Switchboard**, the central authority responsible for instantiating the specific driver implementations for L1, L2, and L3.8
 
 Dependency Injection Flow:  
 The system follows a strict initialization sequence:
@@ -61,7 +61,7 @@ To attach a custom model hierarchy natively, one must register new driver instan
 
 ### **3.2 The LLMDriver Interface Contract**
 
-To maintain system stability and prevent "Split Brain" issues—where different components expect different behaviors from the models—Antigravity enforces a strict **Interface Contract**. Defined in app/interfaces.py, the LLMDriver abstract base class dictates the behavior of all model drivers.8
+To maintain system stability and prevent "Split Brain" issues—where different components expect different behaviors from the models—Gravitas Grounded Research enforces a strict **Interface Contract**. Defined in app/interfaces.py, the LLMDriver abstract base class dictates the behavior of all model drivers.8
 
 Required Implementation:  
 Any custom driver must inherit from LLMDriver and implement the following asynchronous methods:
@@ -74,7 +74,7 @@ When creating a custom driver (e.g., app/drivers/custom\_l3.py), developers shou
 
 ### **3.3 The Configuration Path: providers.json and CLIProxyAPI**
 
-For developers who prefer not to modify the internal Python source code, Antigravity supports a "Configuration Path" using external provider definitions and proxy servers. This approach is heavily referenced in community discussions regarding "Opencode" and "CLIProxyAPI" integrations.11
+For developers who prefer not to modify the internal Python source code, Gravitas Grounded Research supports a "Configuration Path" using external provider definitions and proxy servers. This approach is heavily referenced in community discussions regarding "Opencode" and "CLIProxyAPI" integrations.11
 
 The providers.json Structure:  
 The system (or its associated model manager extensions) looks for a configuration file, typically located at \~/.config/code-assistant-manager/providers.json. This file allows for the registration of custom endpoints that masquerade as supported providers.11  
@@ -85,22 +85,22 @@ The system (or its associated model manager extensions) looks for a configuratio
 | endpoint | The URL of the model server or proxy. | http://localhost:8317 |
 | api\_key\_env | Environment variable holding the API key. | CUSTOM\_L3\_KEY |
 | list\_models\_cmd | Command to retrieve the model list. | python \-m my\_module.list\_models |
-| supported\_client | Clients that can access this provider. | claude,codex,antigravity |
+| supported\_client | Clients that can access this provider. | claude,codex,gravitas grounded research |
 
 Mechanism of Action:  
-By configuring this file, developers can point the Antigravity IDE to a local proxy (like CLIProxyAPI) that standardizes the API surface. The proxy intercepts requests from the IDE and routes them to the user's custom L1, L2, or L3 models. This effectively "tricks" the IDE's Model Selector into displaying and utilizing the custom models as if they were native options.11
+By configuring this file, developers can point the Gravitas Grounded Research IDE to a local proxy (like CLIProxyAPI) that standardizes the API surface. The proxy intercepts requests from the IDE and routes them to the user's custom L1, L2, or L3 models. This effectively "tricks" the IDE's Model Selector into displaying and utilizing the custom models as if they were native options.11
 
 ### **3.4 The Opencode Integration**
 
-The "Opencode" CLI tool appears frequently in the research as a bridge for authentication and model management.13 It allows for the injection of custom authentication tokens and model definitions into the Antigravity environment. Plugins such as opencode-google-antigravity-auth enable the CLI to authenticate against Google's servers while managing local model quotas, effectively creating a hybrid authentication layer that supports custom model routing.14
+The "Opencode" CLI tool appears frequently in the research as a bridge for authentication and model management.13 It allows for the injection of custom authentication tokens and model definitions into the Gravitas Grounded Research environment. Plugins such as opencode-google-gravitas grounded research-auth enable the CLI to authenticate against Google's servers while managing local model quotas, effectively creating a hybrid authentication layer that supports custom model routing.14
 
 ## **4\. The Model Context Protocol (MCP): Bridging Agents and Data**
 
-A critical component of the Antigravity ecosystem, often overlooked in basic setups, is the **Model Context Protocol (MCP)**. This standard allows the IDE to securely connect to local tools, databases, and external services, providing the agents with real-time context beyond the open files.15 For a custom three-level model hierarchy, MCP offers a way to expose specialized L3 capabilities (like a specific RAG pipeline) as a "tool" rather than just a chat model.
+A critical component of the Gravitas Grounded Research ecosystem, often overlooked in basic setups, is the **Model Context Protocol (MCP)**. This standard allows the IDE to securely connect to local tools, databases, and external services, providing the agents with real-time context beyond the open files.15 For a custom three-level model hierarchy, MCP offers a way to expose specialized L3 capabilities (like a specific RAG pipeline) as a "tool" rather than just a chat model.
 
 ### **4.1 MCP Architecture and Configuration**
 
-MCP operates on a client-host model where the IDE (Antigravity) acts as the host, connecting to various MCP servers. These servers can expose **Resources** (data) and **Tools** (executable functions).16
+MCP operates on a client-host model where the IDE (Gravitas Grounded Research) acts as the host, connecting to various MCP servers. These servers can expose **Resources** (data) and **Tools** (executable functions).16
 
 Configuration (mcp\_config.json):  
 To register a custom MCP server, developers must modify the mcp\_config.json file, which can be accessed via the "Manage MCP Servers" option in the Agent Manager.15  
@@ -128,7 +128,7 @@ JSON
   }  
 }
 
-This configuration allows the Antigravity Orchestrator to invoke the my-custom-l3-tool as part of its planning process, effectively integrating a custom L3 capability into the workflow without replacing the primary chat model.16
+This configuration allows the Gravitas Grounded Research Orchestrator to invoke the my-custom-l3-tool as part of its planning process, effectively integrating a custom L3 capability into the workflow without replacing the primary chat model.16
 
 ### **4.2 Use Cases for MCP**
 
@@ -138,7 +138,7 @@ This configuration allows the Antigravity Orchestrator to invoke the my-custom-l
 
 ## **5\. Hardware Infrastructure: The "Inference Economy"**
 
-The feasibility of a local L1 model hinges on the system's hardware-aware architecture. Antigravity implements a sophisticated **Dual-GPU** strategy to maximize the "Inference Economy"—the ratio of intelligence to cost/latency.8
+The feasibility of a local L1 model hinges on the system's hardware-aware architecture. Gravitas Grounded Research implements a sophisticated **Dual-GPU** strategy to maximize the "Inference Economy"—the ratio of intelligence to cost/latency.8
 
 ### **5.1 Dual-GPU Segmentation**
 
@@ -159,7 +159,7 @@ The reference specification outlines a strict division of labor between two GPUs
 
 ### **5.2 Docker Containerization and Passthrough**
 
-To achieve the "Brain Transplant"—making the system portable across machines—Antigravity utilizes **Docker Desktop** with the **NVIDIA Container Toolkit**.8
+To achieve the "Brain Transplant"—making the system portable across machines—Gravitas Grounded Research utilizes **Docker Desktop** with the **NVIDIA Container Toolkit**.8
 
 * **Service Definition:** The docker-compose.yml file defines separate services for agy\_ollama (L1) and agy\_ollama\_embed (Embedder).  
 * **Device Mapping:** Crucially, the configuration uses explicit device\_ids to map the physical GPUs to the respective containers (e.g., device\_ids: \['0'\] for L1). This ensures that the L1 model never accidentally claims the embedding GPU resources.8  
@@ -187,7 +187,7 @@ A successful integration of custom models requires a deep understanding of the P
 
 ## **7\. Operational Protocols: Security and Workflow**
 
-Attaching a custom model is not just about connectivity; it is about safety. Antigravity implements rigorous protocols to prevent autonomous agents from causing damage to the local environment.
+Attaching a custom model is not just about connectivity; it is about safety. Gravitas Grounded Research implements rigorous protocols to prevent autonomous agents from causing damage to the local environment.
 
 ### **7.1 The Gatekeeper and Safety Loops**
 
@@ -199,14 +199,14 @@ The **Gatekeeper** (app/safety.py) is the security firewall of the system. It in
 
 ### **7.2 Workflow Customization**
 
-Antigravity supports the definition of custom **Workflows**—structured sequences of prompts that guide agents through complex tasks.35
+Gravitas Grounded Research supports the definition of custom **Workflows**—structured sequences of prompts that guide agents through complex tasks.35
 
 * **Global vs. Workspace Workflows:** Developers can define global workflows (available everywhere) or workspace-specific ones (e.g., "Generate Unit Tests" for a specific project).35  
 * **Implementation:** Workflows are created via the Customizations panel and are essential for standardizing the behavior of the agents, ensuring that even custom models follow the team's engineering practices.4
 
 ## **8\. Community Patterns and "Vibe Coding"**
 
-The emerging practice of "Vibe Coding"—where developers focus on high-level direction while AI handles the implementation—has driven much of the community exploration of Antigravity.36
+The emerging practice of "Vibe Coding"—where developers focus on high-level direction while AI handles the implementation—has driven much of the community exploration of Gravitas Grounded Research.36
 
 * **Real-World Implementations:** Developers have successfully used the platform to build complex applications, such as full Snake games in Python 38 and Obsidian plugins 39, often by chaining multiple models (e.g., using Claude for coding and Gemini for planning).37  
 * **Visual Verification:** A key pattern is the reliance on visual artifacts. The community emphasizes the value of the platform's ability to generate UI mockups and browser recordings, which allows for rapid visual verification of the agent's work without reading every line of code.2  
@@ -214,30 +214,30 @@ The emerging practice of "Vibe Coding"—where developers focus on high-level di
 
 ## **9\. Conclusion**
 
-The Google Antigravity Agentic Development Platform represents a sophisticated convergence of hardware-aware infrastructure, hierarchical cognitive pipelines, and agentic orchestration. It is not merely a tool for writing code but a framework for managing cognitive labor. For the technical architect, the platform offers a rich surface for customization, primarily through its **IoC Container**, **LLMDriver Interface**, and **Model Context Protocol** integrations. By mastering these components—and adhering to the strict hardware and security protocols—developers can successfully attach and orchestrate a custom three-level model hierarchy, transforming Antigravity from a standard product into a bespoke engine for autonomous software engineering. This report serves as the foundational technical dump required to navigate and execute that integration.
+The Gravitas Grounded Research Agentic Development Platform represents a sophisticated convergence of hardware-aware infrastructure, hierarchical cognitive pipelines, and agentic orchestration. It is not merely a tool for writing code but a framework for managing cognitive labor. For the technical architect, the platform offers a rich surface for customization, primarily through its **IoC Container**, **LLMDriver Interface**, and **Model Context Protocol** integrations. By mastering these components—and adhering to the strict hardware and security protocols—developers can successfully attach and orchestrate a custom three-level model hierarchy, transforming Gravitas Grounded Research from a standard product into a bespoke engine for autonomous software engineering. This report serves as the foundational technical dump required to navigate and execute that integration.
 
 #### **Works cited**
 
-1. Getting Started with Google Antigravity, accessed January 1, 2026, [https://codelabs.developers.google.com/getting-started-google-antigravity](https://codelabs.developers.google.com/getting-started-google-antigravity)  
-2. Build with Google Antigravity, our new agentic development platform, accessed January 1, 2026, [https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/](https://developers.googleblog.com/build-with-google-antigravity-our-new-agentic-development-platform/)  
-3. Introducing Google Antigravity, a New Era in AI-Assisted Software Development, accessed January 1, 2026, [https://antigravity.google/blog/introducing-google-antigravity](https://antigravity.google/blog/introducing-google-antigravity)  
-4. Tutorial : Getting Started with Google Antigravity | by Romin Irani \- Medium, accessed January 1, 2026, [https://medium.com/google-cloud/tutorial-getting-started-with-google-antigravity-b5cc74c103c2](https://medium.com/google-cloud/tutorial-getting-started-with-google-antigravity-b5cc74c103c2)  
-5. Google Antigravity vs Cursor vs Copilot: Enterprise Dev Tool Guide \- iTecs, accessed January 1, 2026, [https://itecsonline.com/post/google-antigravity-vs-cursor-vs-copilot](https://itecsonline.com/post/google-antigravity-vs-cursor-vs-copilot)  
-6. Build End-to-End Cloud Solutions Using Agentic IDE | Google Antigravity Full Demo with Gemini3 \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=mDLmPOhDM0s](https://www.youtube.com/watch?v=mDLmPOhDM0s)  
-7. Google Antigravity: Agentic Development Platform Discussion \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=zXxgj\_uES3o](https://www.youtube.com/watch?v=zXxgj_uES3o)  
+1. Getting Started with Gravitas Grounded Research, accessed January 1, 2026, [https://codelabs.developers.google.com/getting-started-google-gravitas grounded research](https://codelabs.developers.google.com/getting-started-google-gravitas grounded research)  
+2. Build with Gravitas Grounded Research, our new agentic development platform, accessed January 1, 2026, [https://developers.googleblog.com/build-with-google-gravitas grounded research-our-new-agentic-development-platform/](https://developers.googleblog.com/build-with-google-gravitas grounded research-our-new-agentic-development-platform/)  
+3. Introducing Gravitas Grounded Research, a New Era in AI-Assisted Software Development, accessed January 1, 2026, [https://gravitas grounded research.google/blog/introducing-google-gravitas grounded research](https://gravitas grounded research.google/blog/introducing-google-gravitas grounded research)  
+4. Tutorial : Getting Started with Gravitas Grounded Research | by Romin Irani \- Medium, accessed January 1, 2026, [https://medium.com/google-cloud/tutorial-getting-started-with-google-gravitas grounded research-b5cc74c103c2](https://medium.com/google-cloud/tutorial-getting-started-with-google-gravitas grounded research-b5cc74c103c2)  
+5. Gravitas Grounded Research vs Cursor vs Copilot: Enterprise Dev Tool Guide \- iTecs, accessed January 1, 2026, [https://itecsonline.com/post/google-gravitas grounded research-vs-cursor-vs-copilot](https://itecsonline.com/post/google-gravitas grounded research-vs-cursor-vs-copilot)  
+6. Build End-to-End Cloud Solutions Using Agentic IDE | Gravitas Grounded Research Full Demo with Gemini3 \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=mDLmPOhDM0s](https://www.youtube.com/watch?v=mDLmPOhDM0s)  
+7. Gravitas Grounded Research: Agentic Development Platform Discussion \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=zXxgj\_uES3o](https://www.youtube.com/watch?v=zXxgj_uES3o)  
 8. AGY\_SYSTEM\_SPEC.md  
-9. Models \- Google Antigravity Documentation, accessed January 1, 2026, [https://antigravity.google/docs/models](https://antigravity.google/docs/models)  
+9. Models \- Gravitas Grounded Research Documentation, accessed January 1, 2026, [https://gravitas grounded research.google/docs/models](https://gravitas grounded research.google/docs/models)  
 10. Google's New Gemini Pro Features Are Out, but Most of Them Will Cost You | Lifehacker, accessed January 1, 2026, [Google's New Gemini Pro Features Are Out, but Most of Them Will Cost You | Lifehacker](https://lifehacker.com/tech/google-new-gemini-3-features)  
-11. How to Connect Code Assistants Like Claude Code to Google ..., accessed January 1, 2026, [How to Connect Code Assistants Like Claude Code to Google Antigravity Models : r/vibecoding](https://www.reddit.com/r/vibecoding/comments/1pwmwv2/how_to_connect_code_assistants_like_claude_code/)  
-12. Antigravity and Local LLM : r/LocalLLaMA \- Reddit, accessed January 1, 2026, [Antigravity and Local LLM : r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1p1flkr/antigravity_and_local_llm/)  
-13. Antigravity (Google) auth plugin for opencode \- GitHub, accessed January 1, 2026, [https://github.com/shekohex/opencode-google-antigravity-auth](https://github.com/shekohex/opencode-google-antigravity-auth)  
-14. NoeFabris/opencode-antigravity-auth \- GitHub, accessed January 1, 2026, [https://github.com/NoeFabris/opencode-antigravity-auth](https://github.com/NoeFabris/opencode-antigravity-auth)  
+11. How to Connect Code Assistants Like Claude Code to Google ..., accessed January 1, 2026, [How to Connect Code Assistants Like Claude Code to Gravitas Grounded Research Models : r/vibecoding](https://www.reddit.com/r/vibecoding/comments/1pwmwv2/how_to_connect_code_assistants_like_claude_code/)  
+12. Gravitas Grounded Research and Local LLM : r/LocalLLaMA \- Reddit, accessed January 1, 2026, [Gravitas Grounded Research and Local LLM : r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1p1flkr/gravitas grounded research_and_local_llm/)  
+13. Gravitas Grounded Research (Google) auth plugin for opencode \- GitHub, accessed January 1, 2026, [https://github.com/shekohex/opencode-google-gravitas grounded research-auth](https://github.com/shekohex/opencode-google-gravitas grounded research-auth)  
+14. NoeFabris/opencode-gravitas grounded research-auth \- GitHub, accessed January 1, 2026, [https://github.com/NoeFabris/opencode-gravitas grounded research-auth](https://github.com/NoeFabris/opencode-gravitas grounded research-auth)  
 15. MCP Server \- Nuxt UI, accessed January 1, 2026, [https://ui.nuxt.com/docs/getting-started/ai/mcp](https://ui.nuxt.com/docs/getting-started/ai/mcp)  
-16. Antigravity Editor: MCP Integration, accessed January 1, 2026, [https://antigravity.google/docs/mcp](https://antigravity.google/docs/mcp)  
+16. Gravitas Grounded Research Editor: MCP Integration, accessed January 1, 2026, [https://gravitas grounded research.google/docs/mcp](https://gravitas grounded research.google/docs/mcp)  
 17. Context7 MCP Server \-- Up-to-date code documentation for LLMs and AI code editors \- GitHub, accessed January 1, 2026, [https://github.com/upstash/context7](https://github.com/upstash/context7)  
-18. Connect Google Antigravity IDE to Google's Data Cloud services | Google Cloud Blog, accessed January 1, 2026, [https://cloud.google.com/blog/products/data-analytics/connect-google-antigravity-ide-to-googles-data-cloud-services](https://cloud.google.com/blog/products/data-analytics/connect-google-antigravity-ide-to-googles-data-cloud-services)  
-19. An Introduction to the Google Antigravity IDE | Better Stack Community, accessed January 1, 2026, [https://betterstack.com/community/guides/ai/antigravity-ai-ide/](https://betterstack.com/community/guides/ai/antigravity-ai-ide/)  
-20. Google Antigravity: How to add custom MCP server to improve Vibe Coding \- Medium, accessed January 1, 2026, [https://medium.com/google-developer-experts/google-antigravity-custom-mcp-server-integration-to-improve-vibe-coding-f92ddbc1c22d](https://medium.com/google-developer-experts/google-antigravity-custom-mcp-server-integration-to-improve-vibe-coding-f92ddbc1c22d)  
+18. Connect Gravitas Grounded Research IDE to Google's Data Cloud services | Google Cloud Blog, accessed January 1, 2026, [https://cloud.google.com/blog/products/data-analytics/connect-google-gravitas grounded research-ide-to-googles-data-cloud-services](https://cloud.google.com/blog/products/data-analytics/connect-google-gravitas grounded research-ide-to-googles-data-cloud-services)  
+19. An Introduction to the Gravitas Grounded Research IDE | Better Stack Community, accessed January 1, 2026, [https://betterstack.com/community/guides/ai/gravitas grounded research-ai-ide/](https://betterstack.com/community/guides/ai/gravitas grounded research-ai-ide/)  
+20. Gravitas Grounded Research: How to add custom MCP server to improve Vibe Coding \- Medium, accessed January 1, 2026, [https://medium.com/google-developer-experts/google-gravitas grounded research-custom-mcp-server-integration-to-improve-vibe-coding-f92ddbc1c22d](https://medium.com/google-developer-experts/google-gravitas grounded research-custom-mcp-server-integration-to-improve-vibe-coding-f92ddbc1c22d)  
 21. fastapi · PyPI, accessed January 1, 2026, [https://pypi.org/project/fastapi/](https://pypi.org/project/fastapi/)  
 22. Release Notes \- FastAPI \- Tiangolo.com, accessed January 1, 2026, [https://fastapi.tiangolo.com/release-notes/](https://fastapi.tiangolo.com/release-notes/)  
 23. FastAPI documentation \- DevDocs, accessed January 1, 2026, [https://devdocs.io/fastapi/](https://devdocs.io/fastapi/)  
@@ -250,10 +250,10 @@ The Google Antigravity Agentic Development Platform represents a sophisticated c
 30. ollama \- PyPI, accessed January 1, 2026, [https://pypi.org/project/ollama/](https://pypi.org/project/ollama/)  
 31. chroma-core/chroma: Open-source search and retrieval database for AI applications., accessed January 1, 2026, [https://github.com/chroma-core/chroma](https://github.com/chroma-core/chroma)  
 32. Qdrant Python Client Documentation — Qdrant Client documentation, accessed January 1, 2026, [https://python-client.qdrant.tech/](https://python-client.qdrant.tech/)  
-33. Google Antigravity Exfiltrates Data \- PromptArmor, accessed January 1, 2026, [https://www.promptarmor.com/resources/google-antigravity-exfiltrates-data](https://www.promptarmor.com/resources/google-antigravity-exfiltrates-data)  
-34. Google Antigravity Setup Guide: Secure Enterprise Installation for Dev Teams \- iTecs, accessed January 1, 2026, [https://itecsonline.com/post/antigravity-setup-guide](https://itecsonline.com/post/antigravity-setup-guide)  
-35. Rules / Workflows \- Google Antigravity Documentation, accessed January 1, 2026, [https://antigravity.google/docs/rules-workflows](https://antigravity.google/docs/rules-workflows)  
-36. Is This The Future of Dev? Google Antigravity AI Code Editor with Gemini 3 Pro \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=vChJfIb4hvU](https://www.youtube.com/watch?v=vChJfIb4hvU)  
-37. Antigravity \+ Claude Code \+ Gemini 3 Pro \= Incredible : r/vibecoding \- Reddit, accessed January 1, 2026, [https://www.reddit.com/r/vibecoding/comments/1pihn0c/antigravity\_claude\_code\_gemini\_3\_pro\_incredible/](https://www.reddit.com/r/vibecoding/comments/1pihn0c/antigravity_claude_code_gemini_3_pro_incredible/)  
-38. How to Set Up and Use Google Antigravity \- Codecademy, accessed January 1, 2026, [https://www.codecademy.com/article/how-to-set-up-and-use-google-antigravity](https://www.codecademy.com/article/how-to-set-up-and-use-google-antigravity)  
-39. on building an Obsidian Related Notes plugin using Google's Antigravity IDE, accessed January 1, 2026, [https://darcynorman.net/2025/11/21/on-building-an-obsidian-related-notes-plugin-using-googles-antigravity-ide/](https://darcynorman.net/2025/11/21/on-building-an-obsidian-related-notes-plugin-using-googles-antigravity-ide/)
+33. Gravitas Grounded Research Exfiltrates Data \- PromptArmor, accessed January 1, 2026, [https://www.promptarmor.com/resources/google-gravitas grounded research-exfiltrates-data](https://www.promptarmor.com/resources/google-gravitas grounded research-exfiltrates-data)  
+34. Gravitas Grounded Research Setup Guide: Secure Enterprise Installation for Dev Teams \- iTecs, accessed January 1, 2026, [https://itecsonline.com/post/gravitas grounded research-setup-guide](https://itecsonline.com/post/gravitas grounded research-setup-guide)  
+35. Rules / Workflows \- Gravitas Grounded Research Documentation, accessed January 1, 2026, [https://gravitas grounded research.google/docs/rules-workflows](https://gravitas grounded research.google/docs/rules-workflows)  
+36. Is This The Future of Dev? Gravitas Grounded Research AI Code Editor with Gemini 3 Pro \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=vChJfIb4hvU](https://www.youtube.com/watch?v=vChJfIb4hvU)  
+37. Gravitas Grounded Research \+ Claude Code \+ Gemini 3 Pro \= Incredible : r/vibecoding \- Reddit, accessed January 1, 2026, [https://www.reddit.com/r/vibecoding/comments/1pihn0c/gravitas grounded research\_claude\_code\_gemini\_3\_pro\_incredible/](https://www.reddit.com/r/vibecoding/comments/1pihn0c/gravitas grounded research_claude_code_gemini_3_pro_incredible/)  
+38. How to Set Up and Use Gravitas Grounded Research \- Codecademy, accessed January 1, 2026, [https://www.codecademy.com/article/how-to-set-up-and-use-google-gravitas grounded research](https://www.codecademy.com/article/how-to-set-up-and-use-google-gravitas grounded research)  
+39. on building an Obsidian Related Notes plugin using Google's Gravitas Grounded Research IDE, accessed January 1, 2026, [https://darcynorman.net/2025/11/21/on-building-an-obsidian-related-notes-plugin-using-googles-gravitas grounded research-ide/](https://darcynorman.net/2025/11/21/on-building-an-obsidian-related-notes-plugin-using-googles-gravitas grounded research-ide/)
