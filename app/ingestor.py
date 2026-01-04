@@ -28,35 +28,39 @@ class DocumentIngestor:
             logger.error("❌ INGESTOR: No Vector Store connection.")
             return
 
-        if not os.path.exists(self.docs_path):
-            logger.warning(f"⚠️ INGESTOR: Directory {self.docs_path} not found.")
-            return
-
-        logger.info(f"🚀 INGESTOR: Scanning {self.docs_path}...")
+        # Handle both single path (string) and multiple paths (list)
+        paths = self.docs_path if isinstance(self.docs_path, list) else [self.docs_path]
         
-        for root, _, files in os.walk(self.docs_path):
-            for file in files:
-                # Support .md, .txt, and .py
-                if file.endswith((".md", ".txt", ".py")):
-                    full_path = os.path.join(root, file)
-                    rel_path = os.path.relpath(full_path, self.docs_path)
-                    
-                    try:
-                        with open(full_path, "r", encoding="utf-8") as f:
-                            content = f.read()
-                            
-                        chunks = self.chunk_text(content)
-                        for i, chunk in enumerate(chunks):
-                            metadata = {
-                                "source": rel_path,
-                                "chunk_index": i,
-                                "file_type": file.split(".")[-1]
-                            }
-                            # Gravitas Grounded Research: Each chunk is uploaded separately
-                            await self.vector_store.ingest(chunk, metadata)
-                            
-                        logger.info(f"✅ Ingested {file}: {len(chunks)} chunks")
-                    except Exception as e:
-                        logger.error(f"❌ Failed to ingest {file}: {e}")
+        for path in paths:
+            if not os.path.exists(path):
+                logger.warning(f"⚠️ INGESTOR: Directory {path} not found.")
+                continue
+
+            logger.info(f"🚀 INGESTOR: Scanning {path}...")
+            
+            for root, _, files in os.walk(path):
+                for file in files:
+                    # Support .md, .txt, and .py
+                    if file.endswith((".md", ".txt", ".py")):
+                        full_path = os.path.join(root, file)
+                        rel_path = os.path.relpath(full_path, path)
+                        
+                        try:
+                            with open(full_path, "r", encoding="utf-8") as f:
+                                content = f.read()
+                                
+                            chunks = self.chunk_text(content)
+                            for i, chunk in enumerate(chunks):
+                                metadata = {
+                                    "source": rel_path,
+                                    "chunk_index": i,
+                                    "file_type": file.split(".")[-1]
+                                }
+                                # Gravitas Grounded Research: Each chunk is uploaded separately
+                                await self.vector_store.ingest(chunk, metadata)
+                                
+                            logger.info(f"✅ Ingested {file}: {len(chunks)} chunks")
+                        except Exception as e:
+                            logger.error(f"❌ Failed to ingest {file}: {e}")
 
         logger.info("✅ INGESTOR COMPLETE.")

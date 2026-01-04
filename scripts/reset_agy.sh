@@ -4,6 +4,12 @@
 # --- HOMING BEACON ---
 cd "$(dirname "$0")/.." || exit
 
+# --- HOST OVERRIDES (Running on Metal) ---
+export QDRANT_HOST="localhost"
+export MINIO_ENDPOINT="localhost:9000"
+export DB_HOST="localhost"
+export L1_URL="http://localhost:11434"
+
 # --- PATH ENFORCEMENT ---
 # Use the python executable from your virtual environment
 VENV_PY="venv/bin/python3"

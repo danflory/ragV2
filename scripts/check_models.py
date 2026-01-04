@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 
 # Load environment variables
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from app.config import CONFIG
+from app.config import config
 
 async def check_openai():
     print("\n🔎 Checking OpenAI Models...")
-    headers = {"Authorization": f"Bearer {CONFIG.L2_KEY}"}
+    headers = {"Authorization": f"Bearer {config.L2_KEY}"}
     try:
         async with httpx.AsyncClient() as client:
             resp = await client.get("https://api.openai.com/v1/models", headers=headers)
@@ -33,7 +33,7 @@ async def check_openai():
 async def check_google():
     print("\n🔎 Checking Google Gemini Models...")
     try:
-        client = genai.Client(api_key=CONFIG.L3_KEY)
+        client = genai.Client(api_key=config.L3_KEY)
         # Fetch list of models
         pager = client.models.list()
         print("✅ Google Success!")

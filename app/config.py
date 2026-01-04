@@ -42,7 +42,10 @@ class Settings(BaseSettings):
     # Deprecated (Chroma)
     CHROMA_URL: str = "http://chroma_db:8000" 
     CHROMA_COLLECTION: str = "agy_knowledge"
-    DOCS_PATH: str = "/app/docs"
+    DOCS_PATH: list[str] = [
+        "/home/dflory/dev_env/rag_local/docs",
+        "/home/dflory/dev_env/rag_local/app"
+    ]
 
     # === DATABASE (Postgres) ===
     DB_HOST: str = "postgres_db"

@@ -13,9 +13,9 @@ services:
       - .:/app
     environment:
       - PYTHONPATH=/app
-      - POSTGRES_HOST=agy_postgres
+      - POSTGRES_HOST=postgres_db
       - QDRANT_HOST=agy_qdrant
-      - OLLAMA_HOST=agy_ollama       # GPU 0
+      - OLLAMA_HOST=agy_ollama # GPU 0
       - OLLAMA_EMBED_HOST=agy_ollama_embed # GPU 1
       - MINIO_HOST=agy_minio
       # Ensure these match your .env
@@ -110,7 +110,7 @@ services:
   # --- DATABASE: POSTGRES (HISTORY) ---
   postgres_db:
     image: postgres:16-alpine
-    container_name: agy_postgres
+    container_name: postgres_db
     environment:
       - POSTGRES_USER=${DB_USER:-agy_user}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
@@ -134,7 +134,8 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-agy_user}:${DB_PASSWORD:-agy_pass}@agy_postgres:5432/${DB_NAME:-chat_history}
+      - DATABASE_URL=postgresql://${DB_USER:-agy_user}:${DB_PASSWORD:-agy_pass}@postgres_db:5432/${DB_NAME:-chat_history}
+      - DB_HOST=postgres_db
       - L1_URL=http://agy_ollama:11434
     depends_on:
       - postgres_db

@@ -6,14 +6,14 @@ import time
 # Ensure we can import the logger
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.system_log import log_system_event
-from app.config import CONFIG
+from app.config import config
 
 # SETTINGS
 # Increased to 60s based on real-world observation of 16B model load times.
 TIMEOUT_SECONDS = 60
 
 def warmup_brain():
-    model = CONFIG.MODEL
+    model = config.L1_MODEL
     print(f"   [...] 🧠 Pinging {model} (Timeout: {TIMEOUT_SECONDS}s)...")
     
     start_ts = time.time()

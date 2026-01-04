@@ -11,6 +11,19 @@ class MinioConnector(ObjectStore):
     """Implementation of ObjectStore using MinIO."""
     
     def __init__(self, endpoint: str, access_key: str, secret_key: str, bucket_name: str, secure: bool = False):
+        import socket
+        try:
+            # Minio-py 7.x forces virtual-host style for non-IP endpoints.
+            # We resolve the hostname to an IP to force path-style access.
+            host_part = endpoint.split(':')[0]
+            port_part = endpoint.split(':')[1] if ':' in endpoint else ('443' if secure else '80')
+            ip = socket.gethostbyname(host_part)
+            resolved_endpoint = f"{ip}:{port_part}"
+            logger.info(f"Resolved MinIO endpoint {endpoint} -> {resolved_endpoint}")
+            endpoint = resolved_endpoint
+        except Exception as e:
+            logger.warning(f"Could not resolve MinIO endpoint {endpoint}: {e}")
+
         self.client = Minio(
             endpoint,
             access_key=access_key,

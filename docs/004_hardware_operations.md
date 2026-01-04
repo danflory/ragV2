@@ -31,7 +31,7 @@ The system runs in a multi-container environment with dedicated services:
 *   **`agy_ollama_embed`:** Embedding models (GPU 1 - GTX 1060)
 *   **`agy_qdrant`:** Hybrid vector database (CPU)
 *   **`agy_minio`:** Object storage for raw documents (CPU)
-*   **`agy_postgres`:** Chat history and telemetry logging (CPU)
+*   **`postgres_db`:** Chat history and telemetry logging (CPU)
 
 ## 4. ADVANCED HARDWARE FEATURES
 * **Parallel Processing:** Embeddings don't block generation

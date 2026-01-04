@@ -19,22 +19,37 @@ class Container:
         logger.info("🔧 INITIALIZING DEPENDENCY CONTAINER (Gravitas Grounded Research Phase 4.1)...")
         
         # 1. LAYER 1: LOCAL REFLEX (Ollama)
-        self.l1_driver = LocalLlamaDriver(config=config)
+        try:
+            self.l1_driver = LocalLlamaDriver(config=config)
+            logger.info("✅ L1 Driver (LocalLlama) READY.")
+        except Exception as e:
+            logger.error(f"❌ L1 Driver initialization failed: {e}")
+            raise
 
         # 2. LAYER 2: REASONING (DeepInfra)
-        self.l2_driver = DeepInfraDriver(
-            api_key=config.L2_KEY,
-            base_url=config.L2_URL,
-            model=config.L2_MODEL
-        )
+        try:
+            self.l2_driver = DeepInfraDriver(
+                api_key=config.L2_KEY,
+                base_url=config.L2_URL,
+                model=config.L2_MODEL
+            )
+            logger.info("✅ L2 Driver (DeepInfra) READY.")
+        except Exception as e:
+            logger.error(f"❌ L2 Driver initialization failed: {e}")
+            raise
 
         # 3. LAYER 3: DEEP RESEARCH (Google Gemini)
-        self.l3_driver = GoogleGeminiDriver(
-            api_key=config.L3_KEY,
-            model=config.L3_MODEL
-        )
+        try:
+            self.l3_driver = GoogleGeminiDriver(
+                api_key=config.L3_KEY,
+                model=config.L3_MODEL
+            )
+            logger.info("✅ L3 Driver (Google Gemini) READY.")
+        except Exception as e:
+            logger.error(f"❌ L3 Driver initialization failed: {e}")
+            raise
         
-        # 3. STORAGE: BLOB STORE (MinIO)
+        # 4. STORAGE: BLOB STORE (MinIO)
         try:
             self.storage = MinioConnector(
                 endpoint=config.MINIO_ENDPOINT,
@@ -48,7 +63,7 @@ class Container:
             logger.error(f"❌ STORAGE INIT FAILURE: {e}")
             self.storage = None
 
-        # 4. MEMORY: VECTOR STORE (Qdrant)
+        # 5. MEMORY: VECTOR STORE (Qdrant)
         try:
             if self.storage:
                 self.memory = QdrantVectorStore(
@@ -64,28 +79,49 @@ class Container:
             logger.error(f"⚠️ RUNNING WITHOUT VECTOR MEMORY: {e}")
             self.memory = None
             
-        # 5. INGESTOR
-        if self.memory and self.storage:
-            self.ingestor = DocumentIngestor(
-                vector_store=self.memory, 
-                storage=self.storage
-            )
-        else:
+        # 6. INGESTOR
+        try:
+            if self.memory and self.storage:
+                self.ingestor = DocumentIngestor(
+                    vector_store=self.memory, 
+                    storage=self.storage
+                )
+                logger.info("✅ INGESTOR READY.")
+            else:
+                logger.warning("⚠️ Cannot initialize ingestor without valid memory and storage.")
+                self.ingestor = None
+        except Exception as e:
+            logger.error(f"❌ INGESTOR INIT FAILURE: {e}")
             self.ingestor = None
 
-        # 6. TELEMETRY
-        self.telemetry = telemetry
+        # 7. TELEMETRY
+        try:
+            self.telemetry = telemetry
+            logger.info("✅ TELEMETRY READY.")
+        except Exception as e:
+            logger.error(f"❌ TELEMETRY INIT FAILURE: {e}")
+            self.telemetry = None
 
-        # 7. STATE MANAGEMENT
+        # 8. STATE MANAGEMENT
         self.current_mode = config.DEFAULT_MODE
 
-        # 8. AGENTS: THE LIBRARIAN
-        from .agents.librarian import LibrarianAgent
-        self.librarian = LibrarianAgent(container=self)
+        # 9. AGENTS: THE LIBRARIAN
+        try:
+            from .agents.librarian import LibrarianAgent
+            self.librarian = LibrarianAgent(container=self)
+            logger.info("✅ LIBRARIAN AGENT READY.")
+        except Exception as e:
+            logger.error(f"❌ LIBRARIAN AGENT INIT FAILURE: {e}")
+            self.librarian = None
 
-        # 9. AGENTS: THE SCOUT
-        from .agents.scout import ScoutAgent
-        self.scout = ScoutAgent(l3_driver=self.l3_driver, memory=self.memory)
+        # 10. AGENTS: THE SCOUT
+        try:
+            from .agents.scout import ScoutAgent
+            self.scout = ScoutAgent(l3_driver=self.l3_driver, memory=self.memory)
+            logger.info("✅ SCOUT AGENT READY.")
+        except Exception as e:
+            logger.error(f"❌ SCOUT AGENT INIT FAILURE: {e}")
+            self.scout = None
 
         logger.info(f"✅ CONTAINER READY (Mode: {self.current_mode}).")
 

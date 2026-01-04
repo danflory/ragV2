@@ -9,7 +9,7 @@
 
 #### PHASE 2: THE AMNESIA FIX (COMPLETED)
 * [x] **Goal:** Eliminate file-based SQLite state.
-* [x] **Infra:** Provision `agy_postgres` container.
+* [x] **Infra:** Provision `postgres_db` container.
 * [x] **Software:** Implement `app/database.py` (Async PG Driver).
 * [x] **Verification:** History survives container restart.
 
