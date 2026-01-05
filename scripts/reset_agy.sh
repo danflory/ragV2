@@ -1,5 +1,5 @@
 #!/bin/bash
-# scripts/reset_agy.sh
+# scripts/reset_gravitas.sh
 
 # --- HOMING BEACON ---
 cd "$(dirname "$0")/.." || exit

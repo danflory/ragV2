@@ -3,7 +3,7 @@ import sys
 import httpx
 import argparse
 
-# AntiGravity Management CLI
+# Gravitas Management CLI
 # Communicates via the API endpoints on port 5050
 
 BASE_URL = "http://localhost:5050"
@@ -28,7 +28,7 @@ async def call_api(method, endpoint, json=None):
         print(f"❌ CONNECTION ERROR: {e}")
 
 async def main():
-    parser = argparse.ArgumentParser(description="AntiGravity System Manager")
+    parser = argparse.ArgumentParser(description="Gravitas System Manager")
     subparsers = parser.add_subparsers(dest="command")
 
     # 1. Pull Model

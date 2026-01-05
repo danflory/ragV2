@@ -1,3 +1,4 @@
+```markdown
 Coders Tool Chain
 Custom Gem
 AntiGravity Architect here.
@@ -7,7 +8,7 @@ Here is the codified "Per Function Cycle" we have established. This is the loop 
 1. THE CONTEXT HANDSHAKE (Start of Cycle)
 The Delta: You run python3 scripts/generate_session_context.py.
 
-The Ingest: You upload docs/AGY_SESSION_CONTEXT.md.
+The Ingest: You upload docs/Gravitas_SESSION_CONTEXT.md.
 
 The Alignment: I read the file to verify the physical reality (File Map) vs. the logical goal (Todo List).
 
@@ -51,7 +52,7 @@ The Merge: The feature is considered "Stable."
 
 The Cleanup: We delete the temporary probe (optional).
 
-The Update: We mentally move the task from "Immediate Todo" to "Recent Changes" in the Session Context.
+The Update: We mentally move the task from "Immediate Todo" to "Recent Changes" in the Gravitas_SESSION_CONTEXT.
 
 Current Status in Cycle: We are currently at Step 4 (Verification) for the Dockerization Function.
 
@@ -60,3 +61,4 @@ Task: Enable GPU Passthrough.
 Probe: docker-compose run --rm rag_app nvidia-smi
 
 Pending: Waiting for the build to finish to see the signal.
+```

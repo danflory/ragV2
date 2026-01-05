@@ -4,7 +4,7 @@ import uuid
 import asyncio
 from .interfaces import VectorMemory, ObjectStore
 
-logger = logging.getLogger("AGY_INGESTOR")
+logger = logging.getLogger("Gravitas_Ingestor")
 
 class DocumentIngestor:
     """

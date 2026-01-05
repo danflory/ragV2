@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from .safety import check
 
-logger = logging.getLogger("AGY_REFLEX")
+logger = logging.getLogger("Gravitas_REFLEX")
 
 async def execute_shell(command: str) -> str:
     """
@@ -87,18 +87,18 @@ async def write_file(filepath: str, content: str) -> str:
     except Exception as e:
         return f"💥 WRITE ERROR: {str(e)}"
 
-async def execute_git_sync(message: str = "Auto-sync by AntiGravity") -> str:
+async def execute_git_sync(message: str = "Auto-sync by Gravitas") -> str:
     """
     Performs a full Git sync: Add -> Commit -> Push.
     """
     try:
-        if message == "Auto-sync by AntiGravity":
-            message = f"AGY Auto-sync: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        if message == "Auto-sync by Gravitas":
+            message = f"Gravitas Auto-sync: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 
         commands = [
             "git config --global --add safe.directory /app",
             "git config --global user.email 'antigravity@internal.ai'",
-            "git config --global user.name 'AntiGravity Agent'",
+            "git config --global user.name 'Gravitas Agent'",
             "git add .",
             f'git commit -m "{message}"',
             "git push"

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AntiGravity RAG - Comprehensive Model Inventory Script
+Gravitas RAG - Comprehensive Model Inventory Script
 Lists all inference models across local (Ollama) and cloud (API) layers.
 """
 
@@ -137,7 +137,7 @@ def check_google_models(api_key, configured_model):
         print(f"  ❌ API Error: {e}")
 
 def main():
-    print("🤖 AntiGravity RAG - Model Inventory")
+    print("🤖 Gravitas RAG - Model Inventory")
     print("=" * 50)
     
     # Load configuration

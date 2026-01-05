@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.container import container
 from app.config import config
 
-logger = logging.getLogger("AGY_GLOBAL_RENAME")
+logger = logging.getLogger("Gravitas_GLOBAL_RENAME")
 
 class GlobalRenamer:
     """
@@ -44,6 +44,7 @@ class GlobalRenamer:
         3. Do NOT change technical constants or code blocks unless they are specifically named "{search_term}".
         4. Consistency: If you see "AGY RAG", change it to "Gravitas RAG" if that is the standard intended.
         5. Return ONLY the refactored text. No explanations.
+        6. Do NOT wrap the response in Markdown code blocks (e.g. ```python ... ```). Return raw text.
 
         ### Content to Refactor:
         {content}
@@ -57,6 +58,15 @@ class GlobalRenamer:
             if len(refined_content) < len(content) * 0.5 and len(content) > 100:
                  logger.warning("⚠️ LLM returned suspiciously short response. Reverting to safe string replace.")
                  return content.replace(search_term, replace_term)
+            
+            # HARD STRIP: Clean up markdown blocks if the LLM hallucinated them
+            if refined_content.startswith("```"):
+                lines = refined_content.splitlines()
+                if lines[0].startswith("```"):
+                    lines = lines[1:]
+                if lines and lines[-1].startswith("```"):
+                    lines = lines[:-1]
+                refined_content = "\n".join(lines).strip()
                  
             return refined_content
         except Exception as e:
@@ -74,6 +84,13 @@ class GlobalRenamer:
 
             logger.info(f"📄 Processing: {file_path}")
             
+            # Update heartbeat for monitor
+            try:
+                with open("/tmp/gravitas_heartbeat", "w") as f:
+                    f.write(file_path)
+            except:
+                pass
+
             if dry_run:
                 logger.info(f"🔎 [DRY RUN] Would refactor {file_path}")
                 self.stats["files_processed"] += 1

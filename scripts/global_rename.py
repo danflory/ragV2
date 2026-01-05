@@ -20,7 +20,7 @@ logger = logging.getLogger("GLOBAL_RENAME_CLI")
 async def main():
     parser = argparse.ArgumentParser(description="Gravitas GlobalRename Service - Robust Doc Refactoring")
     parser.add_argument("--dir", default="docs", help="Directory to process (relative to root)")
-    parser.add_argument("--search", default="agy_rag", help="Term to find")
+    parser.add_argument("--search", default="Gravitas", help="Term to find")
     parser.add_argument("--replace", default="Gravitas", help="Term to replace with")
     parser.add_argument("--commit", action="store_true", help="Actually write changes (if not set, runs in dry-run mode)")
     parser.add_argument("--ext", default=".md,.txt", help="Comma-separated file extensions to process")

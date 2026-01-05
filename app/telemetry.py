@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, Optional
 from .database import db
 
-logger = logging.getLogger("AGY_TELEMETRY")
+logger = logging.getLogger("Gravitas_TELEMETRY")
 
 class TelemetryLogger:
     """

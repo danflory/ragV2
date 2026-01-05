@@ -2,7 +2,7 @@ import httpx
 import logging
 from .interfaces import LLMDriver
 
-logger = logging.getLogger("AGY_L2")
+logger = logging.getLogger("Gravitas_L2")
 
 class DeepInfraDriver(LLMDriver):
     """

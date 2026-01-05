@@ -1,4 +1,4 @@
--- Initial schema for AntiGravity Chat History
+-- Initial schema for Gravitas Chat History
 CREATE TABLE IF NOT EXISTS history (
     id SERIAL PRIMARY KEY,
     role VARCHAR(50) NOT NULL,

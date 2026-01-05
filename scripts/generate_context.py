@@ -6,7 +6,7 @@ OUTPUT_FILE = "docs/GRAVITAS_SESSION_CONTEXT.md"
 
 # FILES TO IGNORE IN TREE
 IGNORE_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules", ".idea", "chroma_db", "site-packages", "data"}
-IGNORE_FILES = {".DS_Store", "poetry.lock", "package-lock.json", "LICENSE", "GRAVITAS_SESSION_CONTEXT.md", "AGY_SESSION_CONTEXT.md"}
+IGNORE_FILES = {".DS_Store", "poetry.lock", "package-lock.json", "LICENSE", "GRAVITAS_SESSION_CONTEXT.md", "Gravitas_SESSION_CONTEXT.md"}
 
 # --- HEADER ---
 STRATEGY_HEADER = """

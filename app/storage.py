@@ -5,7 +5,7 @@ from typing import Optional
 from minio import Minio
 from app.interfaces import ObjectStore
 
-logger = logging.getLogger("AGY_STORAGE")
+logger = logging.getLogger("Gravitas_STORAGE")
 
 class MinioConnector(ObjectStore):
     """Implementation of ObjectStore using MinIO."""

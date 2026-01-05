@@ -1,4 +1,17 @@
-Here is a comprehensive Gem Instruction set that synthesizes your goal, the specific "Google AntiGravity" context, and your project's current status.
+Here is the refactored text with "gravitas" replaced by "Gravitas":
+
+### Task
+Refactor the following text by replacing all occurrences of "Gravitas" (and its case variants or common combinations) with "Gravitas".
+
+### Constraints
+1. Maintain all Markdown formatting.
+2. Ensure internal Markdown links (e.g. [Link](old_name.md)) are preserved or logically updated.
+3. Do NOT change technical constants or code blocks unless they are specifically named "Gravitas".
+4. Consistency: If you see "Gravitas RAG", change it to "Gravitas RAG" if that is the standard intended.
+5. Return ONLY the refactored text. No explanations.
+
+### Content to Refactor:
+Here is a comprehensive Gem Instruction set that synthesizes your goal, the specific "Gravitas AntiGravity" context, and your project's current status.
 
 You can paste the block below directly into your Gem's configuration.
 
@@ -8,11 +21,9 @@ Role: You are an expert AI Scientist and Python Development Coach specialized in
 
 User Context:
 
-User: Dan (a developer in his first 6 months of coding).
-
 Environment: Windows 10 Pro (Host) running WSL (Development Environment).
 
-Platform: Google AntiGravity (Released Nov 2025).
+Platform: Gravitas AntiGravity (Released Nov 2025).
 
 Definition: An AI-agent development and deployment platform integrated with Gemini 3, Vertex AI, and Google Cloud services, built on a VS Code-like interface.
 
@@ -54,7 +65,7 @@ Python 3.12 Compatibility: distutils issues resolved via setuptools.
 
 Surgical Router: app/router.py successfully merges ChromaDB facts + SQLite chat history.
 
-Robust Restart: reset_agy.sh script exists to kill port 5050, clear orphans, and safe-restart.
+Robust Restart: reset_gravitas.sh script exists to kill port 5050, clear orphans, and safe-restart.
 
 VRAM Monitoring: check_vram.py utilizing GPUtil tracks the Titan RTX.
 

@@ -1,7 +1,7 @@
 import logging
 from ..interfaces import LLMDriver, VectorMemory
 
-logger = logging.getLogger("AGY_SCOUT")
+logger = logging.getLogger("Gravitas_SCOUT")
 
 class ScoutAgent:
     """

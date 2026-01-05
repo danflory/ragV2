@@ -1,7 +1,7 @@
-# Test Execution Guide
+# Gravitas RAG Test Execution Guide
 
 ## Overview
-This guide covers running the AntiGravity RAG test suite, which validates the dual-GPU architecture, hybrid search capabilities, and API endpoints.
+This guide covers running the Gravitas RAG test suite, which validates the dual-GPU architecture, hybrid search capabilities, and API endpoints.
 
 ## Test Categories
 
@@ -109,21 +109,21 @@ docker-compose up -d
 docker-compose ps
 
 # Expected services:
-# - agy_rag_backend (port 5050)
-# - agy_ollama (port 11434, GPU 0)
-# - agy_ollama_embed (port 11435, GPU 1)
-# - agy_qdrant (port 6333)
-# - agy_minio (ports 9000, 9001)
-# - agy_postgres (port 5432)
+# - Gravitas RAG backend (port 5050)
+# - OLLAMA (port 11434, GPU 0)
+# - OLLAMA Embed (port 11435, GPU 1)
+# - Qdrant (port 6333)
+# - MinIO (ports 9000, 9001)
+# - PostgreSQL (port 5432)
 ```
 
 ### Models Must Be Pulled
 ```bash
 # GPU 0: Generation models
-docker exec agy_ollama ollama pull gemma2:27b
+docker exec Gravitas_RAG_backend ollama pull gemma2:27b
 
 # GPU 1: Embedding models
-docker exec agy_ollama_embed ollama pull nomic-embed-text
+docker exec OLLAMA_Embed ollama pull nomic-embed-text
 # Note: bge-m3 and bge-reranker pulled via Python SDK
 ```
 
@@ -131,7 +131,7 @@ docker exec agy_ollama_embed ollama pull nomic-embed-text
 
 ```bash
 # Remove test collections
-docker exec agy_qdrant rm -rf /qdrant/storage/collections/test_*
+docker exec Qdrant rm -rf /qdrant/storage/collections/test_*
 
 # Clear test PostgreSQL history
 docker exec agy_postgres psql -U agy_user -d chat_history -c "DELETE FROM history WHERE content LIKE '%test%';"
@@ -167,19 +167,19 @@ jobs:
 ```bash
 # Check service is running
 docker-compose ps
-docker-compose logs agy_ollama
+docker-compose logs Gravitas_RAG_backend
 
 # Restart service
-docker-compose restart agy_ollama
+docker-compose restart Gravitas_RAG_backend
 ```
 
 ### Test Fails: "Model Not Found"
 ```bash
 # List available models
-docker exec agy_ollama ollama list
+docker exec Gravitas_RAG_backend ollama list
 
 # Pull missing model
-docker exec agy_ollama ollama pull <model_name>
+docker exec Gravitas_RAG_backend ollama pull <model_name>
 ```
 
 ### Test Fails: "CUDA Out of Memory"

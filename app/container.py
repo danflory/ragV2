@@ -8,7 +8,7 @@ from .storage import MinioConnector
 from .ingestor import DocumentIngestor
 from .telemetry import telemetry
 
-logger = logging.getLogger("AGY_CONTAINER")
+logger = logging.getLogger("Gravitas_CONTAINER")
 
 class Container:
     """

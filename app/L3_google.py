@@ -2,7 +2,7 @@ import logging
 from google import genai
 from .interfaces import LLMDriver
 
-logger = logging.getLogger("AGY_L3")
+logger = logging.getLogger("Gravitas_L3")
 
 class GoogleGeminiDriver(LLMDriver):
     """

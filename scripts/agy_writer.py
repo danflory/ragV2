@@ -2,7 +2,7 @@ import requests
 import sys
 import os
 
-def ask_agy_to_write(prompt, filename):
+def ask_Gravitas_to_write(prompt, filename):
     # Your verified endpoint
     url = "http://localhost:5050/ask" 
     
@@ -25,9 +25,9 @@ def ask_agy_to_write(prompt, filename):
             with open(filename, "w") as f:
                 f.write(clean_code)
             
-            print(f"✅ Agy successfully wrote to {filename}")
+            print(f"✅ Gravitas successfully wrote to {filename}")
             # Try to open it
-            os.system(f"agy {filename}")
+            os.system(f"Gravitas {filename}")
         else:
             print(f"❌ Failed: {response.status_code} - {response.text}")
             
@@ -36,6 +36,6 @@ def ask_agy_to_write(prompt, filename):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: python scripts/agy_writer.py 'prompt' 'filename.py'")
+        print("Usage: python scripts/Gravitas_writer.py 'prompt' 'filename.py'")
     else:
-        ask_agy_to_write(sys.argv[1], sys.argv[2])
+        ask_Gravitas_to_write(sys.argv[1], sys.argv[2])

@@ -1,9 +1,3 @@
-#!/bin/bash
-# scripts/audit_agy.sh
-
-# --- HOMING BEACON ---
-cd "$(dirname "$0")/.." || exit
-
 echo "=================================================="
 echo "🛡️  ANTIGRAVITY SYSTEMS CHECK"
 echo "=================================================="

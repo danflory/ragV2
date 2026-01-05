@@ -11,7 +11,7 @@ from .interfaces import VectorMemory, ObjectStore
 from .config import config
 from .database import db
 
-logger = logging.getLogger("AGY_MEMORY")
+logger = logging.getLogger("Gravitas_MEMORY")
 
 # --- POSTGRES: SHORT-TERM CONVERSATION HISTORY ---
 
@@ -57,7 +57,7 @@ class QdrantVectorStore(VectorMemory):
 
     def __init__(self, storage: ObjectStore, host: str = "localhost", port: int = 6333):
         self.storage = storage
-        self.collection_name = "agy_knowledge"
+        self.collection_name = "gravitas_knowledge"
         self.embedding_model_name = 'all-MiniLM-L6-v2'
         self.vector_size = 384 # For all-MiniLM-L6-v2
         

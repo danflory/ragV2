@@ -7,12 +7,12 @@ The system leverages **dual NVIDIA GPUs** for parallel processing and optimal re
 
 *   **GPU 0 (Titan RTX 24GB):** Primary Compute / Generation
     * **Role:** Dedicated AI Inference / Local LLM (L1) / Training
-    * **Services:** `agy_ollama` (Port 11434)
+    * **Services:** `Gravitas_ollama` (Port 11434)
     * **Models:** `gemma2:27b-instruct-q4_k_m` (~17GB VRAM)
 
 *   **GPU 1 (GTX 1060 6GB):** Dedicated Embedding Engine
     * **Role:** Runs productive workloads instead of idle display duty
-    * **Services:** `agy_ollama_embed` (Port 11435)
+    * **Services:** `Gravitas_ollama_embed` (Port 11435)
     * **Models:** `nomic-embed-text-v1.5`, `BAAI/bge-m3`, `BAAI/bge-reranker-v2-m3`
 
 ## 2. VRAM OVERLOAD PROTECTION
@@ -26,11 +26,11 @@ To prevent system crashes or OOM (Out Of Memory) during long context sessions, t
 ## 3. MICROSERVICES TOPOLOGY
 The system runs in a multi-container environment with dedicated services:
 
-*   **`gravitas_mcp`:** Main application container with sleep infinity for manual process injection
-*   **`agy_ollama`:** L1 model hosting (GPU 0 - Titan RTX)
-*   **`agy_ollama_embed`:** Embedding models (GPU 1 - GTX 1060)
-*   **`agy_qdrant`:** Hybrid vector database (CPU)
-*   **`agy_minio`:** Object storage for raw documents (CPU)
+*   **`Gravitas_mcp`:** Main application container with sleep infinity for manual process injection
+*   **`Gravitas_ollama`:** L1 model hosting (GPU 0 - Titan RTX)
+*   **`Gravitas_ollama_embed`:** Embedding models (GPU 1 - GTX 1060)
+*   **`Gravitas_qdrant`:** Hybrid vector database (CPU)
+*   **`Gravitas_minio`:** Object storage for raw documents (CPU)
 *   **`postgres_db`:** Chat history and telemetry logging (CPU)
 
 ## 4. ADVANCED HARDWARE FEATURES

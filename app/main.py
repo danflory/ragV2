@@ -12,7 +12,7 @@ async def lifespan(app: FastAPI):
     await db.connect()
     
     # STARTUP: Verify L1 Model is pulled and ready
-    print(f"🚀 AGY Starting up... Target L1: {config.L1_MODEL}")
+    print(f"🚀 Gravitas Starting up... Target L1: {config.L1_MODEL}")
     
     # Check health and pull model if needed
     is_ready = await container.l1_driver.check_health()
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     yield
     # SHUTDOWN
     await db.disconnect()
-    print("🛑 AGY Shutting down...")
+    print("🛑 Gravitas Shutting down...")
 
 from fastapi.staticfiles import StaticFiles
 import os

@@ -1,4 +1,3 @@
-# app/safety.py
 import re
 import logging
 import ast
@@ -6,7 +5,7 @@ import json
 import yaml
 from typing import Optional, Union
 
-logger = logging.getLogger("AGY_SAFETY")
+logger = logging.getLogger("Gravitas_SAFETY")
 
 # 1. THE BLACKLIST
 # Commands that are absolutely forbidden, even with supervision.

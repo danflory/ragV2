@@ -2,7 +2,7 @@ import logging
 from ..config import config
 from ..database import db
 
-logger = logging.getLogger("AGY_ACCOUNTANT")
+logger = logging.getLogger("Gravitas_ACCOUNTANT")
 
 class CostAccountant:
     """

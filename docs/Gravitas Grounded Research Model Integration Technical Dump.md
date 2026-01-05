@@ -161,7 +161,7 @@ The reference specification outlines a strict division of labor between two GPUs
 
 To achieve the "Brain Transplant"—making the system portable across machines—Gravitas Grounded Research utilizes **Docker Desktop** with the **NVIDIA Container Toolkit**.8
 
-* **Service Definition:** The docker-compose.yml file defines separate services for agy\_ollama (L1) and agy\_ollama\_embed (Embedder).  
+* **Service Definition:** The docker-compose.yml file defines separate services for Gravitas\_ollama (L1) and Gravitas\_ollama\_embed (Embedder).  
 * **Device Mapping:** Crucially, the configuration uses explicit device\_ids to map the physical GPUs to the respective containers (e.g., device\_ids: \['0'\] for L1). This ensures that the L1 model never accidentally claims the embedding GPU resources.8  
 * **Network Topology:** The containers interact via a dedicated bridge network, ensuring low-latency communication between the "Brain" and the "Memory" (Vector Store).8
 

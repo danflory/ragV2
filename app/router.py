@@ -7,7 +7,7 @@ from .container import container
 from .reflex import execute_shell, write_file, execute_git_sync
 from .config import config
 
-logger = logging.getLogger("AGY_ROUTER")
+logger = logging.getLogger("Gravitas_ROUTER")
 
 class ChatRequest(BaseModel):
     message: str

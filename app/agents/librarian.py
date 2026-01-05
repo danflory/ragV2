@@ -7,7 +7,7 @@ from typing import Dict, Any
 from qdrant_client.http import models
 from datetime import datetime
 
-logger = logging.getLogger("AGY_LIBRARIAN")
+logger = logging.getLogger("Gravitas_LIBRARIAN")
 
 class LibrarianAgent:
     """

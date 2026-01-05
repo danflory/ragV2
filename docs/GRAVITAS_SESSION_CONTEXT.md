@@ -1,6 +1,6 @@
 
 # Gravitas Grounded Research - Session Context
-**Generated:** 2026-01-04 19:05:52
+**Generated:** 2026-01-04 19:25:32
 **System:** Titan RTX (Local) + DeepInfra (Cloud)
 **App State:** Docker Microservices
 
@@ -118,25 +118,19 @@ rag_local/
         docs/
             TEST_GUIDE.md
             001_core_architecture.md
-            AGY_SESSION_CONTEXT.md.bak
             todo9.md
             003_security_gatekeeper.md
-            DansRig.md.bak
             HOWTO_DEV_REMINDERS.md
-            established per Function Cycle.md.bak
-            Gravitas Grounded Research Model Integration Technical Dump.md.bak
             established per Function Cycle.md
-            TEST_GUIDE.md.bak
             Gravitas Grounded Research Model Integration Technical Dump.md
             DansRig.md
             completed_phase9.md
             TEST_AUDIT.md
-            HOWTO_DEV_REMINDERS.md.bak
             ROADMAP.md
             developerNotes.md
             005_development_protocols.md
             004_hardware_operations.md
-            004_hardware_operations.md.bak
+            GRAVITAS_NOMENCLATURE.md
             002_vector_memory.md
             000_MASTER_OVERVIEW.md
             Initial Context Prompt.md
@@ -266,7 +260,7 @@ async def lifespan(app: FastAPI):
     await db.connect()
     
     # STARTUP: Verify L1 Model is pulled and ready
-    print(f"🚀 AGY Starting up... Target L1: {config.L1_MODEL}")
+    print(f"🚀 Gravitas Starting up... Target L1: {config.L1_MODEL}")
     
     # Check health and pull model if needed
     is_ready = await container.l1_driver.check_health()
@@ -277,7 +271,7 @@ async def lifespan(app: FastAPI):
     yield
     # SHUTDOWN
     await db.disconnect()
-    print("🛑 AGY Shutting down...")
+    print("🛑 Gravitas Shutting down...")
 
 from fastapi.staticfiles import StaticFiles
 import os
@@ -348,10 +342,10 @@ class Settings(BaseSettings):
     L3_MODEL: str = "gemini-3-pro-preview"
 
     # === MEMORY & STORAGE (Gravitas Grounded Research) ===
-    QDRANT_HOST: str = "agy_qdrant"
+    QDRANT_HOST: str = "Gravitas_qdrant"
     QDRANT_PORT: int = 6333
     
-    MINIO_ENDPOINT: str = "agy_minio:9000"
+    MINIO_ENDPOINT: str = "Gravitas_minio:9000"
     MINIO_ACCESS_KEY: str = "minioadmin"
     MINIO_SECRET_KEY: str = "minioadmin"
     MINIO_BUCKET: str = "gravitas-blobs"
@@ -359,7 +353,7 @@ class Settings(BaseSettings):
 
     # Deprecated (Chroma)
     CHROMA_URL: str = "http://chroma_db:8000" 
-    CHROMA_COLLECTION: str = "agy_knowledge"
+    CHROMA_COLLECTION: str = "Gravitas_knowledge"
     DOCS_PATH: list[str] = [
         "/home/dflory/dev_env/rag_local/docs",
         "/home/dflory/dev_env/rag_local/app"
@@ -368,8 +362,8 @@ class Settings(BaseSettings):
     # === DATABASE (Postgres) ===
     DB_HOST: str = "postgres_db"
     DB_PORT: int = 5432
-    DB_USER: str = "agy_user"
-    DB_PASS: str = "agy_pass"
+    DB_USER: str = "Gravitas_user"
+    DB_PASS: str = "Gravitas_pass"
     DB_NAME: str = "chat_history"
 
     # === GOVERNANCE (The Accountant) ===
@@ -395,7 +389,7 @@ from .config import Settings
 from .telemetry import telemetry
 from .exceptions import OverloadError
 
-logger = logging.getLogger("AGY_L1")
+logger = logging.getLogger("Gravitas_L1")
 
 class LocalLlamaDriver(LLMDriver):
     def __init__(self, config: Settings):
@@ -417,7 +411,7 @@ class LocalLlamaDriver(LLMDriver):
         # === SYSTEM INSTRUCTION ===
         # We wrap the user prompt to teach L1 about its new tool.
         system_prompt = (
-            "You are the AntiGravity Assistant. You are a helpful, conversational coding expert.\n"
+            "You are the Gravitas Assistant. You are a helpful, conversational coding expert.\n"
             "--- COMMANDS ---\n"
             "- To save work: <reflex action=\"git_sync\" />\n"
             "- To ESCALATE: If the user types '\\L2' at the start of their message or asks a deep logic/math question, reply ONLY with the word ESCALATE.\n"
@@ -576,7 +570,7 @@ import httpx
 import logging
 from .interfaces import LLMDriver
 
-logger = logging.getLogger("AGY_L2")
+logger = logging.getLogger("Gravitas_L2")
 
 class DeepInfraDriver(LLMDriver):
     """
@@ -676,7 +670,7 @@ from .container import container
 from .reflex import execute_shell, write_file, execute_git_sync
 from .config import config
 
-logger = logging.getLogger("AGY_ROUTER")
+logger = logging.getLogger("Gravitas_ROUTER")
 
 class ChatRequest(BaseModel):
     message: str
@@ -1044,7 +1038,7 @@ from .storage import MinioConnector
 from .ingestor import DocumentIngestor
 from .telemetry import telemetry
 
-logger = logging.getLogger("AGY_CONTAINER")
+logger = logging.getLogger("Gravitas_CONTAINER")
 
 class Container:
     """
@@ -1244,13 +1238,13 @@ services:
     environment:
       - PYTHONPATH=/app
       - POSTGRES_HOST=postgres_db
-      - QDRANT_HOST=agy_qdrant
-      - OLLAMA_HOST=agy_ollama # GPU 0
-      - OLLAMA_EMBED_HOST=agy_ollama_embed # GPU 1
-      - MINIO_HOST=agy_minio
+      - QDRANT_HOST=Gravitas_qdrant
+      - OLLAMA_HOST=Gravitas_ollama # GPU 0
+      - OLLAMA_EMBED_HOST=Gravitas_ollama_embed # GPU 1
+      - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
-      - POSTGRES_USER=${DB_USER:-agy_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
+      - POSTGRES_USER=${DB_USER:-Gravitas_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     ports:
       - "8001:8000" # Maps port 8000 inside to 8001 outside (just in case)
@@ -1266,7 +1260,7 @@ services:
   # --- GPU 0: GENERATION (TITAN RTX) ---
   ollama:
     image: ollama/ollama:latest
-    container_name: agy_ollama
+    container_name: Gravitas_ollama
     deploy:
       resources:
         reservations:
@@ -1287,7 +1281,7 @@ services:
   # --- GPU 1: EMBEDDINGS (GTX 1060) ---
   ollama_embed:
     image: ollama/ollama:latest
-    container_name: agy_ollama_embed
+    container_name: Gravitas_ollama_embed
     deploy:
       resources:
         reservations:
@@ -1308,7 +1302,7 @@ services:
   # --- MEMORY: QDRANT (HYBRID VECTOR DB) ---
   qdrant:
     image: qdrant/qdrant:latest
-    container_name: agy_qdrant
+    container_name: Gravitas_qdrant
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -1323,7 +1317,7 @@ services:
   # --- STORAGE: MINIO (OBJECT STORE) ---
   minio:
     image: minio/minio:latest
-    container_name: agy_minio
+    container_name: Gravitas_minio
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -1342,8 +1336,8 @@ services:
     image: postgres:16-alpine
     container_name: postgres_db
     environment:
-      - POSTGRES_USER=${DB_USER:-agy_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
+      - POSTGRES_USER=${DB_USER:-Gravitas_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     volumes:
       - ./data/postgres_data:/var/lib/postgresql/data
@@ -1356,7 +1350,7 @@ services:
   # --- API: RAG BACKEND (LEGACY/ROUTER) ---
   rag_app:
     build: .
-    container_name: agy_rag_backend
+    container_name: Gravitas_rag_backend
     # Optional: If you run the main app via uvicorn
     command: uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload
     volumes:
@@ -1364,9 +1358,9 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-agy_user}:${DB_PASSWORD:-agy_pass}@postgres_db:5432/${DB_NAME:-chat_history}
+      - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@postgres_db:5432/${DB_NAME:-chat_history}
       - DB_HOST=postgres_db
-      - L1_URL=http://agy_ollama:11434
+      - L1_URL=http://Gravitas_ollama:11434
     depends_on:
       - postgres_db
       - qdrant

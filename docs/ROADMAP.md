@@ -19,5 +19,6 @@
 * **Why:** True portability. The project becomes "Run anywhere."
 
 #### BACKLOG / TECH DEBT
+* **Terminology Governance:** Create a "Variable Name Document" to define project-wide naming standards (Gravitas vs. Legacy) and implement a validation script to ensure consistency across docs and code.
 * **Protocol Mismatch:** [RESOLVED] All layers now use `<reflex action="git_sync">`.
 * **Secret Hygiene:** Scan codebase for hardcoded keys before pushing to public repo.

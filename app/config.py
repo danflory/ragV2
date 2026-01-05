@@ -30,10 +30,10 @@ class Settings(BaseSettings):
     L3_MODEL: str = "gemini-3-pro-preview"
 
     # === MEMORY & STORAGE (Gravitas Grounded Research) ===
-    QDRANT_HOST: str = "agy_qdrant"
+    QDRANT_HOST: str = "Gravitas_qdrant"
     QDRANT_PORT: int = 6333
     
-    MINIO_ENDPOINT: str = "agy_minio:9000"
+    MINIO_ENDPOINT: str = "Gravitas_minio:9000"
     MINIO_ACCESS_KEY: str = "minioadmin"
     MINIO_SECRET_KEY: str = "minioadmin"
     MINIO_BUCKET: str = "gravitas-blobs"
@@ -41,7 +41,7 @@ class Settings(BaseSettings):
 
     # Deprecated (Chroma)
     CHROMA_URL: str = "http://chroma_db:8000" 
-    CHROMA_COLLECTION: str = "agy_knowledge"
+    CHROMA_COLLECTION: str = "Gravitas_knowledge"
     DOCS_PATH: list[str] = [
         "/home/dflory/dev_env/rag_local/docs",
         "/home/dflory/dev_env/rag_local/app"
@@ -50,8 +50,8 @@ class Settings(BaseSettings):
     # === DATABASE (Postgres) ===
     DB_HOST: str = "postgres_db"
     DB_PORT: int = 5432
-    DB_USER: str = "agy_user"
-    DB_PASS: str = "agy_pass"
+    DB_USER: str = "Gravitas_user"
+    DB_PASS: str = "Gravitas_pass"
     DB_NAME: str = "chat_history"
 
     # === GOVERNANCE (The Accountant) ===

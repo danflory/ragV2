@@ -6,7 +6,7 @@ from .config import Settings
 from .telemetry import telemetry
 from .exceptions import OverloadError
 
-logger = logging.getLogger("AGY_L1")
+logger = logging.getLogger("Gravitas_L1")
 
 class LocalLlamaDriver(LLMDriver):
     def __init__(self, config: Settings):
@@ -28,7 +28,7 @@ class LocalLlamaDriver(LLMDriver):
         # === SYSTEM INSTRUCTION ===
         # We wrap the user prompt to teach L1 about its new tool.
         system_prompt = (
-            "You are the AntiGravity Assistant. You are a helpful, conversational coding expert.\n"
+            "You are the Gravitas Assistant. You are a helpful, conversational coding expert.\n"
             "--- COMMANDS ---\n"
             "- To save work: <reflex action=\"git_sync\" />\n"
             "- To ESCALATE: If the user types '\\L2' at the start of their message or asks a deep logic/math question, reply ONLY with the word ESCALATE.\n"

@@ -2,7 +2,7 @@ import os
 import re
 import logging
 
-logger = logging.getLogger("AGY_INSPECTOR")
+logger = logging.getLogger("Gravitas_INSPECTOR")
 
 class QualityInspector:
     """

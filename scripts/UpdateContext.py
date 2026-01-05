@@ -5,7 +5,7 @@ import sys
 
 def update_context():
     # Paths using WSL mount points
-    base_dir = "/mnt/d/D/AntiGravityNexusContext"
+    base_dir = "/mnt/d/D/GravitasNexusContext"
     text_dir = os.path.join(base_dir, "Text")
     
     print(f"🚀 Updating context in: {base_dir}")
@@ -24,7 +24,7 @@ def update_context():
         try:
             subprocess.run([
                 "powershell.exe", "-Command", 
-                f"if (Test-Path 'D:\\D\\AntiGravityNexusContext\\Text') {{ Remove-Item 'D:\\D\\AntiGravityNexusContext\\Text' -Recurse -Force }}"
+                f"if (Test-Path 'D:\\D\\GravitasNexusContext\\Text') {{ Remove-Item 'D:\\D\\GravitasNexusContext\\Text' -Recurse -Force }}"
             ], check=True)
         except subprocess.CalledProcessError as e:
             print(f"⚠️ Warning during cleanup: {e}")
@@ -37,8 +37,8 @@ def update_context():
     # This is the most reliable way since WSL 'ls/cp' returns I/O errors on these specific link types
     print(f"📋 Copying content (dereferencing links)...")
     ps_command = (
-        "$base='D:\\D\\AntiGravityNexusContext'; "
-        "$target='D:\\D\\AntiGravityNexusContext\\Text'; "
+        "$base='D:\\D\\GravitasNexusContext'; "
+        "$target='D:\\D\\GravitasNexusContext\\Text'; "
         "Get-ChildItem $base -File | ForEach-Object { Copy-Item $_.FullName -Destination $target -Force }"
     )
     
@@ -56,7 +56,7 @@ def update_context():
                     print(f"  - {f}")
             # 5. Open Explorer to the new Text folder
             print("🪟 Opening Windows Explorer...")
-            subprocess.run(["explorer.exe", "D:\\D\\AntiGravityNexusContext\\Text"], check=False)
+            subprocess.run(["explorer.exe", "D:\\D\\GravitasNexusContext\\Text"], check=False)
         else:
             print(f"❌ PowerShell Error: {result.stderr}")
     except Exception as e:

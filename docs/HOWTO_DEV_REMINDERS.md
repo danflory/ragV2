@@ -1,4 +1,6 @@
-# AntiGravity Developer Reminders & How-To Guide
+## Updated Content
+
+# Gravitas Developer Reminders & How-To Guide
 
 This document serves as a quick-reference for frequent developer workflows and operational shortcuts.
 
@@ -31,4 +33,4 @@ When you need to brainstorm high-level architecture or strategy in an external c
 | `winE` | Opens Windows Explorer in the current WSL directory. |
 | `reload` | Sources `~/.bashrc` to apply new configuration changes. |
 | `py` | Jumps to project root and activates the Python virtual environment. |
-| `agy` | Launches the Antigravity editor for the current directory. |
+| `Gravitas` | Launches the Antigravity editor for the current directory. |

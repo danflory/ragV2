@@ -2,11 +2,11 @@ import logging
 import asyncpg
 from .config import config
 
-logger = logging.getLogger("AGY_DATABASE")
+logger = logging.getLogger("Gravitas_DATABASE")
 
 class Database:
     """
-    Asynchronous Postgres Driver for AntiGravity.
+    Asynchronous Postgres Driver for Gravitas.
     Manages connection pooling and core DB operations.
     """
     def __init__(self):
@@ -55,7 +55,7 @@ class Database:
                     );
                 ''')
                 await conn.execute('CREATE INDEX IF NOT EXISTS idx_usage_timestamp ON usage_stats(timestamp);')
-
+                
                 # 3. SYSTEM TELEMETRY TABLE
                 await conn.execute('''
                     CREATE TABLE IF NOT EXISTS system_telemetry (
