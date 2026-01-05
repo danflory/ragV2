@@ -1,9 +1,0 @@
-import socket
-
-def get_hardware_info():
-    hostname = socket.gethostname()
-    ip_address = socket.gethostbyname(hostname)
-    return f"Hostname: {hostname}, IP Address: {ip_address}"
-
-# Assuming the user is using a workstation with their name printed on it
-print("My name is [Your Name] and I am using hardware:", get_hardware_info())
