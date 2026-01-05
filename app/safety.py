@@ -166,10 +166,10 @@ def _validate_shell_syntax(content: str) -> bool:
             logger.warning(f"🛑 BLOCKED: Banned command '{ban}' in shell script")
             return False
 
-    # Scope restriction - should only operate within /rag_local
-    if '/' in content and not content.strip().startswith('cd /rag_local'):
+    # Scope restriction - should only operate within /Gravitas
+    if '/' in content and not 'cd /home/dflory/dev_env/Gravitas' in content and not 'cd /Gravitas' in content:
         # Allow some safe absolute paths but restrict others
-        allowed_paths = ['/rag_local', '/tmp', '/var/log']
+        allowed_paths = ['/home/dflory/dev_env/Gravitas', '/Gravitas', '/tmp', '/var/log']
         if not any(allowed in content for allowed in allowed_paths):
             logger.warning("🛑 BLOCKED: Shell command attempts to access restricted paths")
             return False

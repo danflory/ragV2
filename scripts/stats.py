@@ -23,7 +23,7 @@ async def show_stats():
             FROM usage_stats
         ''')
 
-        print("\n📊 --- ANTIGRAVITY USAGE STATS ---")
+        print("\n📊 --- GRAVITAS USAGE STATS ---")
         print(f"Total Requests: {totals['total_requests'] or 0}")
         print(f"Total Tokens:   {(totals['total_prompt'] or 0) + (totals['total_completion'] or 0):,}")
         print(f"  └─ Prompt:     {totals['total_prompt'] or 0:,}")

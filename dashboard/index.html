@@ -12,6 +12,18 @@
 </head>
 
 <body>
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <div class="splash-logo">▲</div>
+            <h1 class="splash-title">GRAVITAS</h1>
+            <p class="splash-subtitle">Grounded Research</p>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- No blobs here, keeping it clean for professional look -->
 
     <main class="nexus-container">
@@ -20,7 +32,10 @@
             <div class="logo-area">
                 <span class="logo-icon">▲</span>
                 <h1>GRAVITAS<span>NEXUS</span></h1>
-                <span style="font-size: 0.6rem; color: #555; margin-top: 5px;">V1.1_L2_AWARE</span>
+                <div class="nav-tabs">
+                    <button id="nav-dashboard" class="nav-btn active">DASHBOARD</button>
+                    <button id="nav-bugs" class="nav-btn">BUG TRACKER</button>
+                </div>
             </div>
             <div class="status-badge" id="detailed-status">
                 <span class="status-dot"></span>
@@ -28,8 +43,8 @@
             </div>
         </header>
 
-        <!-- GRID LAYOUT -->
-        <div class="nexus-grid">
+        <!-- DASHBOARD VIEW -->
+        <div class="nexus-grid" id="view-dashboard">
 
             <!-- LEFT COLUMN: STATS HUD -->
             <section class="pane stats-hud glass">
@@ -128,21 +143,61 @@
                     </div>
                     <div class="tool-group">
                         <h3>MEMORY</h3>
-                        <button id="clear-btn" class="btn-wide btn-danger">PURGE CHAT HISTORY</button>
+                        <button id="clear-btn" class="btn-wide btn-danger" style="margin-bottom: 10px;">PURGE CHAT
+                            HISTORY</button>
+                        <button id="reset-btn" class="btn-wide"
+                            style="background: #000; color: #ff0055; border: 1px solid #ff0055; font-weight: bold;">HARD
+                            SYSTEM RESET</button>
                     </div>
                 </div>
 
                 <div class="service-health" id="service-health-grid">
-                    <div class="service-item" data-service="ollama">OLLAMA <span class="dot"></span></div>
-                    <div class="service-item" data-service="chroma">CHROMA <span class="dot"></span></div>
+                    <div class="service-item" data-service="ollama">OLLAMA (L1) <span class="dot"></span></div>
+                    <div class="service-item" data-service="ollama_embed">EMBED (L1) <span class="dot"></span></div>
+                    <div class="service-item" data-service="qdrant">QDRANT <span class="dot"></span></div>
+                    <div class="service-item" data-service="minio">MINIO <span class="dot"></span></div>
                     <div class="service-item" data-service="postgres">POSTGRES <span class="dot"></span></div>
+                </div>
+            </section>
+        </div>
+
+        <!-- BUG TRACKER VIEW (Hidden by default) -->
+        <div class="nexus-grid" id="view-bugs" style="display: none; grid-template-columns: 1fr;">
+            <section class="pane glass">
+                <div class="pane-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2><span class="icon">🐛</span> SYSTEM ANOMALY TRACKER</h2>
+                    <span class="bug-count" id="bug-count">1 ACTIVE INCIDENT</span>
+                </div>
+                <div class="bugs-content">
+                    <table class="bug-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>INCIDENT</th>
+                                <th>DESCRIPTION</th>
+                                <th>STATUS</th>
+                                <th>RESOLUTION DATE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bug-list">
+                            <!-- Bugs will be injected here -->
+                            <tr>
+                                <td class="bug-id">BUG-001</td>
+                                <td class="bug-title">Ingestor Path Mismatch (Host/Docker)</td>
+                                <td>Configuration hardcoded to container paths while running natively on host. Root
+                                    directory scan was including vram/data bloat.</td>
+                                <td><span class="tag tag-resolved">RESOLVED</span></td>
+                                <td>2026-01-05</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="app.js?v=1.1"></script>
+    <script src="app.js?v=1.2"></script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 
 # Gravitas Grounded Research - Session Context
-**Generated:** 2026-01-04 19:25:32
+**Generated:** 2026-01-05 12:58:10
 **System:** Titan RTX (Local) + DeepInfra (Cloud)
 **App State:** Docker Microservices
 
@@ -31,7 +31,7 @@ To prevent system crashes or OOM (Out Of Memory) during long context sessions, t
 1.  **Strict Buffer:** 2GB must remain free at all times.
 2.  **Logic:** Prior to any L1 inference, `GPUtil` queries all GPUs.
 3.  **Action:** If `Free_VRAM < 2GB` on any GPU, the request **must** be promoted to L2 to avoid crash.
-4.  **Telemetry:** All VRAM checks logged to Postgres for monitoring and analysis.
+4.  **Telemetry:** All VRAM checks and load/thought latency metrics logged to Postgres for monitoring and **Phase 5 Dynamic Governance**. 60-day history maintained via aggregation.
 
 ## 3. MICROSERVICES TOPOLOGY
 The system runs in a multi-container environment with dedicated services:
@@ -53,78 +53,124 @@ The system runs in a multi-container environment with dedicated services:
 ---
 ## STRATEGIC ROADMAP
 
-### 3. STRATEGIC ROADMAP (The Docker Evolution)
+# GRAVITAS GROUNDED RESEARCH - STRATEGIC ROADMAP
 
-#### PHASE 1: THE MEMORY (COMPLETED)
-* [x] **Infrastructure:** Provision `chroma_db` container.
-* [x] **Connection:** Verify Network Link (Brain -> Memory).
-* [x] **Software:** Implement `VectorStore` class.
-* [x] **Verification:** Pass `tests/test_memory_logic.py`.
-* [x] **Feature:** "Ingest" - Build the document reader (`app/ingest.py`).
+## CURRENT STATE: v4.2.0 (GRAVITAS REBRAND & AGENTIC CONSTRUCTION)
+The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Memory + MinIO Storage, Postgres History) is stable. Agentic construction via Antigravity is active.
 
-#### PHASE 2: THE AMNESIA FIX (COMPLETED)
-* [x] **Goal:** Eliminate file-based SQLite state.
-* [x] **Infra:** Provision `postgres_db` container.
-* [x] **Software:** Implement `app/database.py` (Async PG Driver).
-* [x] **Verification:** History survives container restart.
+---
 
-#### PHASE 3: THE BRAIN TRANSPLANT (COMPLETED)
-* **Goal:** Eliminate host-dependency on Ollama.
-* **Action:** Move L1 (Ollama) into a Docker service with GPU passthrough.
-* **Why:** True portability. The project becomes "Run anywhere."
+## 🚨 URGENT FIX: INCONSISTENCY RESOLUTION (2026-01-05)
+- **Problem**: Retention policies and agent naming were inconsistent across documentation and code.
+- **Resolution**:
+    - **Telemetry**: 60-day aggregation window (Postgres).
+    - **Reasoning Pipes**: 14-day local archive (Files).
+    - **Identity**: **Antigravity** is the construction assistant. All departmental agents (Scout, Librarian) MUST be prefixed with **Gravitas**.
+    - **Protocol**: `docs/005_development_protocols.md` updated to v4.2.0 as the source of truth for these retention and identity rules.
+    - **Maintenance**: `maintenance.py` moved to `ANTIGRAVITY_Scripts/` and updated to handle the 14/60 day split.
+    - **Dashboard Sync**: Labels and UI system updated to Gravitas/Antigravity v4.2.0 standards.
 
-#### BACKLOG / TECH DEBT
-* **Terminology Governance:** Create a "Variable Name Document" to define project-wide naming standards (Gravitas vs. Legacy) and implement a validation script to ensure consistency across docs and code.
-* **Protocol Mismatch:** [RESOLVED] All layers now use `<reflex action="git_sync">`.
+---
+
+## COMPLETED PHASES
+
+### PHASE 1: THE FOUNDATION (QDRANT & MINIO)
+* [x] **Hybrid Storage:** Split vectors (Qdrant) from blobs (MinIO) for hardware efficiency.
+* [x] **Verification:** Full ingestion and search pipeline verified in `tests/`.
+
+### PHASE 2: PERSISTENCE & TELEMETRY
+* [x] **Infrastructure:** Provisioned `postgres_db` for chat history and metrics.
+* [x] **Telemetry:** Implemented `app/telemetry.py` for VRAM tracking and system events.
+
+### PHASE 3: THE GRAVITAS EVOLUTION (REBRANDING)
+* [x] **Consistency:** Global rename of all legacy "agy" / "AntiGravity" terms to **Gravitas**.
+* [x] **Automation:** Hooked session context generation into the system startup.
+* [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/GRAVITAS_DEV_JOURNAL.md`.
+
+---
+
+## UPCOMING PHASES
+
+### PHASE 4: COMMAND & CONTROL (THE NEXUS DASHBOARD)
+* [ ] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
+* [ ] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
+
+### PHASE 4.5: GRANULAR TELEMETRY CALIBRATION (THE SENSORS)
+* [ ] **Sensor Implementation:** Upgrade `app/telemetry.py` to record sub-second metrics: **Load Latency** (VRAM setup) and **Thought Latency** (Inference Speed).
+* [ ] **The 60-Day Historic Window:** Establish a 60-day data retention policy in Postgres to track long-term hardware performance.
+* [ ] **Safety (Aggregation & Monitoring):** 
+    * Implement **Telemetry Aggregation** (averaging hits every 60s) to prevent database bloat.
+    * **Dashboard Widget**: Create a "Telemetry Footprint" monitor to track disk space used by the millions of potential hits.
+    * **Auto-Pruning**: Summarize data older than 60 days into daily performance benchmarks before purging raw logs.
+
+### PHASE 5: DYNAMIC MODEL GOVERNANCE (THE SUPERVISOR)
+* [ ] **Data-Driven Dispatcher:** Use the 60 days of calibrated **Telemetry Data** to route tasks based on real-time load times, token speeds, and cost.
+* [ ] **Predictive Context Orchestration:** Define acceptable context switching costs based on **Actual Historic Data** (e.g., loading a 70B model for a long work queue vs. rapid switching on a 6GB card).
+* [ ] **Dynamic Trade-off Self-Correction:** Implement an autonomous feedback loop where the Supervisor audits its own scheduling decisions and automatically adjusts the routing plan.
+
+### PHASE 6: SELF-LEARNING DATA (REASONING PIPES)
+* [ ] **Reasoning Pipe Architecture:** Implement the standardized naming schema: `docs/journals/ReasoningPipe_{agentName}.md`.
+* [ ] **Self-Improvement Foundation:** Establish these pipes as the primary dataset for future self-audit and capability evolution.
+* [ ] **Buffer-Append Protocol:** Implement the "Zero-Editing" logic where an active session buffer is appended to the agent-specific ReasoningPipe upon session completion.
+* [ ] **Action Visibility Trace:** Every agent, regardless of model internal reasoning capability, must log state-changes (e.g., "Modified file X") to ensure a complete audit trail.
+* [ ] **14-Day Cycle**: Reasoning data remains active for 14 days for forensic and self-learning analysis.
+
+### PHASE 7: ADVANCED KNOWLEDGE INDEXING
+* [ ] **From Semantic Keys to Knowledge Indexes:** Refactor the ingestion pipeline toward structured, concept-aware indexing.
+* [ ] **Hierarchical Summarization:** Deploy the **Gravitas Librarian** to generate "Big Picture" summaries of all local documentation.
+* [ ] **Relational Mapping:** Implement entity extraction to map dependencies between code files and architectural decisions.
+
+### PHASE 8: AGENT SPECIALIZATION (THE SCOUT'S EXPANSION)
+* [ ] **Multimodal Transcription:** Integrate `yt-dlp` and `Whisper` to allow the **Gravitas Scout** to ingest YouTube and audio sermons.
+* [ ] **Live Web Probing:** Implement live web search for the **Gravitas Scout**.
+* [ ] **L3 Feedback Loop:** Formalize the **Gravitas Scout**'s ability to "Ask L3" iterative reasoning questions.
+
+### PHASE 9: GRAVITAS AGENTIC INFRASTRUCTURE
+* [ ] **Mirroring Construction Protocols**: Research and implement a `.gravitas_agent` directory for each Gravitas Agent (**Gravitas Scout**, **Gravitas Librarian**, etc.).
+* [ ] **Standardized Startup**: Implement a `recon` phase for Gravitas Agents to ensure they sync with global project state.
+
+### PHASE 10: INTELLIGENCE AUDIT & BENCHMARKING
+* [ ] **Bi-Weekly Model Pulse:** Establish an automated sweep (every 14 days) of Ollama, DeepInfra, and Google for new model releases.
+* [ ] **Independent Test Suite:** Develop a project-specific benchmarking suite to validate model performance against Gravitas RAG and code synthesis tasks before promotion to active roles.
+
+---
+
+## BACKLOG / TECH DEBT
 * **Secret Hygiene:** Scan codebase for hardcoded keys before pushing to public repo.
+* [x] **Journal Rotation:** Implement dated journal snapshots for high-fidelity RAG ingestion. (Completed: `docs/journals/`)
+* **VENV Hardening:** Standardize cross-platform dependency resolution in `requirements.txt`.
 
 
 ---
 ## PHYSICAL FILE MAP
 ```text
-rag_local/
-    penguins.csv
-    test_l1.py
-    t3.txt
-    Gravitas_Grounded_Research.md
-    t2.txt
+Gravitas/
+    onArrival.txt
     .gitignore
-    testResults.txt
-    l1_review_dan.txt
-    test.txt
     check_vram.py
     rag_memory.db
-    threshold_gb
+    gravitas_mcp_config.json
+    READ_ME_GRAVITAS_MASTER_MANUAL.md
     docker-compose.yml
-    memory_check.txt
     requirements.txt
-    test_cline_demo.txt
     .env
-    dashboard.log
     .dockerignore
     Dockerfile
-    memory.db
-    chat_history.db
-    testResults1.txt
-    who_am_i.txt
-    rag_local.code-workspace
+    fixProject.py
     log_conf.yaml
     CHANGELOG.md
-    _edit_bashrc
     .env.example
-    test_memory.txt
         tools/
             switch_brain.py
         docs/
             TEST_GUIDE.md
+            hardware_rig.md
+            gemini_3_model_guide.md
             001_core_architecture.md
-            todo9.md
+            STRATEGY_SESSION_2026_01_04.md
             003_security_gatekeeper.md
             HOWTO_DEV_REMINDERS.md
-            established per Function Cycle.md
-            Gravitas Grounded Research Model Integration Technical Dump.md
-            DansRig.md
-            completed_phase9.md
+            function_cycles.md
             TEST_AUDIT.md
             ROADMAP.md
             developerNotes.md
@@ -132,8 +178,20 @@ rag_local/
             004_hardware_operations.md
             GRAVITAS_NOMENCLATURE.md
             002_vector_memory.md
+            model_integration.md
             000_MASTER_OVERVIEW.md
             Initial Context Prompt.md
+            journals/
+                2026-01-04_executive.md
+                current_session.md
+                2026-01-05_thoughts.md
+                2026-01-05_executive.md
+                2026-01-04_thoughts.md
+            archived/
+                todo9.md
+                completed_phase9.md
+            architecture/
+                thinking_transparency.md
         .clinerules/
             01-status-and-audit.md
             03-base-rules.md
@@ -145,7 +203,6 @@ rag_local/
             interfaces.py
             main.py
             safety.py
-            simple_mcp.py
             ingestor.py
             L1_local.py
             L3_google.py
@@ -166,8 +223,14 @@ rag_local/
                 inspector.py
                 global_renamer.py
                 accountant.py
+        temporaryTesting/
+            2026-01-05_FileAccessAudit.md
+            session_file_reads.md
         .agent/
+            executive_template.md
+            vocabulary.md
             workflows/
+                recon.md
         dashboard/
             app.js
             index.html
@@ -202,34 +265,36 @@ rag_local/
             test_current_stack.py
         .vscode/
             sessions.json
+            settings.json
+        ANTIGRAVITY_Scripts/
+            maintenance.py
+            reasoning_pipe.py
         scripts/
             log_entry.py
             generate_context.py
             verify_chat.py
             load_knowledge.py
             ingest.py
-            agy_writer.py
-            audit_agy.sh
+            inventory.sh
             test_ingestor.py
+            sync_vocabulary.py
             warmup.py
             debug_import.py
             global_rename.py
-            list_models.sh
             test_retrieval.py
             list_all_models.py
-            router_refactored.py
-            UpdateContext.py
+            reset_gravitas.sh
             manage.py
+            mcp_entrypoint.sh
             stats.py
             test_minio.py
-            reset_agy.sh
+            audit_gravitas.sh
             monitor.sh
-            run_mcp.sh
             check_models.py
             debug_network.py
+            sync_external_context.py
             init_db.sql
             titan_stress.py
-            start_mcp.sh
             test_qwen3_connection.py
         .pytest_cache/
             .gitignore
@@ -279,7 +344,7 @@ import os
 app = FastAPI(
     title="Gravitas Grounded Research",
     description="Dual-GPU Production-Grade Hybrid RAG Architecture",
-    version="4.0.0",
+    version="4.2.0",
     lifespan=lifespan
 )
 
@@ -310,6 +375,7 @@ async def health():
 
 ### File: `app/config.py`
 ```python
+import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -355,12 +421,12 @@ class Settings(BaseSettings):
     CHROMA_URL: str = "http://chroma_db:8000" 
     CHROMA_COLLECTION: str = "Gravitas_knowledge"
     DOCS_PATH: list[str] = [
-        "/home/dflory/dev_env/rag_local/docs",
-        "/home/dflory/dev_env/rag_local/app"
+        os.path.join(os.path.dirname(__file__), "../docs"),
+        os.path.join(os.path.dirname(__file__), "../app")
     ]
 
     # === DATABASE (Postgres) ===
-    DB_HOST: str = "postgres_db"
+    DB_HOST: str = "Gravitas_postgres"
     DB_PORT: int = 5432
     DB_USER: str = "Gravitas_user"
     DB_PASS: str = "Gravitas_pass"
@@ -1237,24 +1303,24 @@ services:
       - .:/app
     environment:
       - PYTHONPATH=/app
-      - POSTGRES_HOST=postgres_db
+      - POSTGRES_HOST=Gravitas_postgres
       - QDRANT_HOST=Gravitas_qdrant
       - OLLAMA_HOST=Gravitas_ollama # GPU 0
       - OLLAMA_EMBED_HOST=Gravitas_ollama_embed # GPU 1
       - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
-      - POSTGRES_USER=${DB_USER:-Gravitas_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
+      - POSTGRES_USER=${DB_USER:-agy_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     ports:
       - "8001:8000" # Maps port 8000 inside to 8001 outside (just in case)
     depends_on:
-      - postgres_db
+      - Gravitas_postgres
       - qdrant
       - ollama
       - ollama_embed
     networks:
-      - rag_net
+      - Gravitas_net
     restart: unless-stopped
 
   # --- GPU 0: GENERATION (TITAN RTX) ---
@@ -1275,7 +1341,7 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- GPU 1: EMBEDDINGS (GTX 1060) ---
@@ -1296,7 +1362,7 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- MEMORY: QDRANT (HYBRID VECTOR DB) ---
@@ -1311,7 +1377,7 @@ services:
     environment:
       - QDRANT_ALLOW_RECOVERY_MODE=true
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- STORAGE: MINIO (OBJECT STORE) ---
@@ -1328,23 +1394,23 @@ services:
       - MINIO_ROOT_PASSWORD=minioadmin
     command: server /data --console-address ":9001"
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- DATABASE: POSTGRES (HISTORY) ---
-  postgres_db:
+  Gravitas_postgres:
     image: postgres:16-alpine
-    container_name: postgres_db
+    container_name: Gravitas_postgres
     environment:
-      - POSTGRES_USER=${DB_USER:-Gravitas_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
+      - POSTGRES_USER=${DB_USER:-agy_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     volumes:
       - ./data/postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- API: RAG BACKEND (LEGACY/ROUTER) ---
@@ -1358,17 +1424,17 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@postgres_db:5432/${DB_NAME:-chat_history}
-      - DB_HOST=postgres_db
+      - DATABASE_URL=postgresql://${DB_USER:-agy_user}:${DB_PASSWORD:-agy_pass}@Gravitas_postgres:5432/${DB_NAME:-chat_history}
+      - DB_HOST=Gravitas_postgres
       - L1_URL=http://Gravitas_ollama:11434
     depends_on:
-      - postgres_db
+      - Gravitas_postgres
       - qdrant
     networks:
-      - rag_net
+      - Gravitas_net
 
 networks:
-  rag_net:
+  Gravitas_net:
     driver: bridge
 
 ```

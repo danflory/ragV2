@@ -37,8 +37,6 @@ app = FastAPI(
 
 # MOUNT DASHBOARD (STATIC FILES)
 dashboard_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dashboard")
-if os.path.exists(dashboard_path):
-    app.mount("/dashboard", StaticFiles(directory=dashboard_path, html=True), name="dashboard")
 
 # CORS CONFIGURATION
 app.add_middleware(
@@ -50,6 +48,15 @@ app.add_middleware(
 )
 
 app.include_router(chat_router)
+
+if os.path.exists(dashboard_path):
+    from fastapi.responses import FileResponse
+    
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(os.path.join(dashboard_path, "index.html"))
+
+    app.mount("/", StaticFiles(directory=dashboard_path, html=True), name="dashboard")
 
 @app.get("/health")
 async def health():

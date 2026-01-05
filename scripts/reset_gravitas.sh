@@ -54,4 +54,4 @@ $VENV_PY scripts/log_entry.py "SERVER_START" "Boot_Script" "FastAPI launching...
 echo "   [$(date '+%H:%M:%S')] 🚀 Launching FastAPI Server..."
 echo "-----------------------------------------------------"
 
-$VENV_PY -u -m uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload --log-config log_conf.yaml
+$VENV_PY -u -m uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload --reload-dir app --log-config log_conf.yaml

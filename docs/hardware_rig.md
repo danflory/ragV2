@@ -49,7 +49,9 @@ LayerNameEngine / ModelScope & DutyL1Local LLM CoreCurrent: deepseek-coder-v2:16
 
 Shared Infrastructure:
 
-RAG: ChromaDB (Persistent at ~/dev_env/rag_local/chroma_db).
+RAG: Qdrant (Persistent at ~/dev_env/Gravitas/data/qdrant).
+Object Store: MinIO (Persistent at ~/dev_env/Gravitas/data/minio).
+History: Postgres (Persistent at ~/dev_env/Gravitas/data/postgres_data).
 
 Memory: SQLite3 (memory.db) storing the last 25 chat turns.
 

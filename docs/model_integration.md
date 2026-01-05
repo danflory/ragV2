@@ -225,7 +225,7 @@ The Gravitas Grounded Research Agentic Development Platform represents a sophist
 5. Gravitas Grounded Research vs Cursor vs Copilot: Enterprise Dev Tool Guide \- iTecs, accessed January 1, 2026, [https://itecsonline.com/post/google-gravitas grounded research-vs-cursor-vs-copilot](https://itecsonline.com/post/google-gravitas grounded research-vs-cursor-vs-copilot)  
 6. Build End-to-End Cloud Solutions Using Agentic IDE | Gravitas Grounded Research Full Demo with Gemini3 \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=mDLmPOhDM0s](https://www.youtube.com/watch?v=mDLmPOhDM0s)  
 7. Gravitas Grounded Research: Agentic Development Platform Discussion \- YouTube, accessed January 1, 2026, [https://www.youtube.com/watch?v=zXxgj\_uES3o](https://www.youtube.com/watch?v=zXxgj_uES3o)  
-8. AGY\_SYSTEM\_SPEC.md  
+8. GRAVITAS_NOMENCLATURE.md  
 9. Models \- Gravitas Grounded Research Documentation, accessed January 1, 2026, [https://gravitas grounded research.google/docs/models](https://gravitas grounded research.google/docs/models)  
 10. Google's New Gemini Pro Features Are Out, but Most of Them Will Cost You | Lifehacker, accessed January 1, 2026, [Google's New Gemini Pro Features Are Out, but Most of Them Will Cost You | Lifehacker](https://lifehacker.com/tech/google-new-gemini-3-features)  
 11. How to Connect Code Assistants Like Claude Code to Google ..., accessed January 1, 2026, [How to Connect Code Assistants Like Claude Code to Gravitas Grounded Research Models : r/vibecoding](https://www.reddit.com/r/vibecoding/comments/1pwmwv2/how_to_connect_code_assistants_like_claude_code/)  

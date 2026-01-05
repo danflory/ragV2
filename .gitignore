@@ -1,26 +1,29 @@
-# Ignore the virtual environment (The Heavy Stuff)
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 venv/
-env/
 .env
 
-# Ignore Python cache files
-__pycache__/
-*.pyc
+# Docker
+.docker_info
 
-# Ignore local databases and logs
-*.db
+# Databases / Data
+data/postgres_data/
+data/qdrant/
+data/minio/
+data/ollama_models/
+data/ollama_embed_models/
+data/chroma_db/
+data/huggingface/
+
+# Logs
 *.log
-data/
-chroma_db/
-testResults.txt
+system.log
 
-# Ignore OS files
-.DS_Store
+# Journals (Should be visible to Antigravity, but maybe not all tracked if too large)
+# For now, let's keep them tracked as requested by nomenclature protocols
+# docs/journals/
 
-# Ignore docs2/tmp and all subdirectories
-docs2/tmp/
-
-# Ignore Scripts/Tmp and all subdirectories
-Scripts/Tmp/
-
-
+# Antigravity Scripts
+# ANTIGRAVITY_Scripts/ is essential for the construction assistant

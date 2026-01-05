@@ -1,3 +1,4 @@
+import os
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -6,7 +7,8 @@ class Settings(BaseSettings):
     PORT: int = 5050
     
     # === LAYER 1 (Local - Titan RTX) ===
-    L1_URL: str = "http://ollama:11434"
+    L1_URL: str = "http://Gravitas_ollama:11434"
+    L1_EMBED_URL: str = "http://Gravitas_ollama_embed:11434"
     L1_MODEL: str = "codellama:7b"
     VRAM_THRESHOLD_GB: float = 2.0
 
@@ -43,12 +45,14 @@ class Settings(BaseSettings):
     CHROMA_URL: str = "http://chroma_db:8000" 
     CHROMA_COLLECTION: str = "Gravitas_knowledge"
     DOCS_PATH: list[str] = [
-        "/home/dflory/dev_env/rag_local/docs",
-        "/home/dflory/dev_env/rag_local/app"
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs"),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app")
     ]
 
+
+
     # === DATABASE (Postgres) ===
-    DB_HOST: str = "postgres_db"
+    DB_HOST: str = "Gravitas_postgres"
     DB_PORT: int = 5432
     DB_USER: str = "Gravitas_user"
     DB_PASS: str = "Gravitas_pass"

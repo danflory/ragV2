@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Total Project Rebrand**: Replaced all `AGY` / `AntiGravity` identifiers with **Gravitas Grounded Research** across code, documentation, and Docker infrastructure.
 - **Infrastructure Alignment**: Renamed all Docker containers to use `Gravitas_` prefix (e.g., `Gravitas_ollama`, `Gravitas_qdrant`).
 - **Nomenclature Standard**: Established `docs/NOMENCLATURE.md` to govern variable naming and consistency.
-- **Automated Context**: The `GRAVITAS_SESSION_CONTEXT.md` is now automatically updated every time `scripts/reset_agy.sh` is executed.
+- **Automated Context**: The `GRAVITAS_SESSION_CONTEXT.md` is now automatically updated every time `scripts/reset_gravitas.sh` is executed.
 
 ### Added
 - `scripts/monitor.sh`: Real-time Mission Control dashboard for GPU VRAM and container health.
@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Renamed Database Service**: `agy_postgres` is now `postgres_db` across all code and Docker configurations.
-- **Improved Reset Script**: `scripts/reset_agy.sh` now includes host-mode environment overrides to resolve DNS issues.
+- **Improved Reset Script**: `scripts/reset_gravitas.sh` now includes host-mode environment overrides to resolve DNS issues.
 - **Fixed Model Warmup**: `scripts/warmup.py` now correctly targets the L1 model defined in config.
 
 ### Removed

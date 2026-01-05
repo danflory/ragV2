@@ -3,7 +3,7 @@
 # PROTOCOL_V1: GRAVITAS_JOURNALING
 - DIRECTORY: /docs/journals/
 - RULE_STRATEGIC_CROSSROADS_FIRST: Every carryover MUST lead with unanswered strategic crossroads. These are the immediate hurdles and forks in the road for the project.
-- RULE_DEEP_RECONCILIATION: Antigravity syncs with your latest strategic decisions in the `executive.md` journals.
+- RULE_DEEP_RECONCILIATION: Antigravity syncs with your latest strategic decisions in the most recent executive journal.
 - RULE_SILENT_METADATA_SYNC: A background machine-readable "vocabulary" is maintained to ensure the agent understands current protocols without manual configuration.
 - RULE_CONTEXT_RESUMPTION: Resume complex research or coding tasks exactly where they left off, avoiding the "cold start" delay.
 - RULE_DUAL-TRACK_JOURNALING: We maintain a private audit trail in `docs/journals/`.
@@ -29,6 +29,8 @@
 - PROTOCOL_SELECTIVE_COMMITTING: Agents responding to a "commit" directive MUST NOT include `docs/journals/` unless explicitly instructed by the user. 
 - PROTOCOL_GIT_STATUS_FILTERING: To view status without journal noise, use: `git status -- :!docs/journals/`
 - PROTOCOL_THE_REASONING_PIPE_RULE: MANDATORY. Every task cycle MUST conclude with a verbatim dump of all internal reasoning/actions to the current_session.md buffer.
+- PROTOCOL_FORENSIC_SCHEMA: Internal thought dumps MUST use the '[itj-XXX]' prefix and categorical markers (Internal Monologue, Drafting Thought, Action, Status).
+- PROTOCOL_THE_FIRST_RULE: During urgent fixes, Antigravity is strictly forbidden from modifying any file unrelated to the specific target task.
 - PROTOCOL_ZERO-EDITING_POLICY: The agent is strictly forbidden from summarizing, re-phrasing, or "cleaning up" internal processes for the pipe. The dump must be a character-for-character mirror of the internal reasoning or action state.
 - PROTOCOL_THE_OBSERVER_BARRIER: Reasoning Pipes are for audit and self-learning only. Agents do not "read" their own session journals to maintain logic; they rely on the active context. This prevents recursion and memory pollution.
 - PROTOCOL_BLUEPRINT_REFERENCE: Use the structure defined in `.agent/executive_template.md`.
@@ -41,9 +43,11 @@
 - MAGIC_WORDS:
   - Agent Implementation: Use `git add <files> :!docs/journals/` or explicitly list files while skipping the journals directory.
   - Verification: Always run `git status` (filtered) before committing to ensure journals are not staged.
+- PROTOCOL_SHORT_CIRCUIT_HI: (PRIORITY OVERRIDE) If user input is exactly "hi" (case-insensitive), the Agent MUST IMMEDIATELY respond with "hi" and bypass all other reconnaissance/read protocols.
 - PROTOCOL_AESTHETIC_ACCESSIBILITY: All UI/UX changes MUST prioritize high-contrast readability. 
 - PROTOCOL_TABLE_VISIBILITY_OVERRIDE: (MANDATORY) Due to UI rendering bugs, all table requests MUST be handled by:
   - [1] Prompting the user with an explanation of the bug.
   - [2] Generating a date-stamped .md file in `/temporaryTesting/`.
   - [3] Providing the "Non-Interpreted" raw Markdown in a code block within the chat.
 - RECON_PRIORITY: [1] Load .agent/vocabulary.md [2] Exec.md (tail 50) [3] Ready
+- PROTOCOL_SESSION_INITIALIZATION: (MANDATORY) Upon receiving the very first prompt of a new session, the Agent MUST immediately execute `python3 ANTIGRAVITY_Scripts/reasoning_pipe.py` before processing the user's request.

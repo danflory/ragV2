@@ -1,30 +1,108 @@
-#!/usr/bin/env python3
 import sys
 import os
+import re
 from datetime import datetime
 
-def log_reasoning(target_file, content):
-    """
-    Appends content verbatim to the target file with a timestamp header.
-    Ensures no agent-side 'editing' occurs during the write process.
-    """
-    # Ensure the directory exists
-    os.makedirs(os.path.dirname(target_file), exist_ok=True)
+# Antigravity Reasoning Pipe
+# Technical Implementation of GOOGLE_ANTIGRAVITY_SPEC.md
+# fulfills: 1. Thinking Transparency (RAW dumps)
+#           2. Session Transition & Archival (Phase A & B)
+
+JOURNAL_DIR = "docs/journals"
+CURRENT_SESSION_FILE = os.path.join(JOURNAL_DIR, "current_session.md")
+
+def get_dated_filenames():
+    today = datetime.now().strftime("%Y-%m-%d")
+    thoughts_log = os.path.join(JOURNAL_DIR, f"{today}_thoughts.md")
+    executive_log = os.path.join(JOURNAL_DIR, f"{today}_executive.md")
+    return thoughts_log, executive_log
+
+def get_next_id():
+    """Reads the current session file to determine the next sequential [itj-XXX] ID."""
+    if not os.path.exists(CURRENT_SESSION_FILE):
+        return "itj-001"
     
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    header = f"\n\n--- [REASONING PIPE DUMP: {timestamp}] ---\n"
+    with open(CURRENT_SESSION_FILE, "r") as f:
+        content = f.read()
     
-    with open(target_file, "a", encoding="utf-8") as f:
-        f.write(header)
-        f.write(content)
-        f.write("\n")
+    # Find all [itj-XXX] tags
+    matches = re.findall(r"\[itj-(\d+)\]", content)
+    
+    if not matches:
+        return "itj-001"
+    
+    last_id = int(matches[-1])
+    next_id = last_id + 1
+    return f"itj-{next_id:03d}"
+
+def log_thought(content):
+    """Appends verbatim content with auto-incrementing ID to the current session buffer."""
+    if not os.path.exists(JOURNAL_DIR):
+        os.makedirs(JOURNAL_DIR)
+    
+    # Auto-numbering logic
+    entry_id = get_next_id()
+    
+    # Structure: [itj-XXX] Content
+    formatted_entry = f"[{entry_id}] {content}"
+    
+    with open(CURRENT_SESSION_FILE, "a") as f:
+        f.write(formatted_entry + "\n")
+
+def handle_session_transition():
+    """Fulfills Section 3 of the Spec: Buffer Archival and Executive Synthesis."""
+    if not os.path.exists(CURRENT_SESSION_FILE) or os.path.getsize(CURRENT_SESSION_FILE) == 0:
+        # Buffer is already clear, just ensure it exists
+        open(CURRENT_SESSION_FILE, 'w').close()
+        return
+
+    thoughts_log, executive_log = get_dated_filenames()
+    
+    # PHASE A: Buffer Archival
+    with open(CURRENT_SESSION_FILE, "r") as f:
+        buffer_content = f.read()
+    
+    with open(thoughts_log, "a") as f:
+        f.write(f"\n--- SESSION START: {datetime.now().strftime('%H:%M:%S')} ---\n")
+        f.write(buffer_content)
+    
+    # PHASE B: Executive Synthesis (Triggered)
+    # Note: Full automated synthesis requires LLM inference. 
+    # This script prepares the buffer and clears it.
+    
+    # Clear the buffer
+    open(CURRENT_SESSION_FILE, 'w').close()
+    print(f"✅ Session archived to {thoughts_log}. Buffer cleared.")
+    print("Status: [itj-000] Session Transition Complete. Thinking Transparency Active.")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: ./reasoning_pipe.py <target_file> <content>")
-        sys.exit(1)
-    
-    target = sys.argv[1]
-    # Joining the content argument
-    text = sys.argv[2]
-    log_reasoning(target, text)
+    if not os.path.exists(JOURNAL_DIR):
+        os.makedirs(JOURNAL_DIR)
+
+    # Mode Selection
+    if len(sys.argv) > 1:
+        first_arg = sys.argv[1]
+
+        if first_arg == "--init":
+            # Explicit Initialization
+            handle_session_transition()
+            sys.exit(0)
+        
+        elif first_arg == "--stdin":
+            # Safe Input Mode: Read from Stdin
+            # Usage: echo "Content" | python3 reasoning_pipe.py --stdin
+            # or from a file/heredoc
+            content = sys.stdin.read().strip()
+            if content:
+                log_thought(content)
+            sys.exit(0)
+        
+        else:
+            # Legacy/Simple Mode: Arguments as content
+            thought = " ".join(sys.argv[1:])
+            log_thought(thought)
+            sys.exit(0)
+
+    # Default (No Args): Initialization Mode (Backward Compatibility for recon.md)
+    handle_session_transition()
+

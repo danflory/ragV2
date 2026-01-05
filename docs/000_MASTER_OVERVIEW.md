@@ -26,9 +26,9 @@ The system leverages **dual NVIDIA GPUs** for parallel processing and implements
 ## 4. DOCUMENTATION MAP
 | ID | Document | Status | Scope |
 | :--- | :--- | :--- | :--- |
-| 000 | [MASTER_OVERVIEW](file:///home/dflory/dev_env/rag_local/docs/000_MASTER_OVERVIEW.md) | ACTIVE | Philosophy & Pipeline |
-| 001 | [CORE_ARCHITECTURE](file:///home/dflory/dev_env/rag_local/docs/001_core_architecture.md) | ACTIVE | IoC, Drivers, Contracts |
-| 002 | [VECTOR_MEMORY](file:///home/dflory/dev_env/rag_local/docs/002_vector_memory.md) | ACTIVE | Qdrant Hybrid Search |
-| 003 | [SECURITY_GATEKEEPER](file:///home/dflory/dev_env/rag_local/docs/003_security_gatekeeper.md) | ACTIVE | Safety & Escalation |
-| 004 | [HARDWARE_OPERATIONS](file:///home/dflory/dev_env/rag_local/docs/004_hardware_operations.md) | ACTIVE | VRAM & Dual-GPU |
-| 005 | [DEVELOPMENT_PROTOCOLS](file:///home/dflory/dev_env/rag_local/docs/005_development_protocols.md) | ACTIVE | TDD & Retention Cycles |
+| 000 | [MASTER_OVERVIEW](file:///home/dflory/dev_env/Gravitas/docs/000_MASTER_OVERVIEW.md) | ACTIVE | Philosophy & Pipeline |
+| 001 | [CORE_ARCHITECTURE](file:///home/dflory/dev_env/Gravitas/docs/001_core_architecture.md) | ACTIVE | IoC, Drivers, Contracts |
+| 002 | [VECTOR_MEMORY](file:///home/dflory/dev_env/Gravitas/docs/002_vector_memory.md) | ACTIVE | Qdrant Hybrid Search |
+| 003 | [SECURITY_GATEKEEPER](file:///home/dflory/dev_env/Gravitas/docs/003_security_gatekeeper.md) | ACTIVE | Safety & Escalation |
+| 004 | [HARDWARE_OPERATIONS](file:///home/dflory/dev_env/Gravitas/docs/004_hardware_operations.md) | ACTIVE | VRAM & Dual-GPU |
+| 005 | [DEVELOPMENT_PROTOCOLS](file:///home/dflory/dev_env/Gravitas/docs/005_development_protocols.md) | ACTIVE | TDD & Retention Cycles |

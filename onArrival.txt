@@ -10,7 +10,7 @@ The user is migrating the entire RAG project from the legacy `~/dev_env/rag_loca
     - **Path Decoupling**: Refactor `app/config.py` to use `os.path.join(os.path.dirname(__file__), "../docs")` instead of hardcoded absolute paths.
     - **Git Hygiene**: Update `.gitignore` to ensure the new directory structure and `ANTIGRAVITY_Scripts/` are correctly handled (while maintaining journal visibility for Antigravity).
     - **Docker Wiring**: Update `docker-compose.yml` keys and volume names to use the `Gravitas_` prefix instead of legacy `rag_local_` defaults.
-    - **Global Rename**: Perform a final search-and-replace for any remaining `/home/dflory/dev_env/rag_local` strings across all documentation and source files.
+    - **Global Rename**: Perform a final search-and-replace for any remaining `/home/dflory/dev_env/Gravitas` strings across all documentation and source files.
     - **Git Repo Reset**: In the new workspace, run `git init`, `git add .`, and `git remote add origin [NEW_REPO_URL]`. This ensures the project exists under its new name globally. (Existing SSH/GitHub auth will remain valid as it is tied to the host machine).
     - **Alias Update**: Prepare the `sed` commands to update `~/.bashrc` aliases (`py`, `reset`, `audit`, `UpdateContext`).
 

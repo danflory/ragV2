@@ -38,6 +38,28 @@ class MinioConnector(ObjectStore):
         if not self.client.bucket_exists(self.bucket_name):
             self.client.make_bucket(self.bucket_name)
 
+    async def check_health(self) -> bool:
+        """Verifies connectivity to MinIO."""
+        try:
+            return await asyncio.to_thread(self.client.bucket_exists, self.bucket_name)
+        except Exception:
+            return False
+
+    async def purge(self) -> bool:
+        """
+        Wipes all objects in the bucket.
+        """
+        try:
+            # Wrap synchronous MinIO calls in to_thread
+            objects = await asyncio.to_thread(self.client.list_objects, self.bucket_name, recursive=True)
+            for obj in objects:
+                await asyncio.to_thread(self.client.remove_object, self.bucket_name, obj.object_name)
+            logger.info(f"🧹 STORAGE PURGED: All blobs removed from {self.bucket_name}")
+            return True
+        except Exception as e:
+            logger.error(f"❌ STORAGE PURGE ERROR: {e}")
+            return False
+
     async def upload(self, key: str, data: str) -> bool:
         """Uploads raw text content to MinIO."""
         try:

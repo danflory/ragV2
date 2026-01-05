@@ -84,6 +84,13 @@ class QdrantVectorStore(VectorMemory):
         except Exception as e:
             logger.error(f"❌ QDRANT COLLECTION ERROR: {e}")
 
+    async def check_health(self) -> bool:
+        """Verifies connectivity to Qdrant."""
+        try:
+            return await asyncio.to_thread(self.client.collection_exists, self.collection_name)
+        except Exception:
+            return False
+
     async def search(self, query: str, top_k: int = 5) -> List[str]:
         """
         Gravitas Grounded Research Search:
@@ -154,4 +161,23 @@ class QdrantVectorStore(VectorMemory):
             return True
         except Exception as e:
             logger.error(f"❌ INGESTION ERROR: {e}")
+            return False
+
+    async def purge(self) -> bool:
+        """
+        Wipes the entire collection in Qdrant and all blobs in Storage.
+        """
+        try:
+            # 1. Clear Vector Index
+            self.client.delete_collection(self.collection_name)
+            self._ensure_collection()
+            
+            # 2. Clear Blob Storage
+            if self.storage:
+                await self.storage.purge()
+                
+            logger.info("🧹 FULL MEMORY PURGE: Qdrant and MinIO cleared.")
+            return True
+        except Exception as e:
+            logger.error(f"❌ PURGE ERROR: {e}")
             return False

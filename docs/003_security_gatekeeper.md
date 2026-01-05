@@ -24,6 +24,6 @@ To prevent "hallucinated destruction" or secret leakage, all **Reflex Actions** 
 
 ## 3. ADVANCED SECURITY FEATURES
 * **Multi-Format Validation:** Python, YAML, JSON, SQL, and Shell syntax checking
-* **Scope Restrictions:** Shell commands restricted to `/rag_local` scope
+* **Scope Restrictions:** Shell commands restricted to `/Gravitas` scope
 * **Import Auditing:** Blocks dangerous Python imports (`subprocess`, `os.system`)
 * **SQL Protection:** Blocks dangerous SQL keywords (`DROP`, `TRUNCATE`, `DELETE`)

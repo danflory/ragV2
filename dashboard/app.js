@@ -20,7 +20,13 @@ const elements = {
     modeDevBtn: document.getElementById('mode-dev-btn'),
     librarianBtn: document.getElementById('librarian-btn'),
     scoutInput: document.getElementById('scout-query'),
-    scoutBtn: document.getElementById('scout-btn')
+    scoutBtn: document.getElementById('scout-btn'),
+    resetBtn: document.getElementById('reset-btn'),
+    navDashboard: document.getElementById('nav-dashboard'),
+    navBugs: document.getElementById('nav-bugs'),
+    viewDashboard: document.getElementById('view-dashboard'),
+    viewBugs: document.getElementById('view-bugs'),
+    splashScreen: document.getElementById('splash-screen')
 };
 
 // --- CORE LOGIC ---
@@ -79,45 +85,73 @@ async function refreshFinancials() {
     } catch (e) { console.error("Financials fetch failed", e); }
 }
 
+/**
+ * Updates UI based on health data received from API or SSE.
+ */
+function updateHealthUI(data) {
+    if (data.status === "success") {
+        const h = data.health;
+
+        // 1. Update Detailed Status Text
+        elements.detailedStatus.innerHTML = `<span class="status-dot"></span> NVIDIA TITAN RTX: ${h.gpu.percentage}% LOAD`;
+
+        // 2. Update VRAM Stats
+        elements.statVram.innerText = `${h.gpu.used}MB / ${h.gpu.total}MB`;
+        elements.vramBar.style.width = `${h.gpu.percentage}%`;
+
+        // Adjust bar color based on load
+        if (h.gpu.percentage > 90) elements.vramBar.style.background = 'var(--office-danger)';
+        else if (h.gpu.percentage > 70) elements.vramBar.style.background = 'var(--office-purple)';
+        else elements.vramBar.style.background = 'var(--office-blue)';
+
+        // 3. Update health grid
+        elements.healthDots.forEach(item => {
+            const service = item.getAttribute('data-service');
+            const status = h[service];
+            if (status) {
+                item.className = `service-item ${status}`;
+            }
+        });
+
+        // 4. Update Mode Toggle Buttons
+        if (data.current_mode === 'RAG') {
+            elements.modeRagBtn.classList.add('active');
+            elements.modeDevBtn.classList.remove('active');
+        } else {
+            elements.modeDevBtn.classList.add('active');
+            elements.modeRagBtn.classList.remove('active');
+        }
+    }
+}
+
 async function refreshHealth() {
     try {
         const response = await fetch(`${API_URL}/health/detailed`);
         const data = await response.json();
-
-        if (data.status === "success") {
-            const h = data.health;
-
-            // 1. Update Detailed Status Text
-            elements.detailedStatus.innerHTML = `<span class="status-dot"></span> NVIDIA TITAN RTX: ${h.gpu.percentage}% LOAD`;
-
-            // 2. Update VRAM Stats
-            elements.statVram.innerText = `${h.gpu.used}MB / ${h.gpu.total}MB`;
-            elements.vramBar.style.width = `${h.gpu.percentage}%`;
-
-            // Adjust bar color based on load
-            if (h.gpu.percentage > 90) elements.vramBar.style.background = 'var(--office-danger)';
-            else if (h.gpu.percentage > 70) elements.vramBar.style.background = 'var(--office-purple)';
-            else elements.vramBar.style.background = 'var(--office-blue)';
-
-            // 3. Update health grid
-            elements.healthDots.forEach(item => {
-                const service = item.getAttribute('data-service');
-                const status = h[service];
-                item.className = `service-item ${status}`;
-            });
-
-            // 4. Update Mode Toggle Buttons
-            if (data.current_mode === 'RAG') {
-                elements.modeRagBtn.classList.add('active');
-                elements.modeDevBtn.classList.remove('active');
-            } else {
-                elements.modeDevBtn.classList.add('active');
-                elements.modeRagBtn.classList.remove('active');
-            }
-        }
+        updateHealthUI(data);
     } catch (e) {
         elements.detailedStatus.innerHTML = `<span class="status-dot" style="background: red;"></span> API OFFLINE`;
     }
+}
+
+/**
+ * Initializes Server-Sent Events (SSE) for real-time monitoring.
+ */
+function initHealthStream() {
+    console.log("📡 Initializing Nexus Health Stream...");
+    const evtSource = new EventSource(`${API_URL}/health/stream`);
+
+    evtSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        updateHealthUI(data);
+    };
+
+    evtSource.onerror = (err) => {
+        console.error("SSE connection failed:", err);
+        evtSource.close();
+        // Fallback to polling if SSE fails
+        setTimeout(initHealthStream, 5000);
+    };
 }
 
 async function toggleSystemMode(targetMode) {
@@ -285,10 +319,45 @@ elements.scoutBtn.addEventListener('click', async () => {
     }
 });
 
+elements.resetBtn.addEventListener('click', () => {
+    if (confirm("⚠️ WARNING: This will restart all Gravitas containers and clear transient states. Proceed?")) {
+        handleAction('/system/reset');
+        appendMessage('system', "🚨 HARD SYSTEM RESET INITIATED. Expect downtime...");
+    }
+});
+
+// --- NAVIGATION ---
+function switchView(viewName) {
+    if (viewName === 'dashboard') {
+        elements.viewDashboard.style.display = 'grid';
+        elements.viewBugs.style.display = 'none';
+        elements.navDashboard.classList.add('active');
+        elements.navBugs.classList.remove('active');
+    } else {
+        elements.viewDashboard.style.display = 'none';
+        elements.viewBugs.style.display = 'grid';
+        elements.navBugs.classList.add('active');
+        elements.navDashboard.classList.remove('active');
+    }
+}
+
+elements.navDashboard.addEventListener('click', () => switchView('dashboard'));
+elements.navBugs.addEventListener('click', () => switchView('bugs'));
+
+// --- SPLASH CONTROL ---
+function initSplash() {
+    setTimeout(() => {
+        elements.splashScreen.style.opacity = '0';
+        setTimeout(() => {
+            elements.splashScreen.style.visibility = 'hidden';
+        }, 1000);
+    }, 3000);
+}
+
 // --- INITIALIZE ---
+initSplash();
 refreshStats();
-refreshHealth();
+initHealthStream();
 refreshFinancials();
 setInterval(refreshStats, 5000);
-setInterval(refreshHealth, 5000); // Polling faster for VRAM (5s)
 setInterval(refreshFinancials, 30000); // ROI updates every 30s

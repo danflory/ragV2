@@ -1,5 +1,5 @@
 echo "=================================================="
-echo "🛡️  ANTIGRAVITY SYSTEMS CHECK"
+echo "🛡️  GRAVITAS SYSTEMS CHECK"
 echo "=================================================="
 
 # 1. FORMATTING

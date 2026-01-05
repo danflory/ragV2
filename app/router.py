@@ -1,7 +1,12 @@
 import logging
 import re
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from fastapi.responses import StreamingResponse
+import httpx
 from pydantic import BaseModel
+import asyncio
+import json
+import subprocess
 
 from .container import container
 from .reflex import execute_shell, write_file, execute_git_sync
@@ -169,14 +174,25 @@ async def chat_endpoint(request: ChatRequest):
 async def trigger_ingestion():
     """
     Manually triggers the Document Ingestor.
+    Purges existing memory first to ensure fresh data.
     """
     if not container.ingestor:
         return {"status": "error", "message": "Ingestor not initialized (Vector Store missing?)"}
     
     try:
-        # We run this in a background task if it's large, but for now blocking is okay for a dev tool
-        await container.ingestor.ingest_all()
-        return {"status": "success", "message": "Knowledge ingestion complete."}
+        # 1. PURGE EXISTING DATA (Prevent staleness)
+        if container.memory:
+            logger.info("🧹 Purging old memory before re-scan...")
+            await container.memory.purge()
+
+        # 2. RUN INGESTION
+        summary = await container.ingestor.ingest_all()
+        
+        if summary["status"] == "success":
+            msg = f"Knowledge memory purged and re-ingested. Processed {summary['files_processed']} files ({summary['chunks_ingested']} chunks)."
+            return {"status": "success", "message": msg, "summary": summary}
+        else:
+            return summary
     except Exception as e:
         logger.error(f"❌ INGESTION ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}
@@ -241,13 +257,14 @@ async def get_detailed_health():
     Checks connectivity for all microservices and GPU stats.
     """
     from .database import db
-    import subprocess
     
     health = {
         "api": "online",
         "postgres": "online" if db.is_ready() else "offline",
-        "chroma": "offline",
+        "qdrant": "offline",
+        "minio": "offline",
         "ollama": "offline",
+        "ollama_embed": "offline",
         "gpu": {"used": 0, "total": 0, "percentage": 0}
     }
     
@@ -255,16 +272,25 @@ async def get_detailed_health():
     if await container.l1_driver.check_health():
         health["ollama"] = "online"
         
-    # Check Chroma
+    # Check Ollama Embed
     try:
-        if container.memory and container.memory.collection:
-             health["chroma"] = "online"
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            resp = await client.get(config.L1_EMBED_URL)
+            if resp.status_code == 200:
+                health["ollama_embed"] = "online"
     except:
         pass
 
+    # Check Qdrant
+    if container.memory and await container.memory.check_health():
+        health["qdrant"] = "online"
+        
+    # Check MinIO
+    if container.storage and await container.storage.check_health():
+        health["minio"] = "online"
+
     # Check GPU (NVIDIA)
     try:
-        # Get first GPU's memory usage
         res = subprocess.check_output(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits"], encoding="utf-8")
         lines = res.strip().split("\n")
         if lines:
@@ -278,6 +304,46 @@ async def get_detailed_health():
         logger.warning(f"Failed to fetch GPU stats: {e}")
         
     return {"status": "success", "health": health, "current_mode": container.current_mode}
+
+@router.get("/health/stream")
+async def health_stream(request: Request):
+    """
+    Server-Sent Events (SSE) stream for real-time health and telemetry metrics.
+    """
+    async def event_generator():
+        from .database import db
+        while True:
+            # If client closes connection, stop sending
+            if await request.is_disconnected():
+                break
+
+            # 1. Fetch Health Data (Reuse logic but faster)
+            health_data = await get_detailed_health()
+            
+            # 2. Fetch Recent Stats (Optional: Add real-time tokens etc)
+            # For now, just send health
+            
+            yield {
+                "event": "update",
+                "data": json.dumps(health_data)
+            }
+            
+            await asyncio.sleep(2) # Stream every 2 seconds
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+@router.post("/system/reset")
+async def reset_system():
+    """
+    Warms up the reset script to restore Gravitas to a clean state.
+    """
+    try:
+        # Trigger the reset script in the background
+        subprocess.Popen(["bash", "scripts/reset_gravitas.sh"])
+        return {"status": "success", "message": "System reset sequence initiated. Containers will restart."}
+    except Exception as e:
+        logger.error(f"❌ RESET FAILURE: {e}")
+        return {"status": "error", "message": str(e)}
 
 class PullRequest(BaseModel):
     model: str

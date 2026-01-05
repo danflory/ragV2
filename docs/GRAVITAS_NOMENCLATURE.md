@@ -16,7 +16,7 @@ This document defines the naming conventions for the Gravitas project to ensure 
 | **Embeddings** | `Gravitas_ollama_embed` | 11435 | Embeddings (GTX 1060) |
 | **Vector DB** | `Gravitas_qdrant` | 6333 | Hybrid Memory Store |
 | **Storage** | `Gravitas_minio` | 9000 | Raw Document Blobs |
-| **Database** | `postgres_db` | 5432 | History & Telemetry |
+| **Database** | `Gravitas_postgres` | 5432 | History & Telemetry |
 
 ## 3. CODE IDENTIFIERS
 - **Loggers:** `Gravitas_LAYERNAME` (e.g. `Gravitas_L1`, `Gravitas_ROUTER`)

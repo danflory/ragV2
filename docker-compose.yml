@@ -13,24 +13,24 @@ services:
       - .:/app
     environment:
       - PYTHONPATH=/app
-      - POSTGRES_HOST=postgres_db
+      - POSTGRES_HOST=Gravitas_postgres
       - QDRANT_HOST=Gravitas_qdrant
-      - OLLAMA_HOST=Gravitas_ollama # GPU 0
-      - OLLAMA_EMBED_HOST=Gravitas_ollama_embed # GPU 1
+      - L1_URL=http://Gravitas_ollama:11434
+      - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
       - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
-      - POSTGRES_USER=${DB_USER:-agy_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
+      - POSTGRES_USER=${DB_USER:-Gravitas_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     ports:
       - "8001:8000" # Maps port 8000 inside to 8001 outside (just in case)
     depends_on:
-      - postgres_db
+      - Gravitas_postgres
       - qdrant
       - ollama
       - ollama_embed
     networks:
-      - rag_net
+      - Gravitas_net
     restart: unless-stopped
 
   # --- GPU 0: GENERATION (TITAN RTX) ---
@@ -51,7 +51,7 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- GPU 1: EMBEDDINGS (GTX 1060) ---
@@ -72,7 +72,7 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- MEMORY: QDRANT (HYBRID VECTOR DB) ---
@@ -87,7 +87,7 @@ services:
     environment:
       - QDRANT_ALLOW_RECOVERY_MODE=true
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- STORAGE: MINIO (OBJECT STORE) ---
@@ -104,23 +104,23 @@ services:
       - MINIO_ROOT_PASSWORD=minioadmin
     command: server /data --console-address ":9001"
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- DATABASE: POSTGRES (HISTORY) ---
-  postgres_db:
+  Gravitas_postgres:
     image: postgres:16-alpine
-    container_name: postgres_db
+    container_name: Gravitas_postgres
     environment:
-      - POSTGRES_USER=${DB_USER:-agy_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
+      - POSTGRES_USER=${DB_USER:-Gravitas_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     volumes:
       - ./data/postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - rag_net
+      - Gravitas_net
     restart: always
 
   # --- API: RAG BACKEND (LEGACY/ROUTER) ---
@@ -134,15 +134,16 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-agy_user}:${DB_PASSWORD:-agy_pass}@postgres_db:5432/${DB_NAME:-chat_history}
-      - DB_HOST=postgres_db
+      - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@Gravitas_postgres:5432/${DB_NAME:-chat_history}
+      - DB_HOST=Gravitas_postgres
       - L1_URL=http://Gravitas_ollama:11434
+      - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
     depends_on:
-      - postgres_db
+      - Gravitas_postgres
       - qdrant
     networks:
-      - rag_net
+      - Gravitas_net
 
 networks:
-  rag_net:
+  Gravitas_net:
     driver: bridge

@@ -3,18 +3,12 @@
 ## CURRENT STATE: v4.2.0 (GRAVITAS REBRAND & AGENTIC CONSTRUCTION)
 The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Memory + MinIO Storage, Postgres History) is stable. Agentic construction via Antigravity is active.
 
----
-
-## 🚨 URGENT FIX: INCONSISTENCY RESOLUTION (2026-01-05)
-- **Problem**: Retention policies and agent naming were inconsistent across documentation and code.
-- **Resolution**:
-    - **Telemetry**: 60-day aggregation window (Postgres).
-    - **Reasoning Pipes**: 14-day local archive (Files).
-    - **Identity**: **Antigravity** is the construction assistant. All departmental agents (Scout, Librarian) MUST be prefixed with **Gravitas**.
-    - **Protocol**: `docs/005_development_protocols.md` updated to v4.2.0 as the source of truth for these retention and identity rules.
-    - **Maintenance**: `maintenance.py` moved to `ANTIGRAVITY_Scripts/` and updated to handle the 14/60 day split.
-    - **Dashboard Sync**: Labels and UI system updated to Gravitas/Antigravity v4.2.0 standards.
-
+### 🚩 URGENT FIX: Fix failure in Antigravity thought logging
+* [ ] **The First Rule**: Google Antigravity must not modify any other file or process unrelated to this specific urgent fix. for the duration of completing this fix. (System active)
+* [ ] **Identity Isolation**: Antigravity refers exclusively to Google Antigravity (the coding assistant). This fix applies to Antigravity and NOT to any files or content of Gravitas. (Codified in `GOOGLE_ANTIGRAVITY_SPEC.md`)
+* [ ] **Verbatim Reasoning**: Dump 100% of internal monologue/thought output into `current_session.md` in RAW format. Must occur in every chat from start to finish. (Enforced)
+* [ ] **New Chat Protocol**: Upon new chat creation, `current_session.md` is appended to the daily thoughts log and cleared. An interpreted summary (Jan 4th style) is appended to the daily executive journal. (Transition logic FAILED - Debugging)
+* [ ] **Antigravity Spec**: Create a new spec file for Google Antigravity usage. (Completed: `docs/GOOGLE_ANTIGRAVITY_SPEC.md`)
 ---
 
 ## COMPLETED PHASES
@@ -24,29 +18,33 @@ The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Me
 * [x] **Verification:** Full ingestion and search pipeline verified in `tests/`.
 
 ### PHASE 2: PERSISTENCE & TELEMETRY
-* [x] **Infrastructure:** Provisioned `postgres_db` for chat history and metrics.
+* [x] **Infrastructure:** Provisioned `Gravitas_postgres` for chat history and metrics.
 * [x] **Telemetry:** Implemented `app/telemetry.py` for VRAM tracking and system events.
 
 ### PHASE 3: THE GRAVITAS EVOLUTION (REBRANDING)
 * [x] **Consistency:** Global rename of all legacy "agy" / "AntiGravity" terms to **Gravitas**.
 * [x] **Automation:** Hooked session context generation into the system startup.
-* [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/GRAVITAS_DEV_JOURNAL.md`.
+* [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/005_development_protocols.md`.
 
 ---
 
 ## UPCOMING PHASES
 
 ### PHASE 4: COMMAND & CONTROL (THE NEXUS DASHBOARD)
-* [ ] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
-* [ ] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
+* [x] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
+* [x] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
+
 
 ### PHASE 4.5: GRANULAR TELEMETRY CALIBRATION (THE SENSORS)
 * [ ] **Sensor Implementation:** Upgrade `app/telemetry.py` to record sub-second metrics: **Load Latency** (VRAM setup) and **Thought Latency** (Inference Speed).
+* [ ] **Weighted Telemetry Aggregation:** 
+    * **Pre-Calculation**: Refactor logging logic to measure "Work Units" (Tokens Generated) *before* database entry.
+    * **The Efficiency Score**: Store **Latency-Per-Token** (Weighted) rather than flat temporal averages to accurately reflected system strain under load.
 * [ ] **The 60-Day Historic Window:** Establish a 60-day data retention policy in Postgres to track long-term hardware performance.
 * [ ] **Safety (Aggregation & Monitoring):** 
-    * Implement **Telemetry Aggregation** (averaging hits every 60s) to prevent database bloat.
+    * **Aggregation**: Average the Weighted Efficiency Scores every 60s to prevent database bloat.
     * **Dashboard Widget**: Create a "Telemetry Footprint" monitor to track disk space used by the millions of potential hits.
-    * **Auto-Pruning**: Summarize data older than 60 days into daily performance benchmarks before purging raw logs.
+    * **Auto-Pruning Logic**: Implement the 60-day pruning mechanism in `ANTIGRAVITY_Scripts/maintenance.py` (Deferred from initial setup, now placed here).
 
 ### PHASE 5: DYNAMIC MODEL GOVERNANCE (THE SUPERVISOR)
 * [ ] **Data-Driven Dispatcher:** Use the 60 days of calibrated **Telemetry Data** to route tasks based on real-time load times, token speeds, and cost.
