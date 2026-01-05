@@ -25,16 +25,27 @@ The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Me
 ## UPCOMING PHASES
 
 ### PHASE 4: COMMAND & CONTROL (THE NEXUS DASHBOARD)
-* [ ] **Master Control Dashboard:** Transition from CLI-heavy scripts to a unified Web UI for service management, model pulling, and system resets.
+* [ ] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
 * [ ] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
 
 ### PHASE 5: INTELLIGENCE OPTIMIZATION
-* [ ] **Thought Latency Tracking:** Add telemetry metrics to measure processing time for L1 (Reflex), L2 (Reasoning), and L3 (Agentic) layers.
+* [ ] **Thought Latency Tracking:** Implement **driver-level instrumentation** in `app/L1_local.py`, `app/L2_network.py`, and `app/L3_google.py` to measure precise inference vs. network lag.
 * [ ] **Dynamic Routing:** Use latency data to automatically switch models or layers based on real-time hardware performance.
+
+### PHASE 6: ADVANCED KNOWLEDGE INDEXING
+* [ ] **From Semantic Keys to Knowledge Indexes:** Refactor the ingestion pipeline to move beyond simple 1000-char chunks toward structured, concept-aware indexing.
+* [ ] **Hierarchical Summarization:** Deploy the **Librarian Agent** to generate "Big Picture" summaries of all local documentation, creating a multi-tier index for both high-level strategy and granular retrieval.
+* [ ] **Relational Mapping:** Implement entity extraction to map dependencies between code files and architectural decisions (e.g., linking `docs/journals/` entries to specific `app/` modules).
+
+### PHASE 7: AGENT SPECIALIZATION (THE SCOUT'S EXPANSION)
+* [ ] **Multimodal Transcription:** Integrate `yt-dlp` and `Whisper` (or similar) to allow the Scout to ingest YouTube lectures and audio sermon libraries.
+* [ ] **Live Web Probing:** Implement a "Search Assistance" role for the Scout to conduct live web searches via SearxNG or Google Search API.
+* [ ] **Hyper-Scraping:** Enable the Scout to scrape specific web targets for deep context retrieval, bypassing static memory limitations.
+* [ ] **L3 Feedback Loop:** Formalize the Scout's ability to "Ask L3" questions for iterative reasoning during complex research tasks.
 
 ---
 
 ## BACKLOG / TECH DEBT
 * **Secret Hygiene:** Scan codebase for hardcoded keys before pushing to public repo.
-* **Journal Rotation:** Implement dated journal snapshots for high-fidelity RAG ingestion.
+* [x] **Journal Rotation:** Implement dated journal snapshots for high-fidelity RAG ingestion. (Completed: `docs/journals/`)
 * **VENV Hardening:** Standardize cross-platform dependency resolution in `requirements.txt`.

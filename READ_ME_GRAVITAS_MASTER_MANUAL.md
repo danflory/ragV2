@@ -18,7 +18,7 @@ The primary Web UI found at `http://localhost:5050`. It is the "Face" of Gravita
 *   **Interaction:** Real-time chat with LLM layers.
 *   **Mode Switching:** Toggle between **RAG Mode** (Research) and **DEV Mode** (Refactoring/Automation).
 *   **Financial HUD:** Live tracking of Daily Spend, local vs. cloud inference ratios, and Quality Scores.
-*   **Agent Control:** Deploy the **Librarian** for data curation or the **Scout** for deep research.
+*   **Agent Control:** Deploy the **Librarian** for data curation or the **Scout** for deep research (expanded roles in Phase 7: Web Search, Hyper-Scraping, and YouTube/Audio Transcription).
 
 #### 2.2 The Monitor Dashboard (Hardware Metrics)
 A real-time CLI dashboard triggered by `./scripts/monitor.sh`.

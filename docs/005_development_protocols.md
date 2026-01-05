@@ -26,3 +26,9 @@ We follow a strict **Test-Driven Development (TDD)** loop for all new features:
 * **Memory Hygiene:** Automatic pruning of stale vector chunks to prevent rot
 * **Telemetry Logging:** Comprehensive system event logging to Postgres
 * **Health Monitoring:** Continuous health checks for all microservices
+
+## 5. REASONING & TRANSPARENCY
+* **Developer Journal**: All AI-driven architectural decisions must be mirrored in dated files within `docs/journals/`.
+* **Thinking Transparency**: The forensic `thoughts.md` log is maintained specifically to help humans understand the agent's internal reasoning process, with tool-failure auditing as a secondary benefit.
+* **Strategic Crossroads**: High-impact decisions (Speed vs. Stability, Cost vs. Quality) must be logged as "Crossroads" and require human approval.
+* **Transient Context**: Documents like `GRAVITAS_SESSION_CONTEXT.md` are ephemeral and refreshed on every system boot.
