@@ -19,8 +19,8 @@ services:
       - OLLAMA_EMBED_HOST=Gravitas_ollama_embed # GPU 1
       - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
-      - POSTGRES_USER=${DB_USER:-Gravitas_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
+      - POSTGRES_USER=${DB_USER:-agy_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     ports:
       - "8001:8000" # Maps port 8000 inside to 8001 outside (just in case)
@@ -112,8 +112,8 @@ services:
     image: postgres:16-alpine
     container_name: postgres_db
     environment:
-      - POSTGRES_USER=${DB_USER:-Gravitas_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
+      - POSTGRES_USER=${DB_USER:-agy_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     volumes:
       - ./data/postgres_data:/var/lib/postgresql/data
@@ -134,7 +134,7 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@postgres_db:5432/${DB_NAME:-chat_history}
+      - DATABASE_URL=postgresql://${DB_USER:-agy_user}:${DB_PASSWORD:-agy_pass}@postgres_db:5432/${DB_NAME:-chat_history}
       - DB_HOST=postgres_db
       - L1_URL=http://Gravitas_ollama:11434
     depends_on:

@@ -50,8 +50,8 @@ class Settings(BaseSettings):
     # === DATABASE (Postgres) ===
     DB_HOST: str = "postgres_db"
     DB_PORT: int = 5432
-    DB_USER: str = "Gravitas_user"
-    DB_PASS: str = "Gravitas_pass"
+    DB_USER: str = "agy_user"
+    DB_PASS: str = "agy_pass"
     DB_NAME: str = "chat_history"
 
     # === GOVERNANCE (The Accountant) ===
