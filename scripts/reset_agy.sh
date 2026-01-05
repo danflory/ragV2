@@ -39,10 +39,14 @@ echo "   [$(date '+%H:%M:%S')] 📟 GPU Status:"
 nvidia-smi --query-gpu=index,memory.used,memory.free --format=csv,noheader,nounits | \
 awk -F', ' '{print "     GPU "$1": Used "$2" MB (Free "$3" MB)"}'
 
-# 6. LOG THE STARTUP
+# 6. GENERATE SESSION CONTEXT
+echo "   [$(date '+%H:%M:%S')] 📝 Generating Gravitas Session Context..."
+$VENV_PY scripts/generate_context.py
+
+# 7. LOG THE STARTUP
 $VENV_PY scripts/log_entry.py "SERVER_START" "Boot_Script" "FastAPI launching..."
 
-# 7. LAUNCH SERVER
+# 8. LAUNCH SERVER
 echo "   [$(date '+%H:%M:%S')] 🚀 Launching FastAPI Server..."
 echo "-----------------------------------------------------"
 
