@@ -5,6 +5,17 @@ All notable changes to the **Gravitas Grounded Research** project will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-01-04
+### Changed
+- **Total Project Rebrand**: Replaced all `AGY` / `AntiGravity` identifiers with **Gravitas Grounded Research** across code, documentation, and Docker infrastructure.
+- **Infrastructure Alignment**: Renamed all Docker containers to use `Gravitas_` prefix (e.g., `Gravitas_ollama`, `Gravitas_qdrant`).
+- **Nomenclature Standard**: Established `docs/NOMENCLATURE.md` to govern variable naming and consistency.
+- **Automated Context**: The `GRAVITAS_SESSION_CONTEXT.md` is now automatically updated every time `scripts/reset_agy.sh` is executed.
+
+### Added
+- `scripts/monitor.sh`: Real-time Mission Control dashboard for GPU VRAM and container health.
+- `scripts/generate_context.py`: High-fidelity context snapshot engine.
+
 ## [4.1.0] - 2026-01-04
 ### Added
 - `app/governance/global_renamer.py`: Robust LLM-guided service for documentation refactoring.
