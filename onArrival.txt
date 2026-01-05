@@ -1,0 +1,33 @@
+# MISSION: PROJECT TRANSPLANT (rag_local -> Gravitas)
+# DATE: 2026-01-05
+# ASSISTANT: Antigravity
+
+## CONTEXT SUMMARY
+The user is migrating the entire RAG project from the legacy `~/dev_env/rag_local` directory to a new, clean `~/dev_env/Gravitas` directory. A system-wide nomenclature overhaul has just been completed to separate **Antigravity** (the external construction assistant tool) from **Gravitas** (the internal system orchestration and RAG logic).
+
+## IMMEDIATE TASKS IN NEW WORKSPACE
+1. **Bootstrap Migration Script**: Create `fixProject.py` in the new root to handle the following logic:
+    - **Path Decoupling**: Refactor `app/config.py` to use `os.path.join(os.path.dirname(__file__), "../docs")` instead of hardcoded absolute paths.
+    - **Git Hygiene**: Update `.gitignore` to ensure the new directory structure and `ANTIGRAVITY_Scripts/` are correctly handled (while maintaining journal visibility for Antigravity).
+    - **Docker Wiring**: Update `docker-compose.yml` keys and volume names to use the `Gravitas_` prefix instead of legacy `rag_local_` defaults.
+    - **Global Rename**: Perform a final search-and-replace for any remaining `/home/dflory/dev_env/rag_local` strings across all documentation and source files.
+    - **Git Repo Reset**: In the new workspace, run `git init`, `git add .`, and `git remote add origin [NEW_REPO_URL]`. This ensures the project exists under its new name globally. (Existing SSH/GitHub auth will remain valid as it is tied to the host machine).
+    - **Alias Update**: Prepare the `sed` commands to update `~/.bashrc` aliases (`py`, `reset`, `audit`, `UpdateContext`).
+
+2. **Docker Re-Initialization**: 
+    - Stop the old containers in the legacy directory.
+    - Start the new containers in the `Gravitas` directory.
+    - Verify volume persistence for Postgres and Qdrant.
+
+3. **System Audit**:
+    - Run `python3 ANTIGRAVITY_Scripts/maintenance.py` to verify the 14-day local / 60-day telemetry retention logic works in the new path.
+    - Run `scripts/reset_gravitas.sh` to confirm the full boot sequence is healthy.
+
+4. **Nomenclature Lockdown Verification**:
+    - Grep for `AntiGravity` (CamelCase) and `AGY` (all caps) to confirm they are effectively scrubbed from active code.
+    - Verify `docs/HOWTO_DEV_REMINDERS.md` (Section 8) to ensure the "Identity Firewall" between the tool and the system is respected.
+
+## STATUS OF TODAY'S OVERHAUL
+We have successfully synchronized the protocols to v4.2.0. The journals (Executive and Thoughts) are up to date with the "Construction Assistant" nomenclature. The next turn in the new workspace should be considered the formal start of the **Gravitas** Era.
+
+**Godspeed, Antigravity.**

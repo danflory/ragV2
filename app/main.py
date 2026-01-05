@@ -31,7 +31,7 @@ import os
 app = FastAPI(
     title="Gravitas Grounded Research",
     description="Dual-GPU Production-Grade Hybrid RAG Architecture",
-    version="4.0.0",
+    version="4.2.0",
     lifespan=lifespan
 )
 

@@ -10,14 +10,17 @@
 - RULE_GROUNDING_LAYERS: Direct access to federated documentation and vector memory.
 - RULE_DEPARTMENTAL_AGENTS: Specialized roles (Scout, Librarian, Archivist) handle distinct parts of the research lifecycle.
 - RULE_"SCALE_BACK_LOGGING": Reduces the granularity of the logs.
-- RULE_"SWITCH_TO_EXECUTIVE_ONLY": Temporarily halts the `thoughts.md` log.
+- RULE_"SWITCH_TO_EXECUTIVE_ONLY": Temporarily halts the Reasoning Pipe log.
 - RULE_AGENT_IMPLEMENTATION: Use `git add <files> :!docs/journals/` or explicitly list files while skipping the journals directory.
 - RULE_VERIFICATION: Always run `git status` (filtered) before committing to ensure journals are not staged.
 - PROTOCOL_SCAN_STRATEGIC_ANCHORS: Scans the most recent `executive.md` specifically seeking `## Strategic Decisions`, `🏁 STRATEGIC CROSSROADS`, and `## Current Objective`.
 - PROTOCOL_FILTER_FOR_IN-PROGRESS_STATE: Identifies foundational naming changes, structural forks, and open todos that affect the project's current trajectory.
 - PROTOCOL_SYNTHESIS_VS._REDUNDANCY: Instead of duplicating raw logs, the agent synthesizes the current "project pulse" into today's carryover section.
-- PROTOCOL_FORENSIC_ISOLATION: The granular `thoughts.md` track is intentionally isolated to keep context lean. While it serves as a critical audit trail for tool failures, its primary purpose is **Thinking Transparency**—allowing humans to reconstruct and understand the agent's internal reasoning process if needed.
-- PROTOCOL_PRIVACY_RULE: **IMPORTANT**: No agent should ever read a `thoughts.md` journal without a specific request from the USER.
+- PROTOCOL_REASONING_ISOLATION: The granular `thoughts.md` track is intentionally isolated to keep context lean. While it serves as a critical audit trail for tool failures, its primary purpose is **Thinking Transparency**—allowing humans to reconstruct and understand the agent's internal reasoning process if needed.
+- PROTOCOL_PRIVACY_RULE: **IMPORTANT**: No agent should ever read a Reasoning Pipe journal without a specific request from the USER.
+- TERM_TELEMETRY: (Strictly Reserved) Gravitas machine performance data (Load Times, VRAM, Latency). 60-day history.
+- TERM_REASONING_PIPE: (Strictly Reserved) Agent internal logic, reasoning, and action logs. 14-day history.
+- PROTOCOL_REASONING_PIPE_NAMING: Journals for departmental agents MUST follow: `docs/journals/ReasoningPipe_{agentName}.md`.
 - PROTOCOL_RUN_COMMAND: Use the alias `UpdateContext`.
 - PROTOCOL_EXPLORE: A Windows Explorer window will open to `AntiGravityNexusContext/Text`.
 - PROTOCOL_INITIALIZE: Paste the content of **`Initial Context Prompt.md`** (the 1st message).
@@ -25,7 +28,22 @@
 - PROTOCOL_JOURNAL_VISIBILITY: Journals are visible to agents and maintained for continuity. They are NOT included in `.gitignore` (as this blocks agent-writing tools), but are excluded from commits by policy.
 - PROTOCOL_SELECTIVE_COMMITTING: Agents responding to a "commit" directive MUST NOT include `docs/journals/` unless explicitly instructed by the user. 
 - PROTOCOL_GIT_STATUS_FILTERING: To view status without journal noise, use: `git status -- :!docs/journals/`
+- PROTOCOL_THE_REASONING_PIPE_RULE: MANDATORY. Every task cycle MUST conclude with a verbatim dump of all internal reasoning/actions to the current_session.md buffer.
+- PROTOCOL_ZERO-EDITING_POLICY: The agent is strictly forbidden from summarizing, re-phrasing, or "cleaning up" internal processes for the pipe. The dump must be a character-for-character mirror of the internal reasoning or action state.
+- PROTOCOL_THE_OBSERVER_BARRIER: Reasoning Pipes are for audit and self-learning only. Agents do not "read" their own session journals to maintain logic; they rely on the active context. This prevents recursion and memory pollution.
+- PROTOCOL_BLUEPRINT_REFERENCE: Use the structure defined in `.agent/executive_template.md`.
+- PROTOCOL_ACTION/REASONING_SPLIT: Always separate technical changes from architectural rationale.
+- PROTOCOL_STRATEGIC_CROSSROADS: Mandatory section for identifying forks/hurdles for human steering.
+- PROTOCOL_NO_STATUS_REPORTS: Always favor strategy extraction over "done" lists.
+- PROTOCOL_THE_DEFAULT_SUBJECT: Use of the word **"agent"** alone is assumed to refer to **Antigravity** (the active coding/orchestration assistant).
+- PROTOCOL_THE_"GRAVITAS"_PREFIX: Every departmental agent MUST include "Gravitas" in its name and documentation descriptions (e.g., **Gravitas Scout**, **Gravitas Librarian**, **Gravitas Archivist**). 
+- PROTOCOL_INTERNAL_REFERENCE_RULE: If the prefix is missing, assume the topic is Antigravity. However, using the prefix for Gravitas Agents is a strictly enforced best practice for forensic clarity.
 - MAGIC_WORDS:
   - Agent Implementation: Use `git add <files> :!docs/journals/` or explicitly list files while skipping the journals directory.
   - Verification: Always run `git status` (filtered) before committing to ensure journals are not staged.
+- PROTOCOL_AESTHETIC_ACCESSIBILITY: All UI/UX changes MUST prioritize high-contrast readability. 
+- PROTOCOL_TABLE_VISIBILITY_OVERRIDE: (MANDATORY) Due to UI rendering bugs, all table requests MUST be handled by:
+  - [1] Prompting the user with an explanation of the bug.
+  - [2] Generating a date-stamped .md file in `/temporaryTesting/`.
+  - [3] Providing the "Non-Interpreted" raw Markdown in a code block within the chat.
 - RECON_PRIORITY: [1] Load .agent/vocabulary.md [2] Exec.md (tail 50) [3] Ready

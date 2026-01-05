@@ -3,10 +3,10 @@ import time
 import logging
 from datetime import datetime, timedelta
 
-# Maintenance script for Gravitas Grounded Research
-# Purges old logs, backups, and journals older than 14 days (2 weeks)
+# Maintenance script for Antigravity Construction & Gravitas Research
+# Purges local Reasoning Pipes (14 days) and prepares for Telemetry Pruning (60 days)
 
-logger = logging.getLogger("Gravitas_MAINTENANCE")
+logger = logging.getLogger("Antigravity_MAINTENANCE")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 def purge_old_files(directory, pattern, days=14):
@@ -34,20 +34,25 @@ def purge_old_files(directory, pattern, days=14):
         logger.info(f"✅ Maintenance complete: {count} files removed from {directory}")
 
 def main():
-    logger.info("🛠️ Starting System Maintenance...")
+    logger.info("🛠️ Starting Antigravity System Maintenance...")
     
     # Target directories and patterns
     targets = [
         # (directory, pattern, days)
         (".", ".log", 14),
         (".", ".bak", 1), # Backups purge faster (1 day)
-        ("docs/journals", "_executive.md", 14), # Dated executive journals
-        ("docs/journals", "_thoughts.md", 14),  # Dated thought logs
+        ("docs/journals", "_executive.md", 14),  # Dated executive journals
+        ("docs/journals", "_thoughts.md", 14),   # Dated thought logs (Reasoning Pipes)
+        ("docs/journals", "ReasoningPipe_", 14), # Agent-specific reasoning pipes
         ("docs", "TEST_AUDIT_", 14),
     ]
 
     for directory, pattern, days in targets:
         purge_old_files(directory, pattern, days)
+    
+    # Note: Telemetry in Postgres is handled via Phase 4.5 aggregation/pruning (60-day window)
+    logger.info("📈 Telemetry window (60 days) is managed via database aggregation.")
+
 
 if __name__ == "__main__":
     main()

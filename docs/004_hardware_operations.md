@@ -21,7 +21,7 @@ To prevent system crashes or OOM (Out Of Memory) during long context sessions, t
 1.  **Strict Buffer:** 2GB must remain free at all times.
 2.  **Logic:** Prior to any L1 inference, `GPUtil` queries all GPUs.
 3.  **Action:** If `Free_VRAM < 2GB` on any GPU, the request **must** be promoted to L2 to avoid crash.
-4.  **Telemetry:** All VRAM checks logged to Postgres for monitoring and analysis.
+4.  **Telemetry:** All VRAM checks and load/thought latency metrics logged to Postgres for monitoring and **Phase 5 Dynamic Governance**. 60-day history maintained via aggregation.
 
 ## 3. MICROSERVICES TOPOLOGY
 The system runs in a multi-container environment with dedicated services:

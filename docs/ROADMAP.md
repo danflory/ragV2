@@ -1,7 +1,19 @@
 # GRAVITAS GROUNDED RESEARCH - STRATEGIC ROADMAP
 
-## CURRENT STATE: v4.2.0 (GRAVITAS REBRAND)
-The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Memory + MinIO Storage, Postgres History) is stable and rebranding is complete.
+## CURRENT STATE: v4.2.0 (GRAVITAS REBRAND & AGENTIC CONSTRUCTION)
+The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Memory + MinIO Storage, Postgres History) is stable. Agentic construction via Antigravity is active.
+
+---
+
+## 🚨 URGENT FIX: INCONSISTENCY RESOLUTION (2026-01-05)
+- **Problem**: Retention policies and agent naming were inconsistent across documentation and code.
+- **Resolution**:
+    - **Telemetry**: 60-day aggregation window (Postgres).
+    - **Reasoning Pipes**: 14-day local archive (Files).
+    - **Identity**: **Antigravity** is the construction assistant. All departmental agents (Scout, Librarian) MUST be prefixed with **Gravitas**.
+    - **Protocol**: `docs/005_development_protocols.md` updated to v4.2.0 as the source of truth for these retention and identity rules.
+    - **Maintenance**: `maintenance.py` moved to `ANTIGRAVITY_Scripts/` and updated to handle the 14/60 day split.
+    - **Dashboard Sync**: Labels and UI system updated to Gravitas/Antigravity v4.2.0 standards.
 
 ---
 
@@ -28,20 +40,43 @@ The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Me
 * [ ] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
 * [ ] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
 
-### PHASE 5: INTELLIGENCE OPTIMIZATION
-* [ ] **Thought Latency Tracking:** Implement **driver-level instrumentation** in `app/L1_local.py`, `app/L2_network.py`, and `app/L3_google.py` to measure precise inference vs. network lag.
-* [ ] **Dynamic Routing:** Use latency data to automatically switch models or layers based on real-time hardware performance.
+### PHASE 4.5: GRANULAR TELEMETRY CALIBRATION (THE SENSORS)
+* [ ] **Sensor Implementation:** Upgrade `app/telemetry.py` to record sub-second metrics: **Load Latency** (VRAM setup) and **Thought Latency** (Inference Speed).
+* [ ] **The 60-Day Historic Window:** Establish a 60-day data retention policy in Postgres to track long-term hardware performance.
+* [ ] **Safety (Aggregation & Monitoring):** 
+    * Implement **Telemetry Aggregation** (averaging hits every 60s) to prevent database bloat.
+    * **Dashboard Widget**: Create a "Telemetry Footprint" monitor to track disk space used by the millions of potential hits.
+    * **Auto-Pruning**: Summarize data older than 60 days into daily performance benchmarks before purging raw logs.
 
-### PHASE 6: ADVANCED KNOWLEDGE INDEXING
-* [ ] **From Semantic Keys to Knowledge Indexes:** Refactor the ingestion pipeline to move beyond simple 1000-char chunks toward structured, concept-aware indexing.
-* [ ] **Hierarchical Summarization:** Deploy the **Librarian Agent** to generate "Big Picture" summaries of all local documentation, creating a multi-tier index for both high-level strategy and granular retrieval.
-* [ ] **Relational Mapping:** Implement entity extraction to map dependencies between code files and architectural decisions (e.g., linking `docs/journals/` entries to specific `app/` modules).
+### PHASE 5: DYNAMIC MODEL GOVERNANCE (THE SUPERVISOR)
+* [ ] **Data-Driven Dispatcher:** Use the 60 days of calibrated **Telemetry Data** to route tasks based on real-time load times, token speeds, and cost.
+* [ ] **Predictive Context Orchestration:** Define acceptable context switching costs based on **Actual Historic Data** (e.g., loading a 70B model for a long work queue vs. rapid switching on a 6GB card).
+* [ ] **Dynamic Trade-off Self-Correction:** Implement an autonomous feedback loop where the Supervisor audits its own scheduling decisions and automatically adjusts the routing plan.
 
-### PHASE 7: AGENT SPECIALIZATION (THE SCOUT'S EXPANSION)
-* [ ] **Multimodal Transcription:** Integrate `yt-dlp` and `Whisper` (or similar) to allow the Scout to ingest YouTube lectures and audio sermon libraries.
-* [ ] **Live Web Probing:** Implement a "Search Assistance" role for the Scout to conduct live web searches via SearxNG or Google Search API.
-* [ ] **Hyper-Scraping:** Enable the Scout to scrape specific web targets for deep context retrieval, bypassing static memory limitations.
-* [ ] **L3 Feedback Loop:** Formalize the Scout's ability to "Ask L3" questions for iterative reasoning during complex research tasks.
+### PHASE 6: SELF-LEARNING DATA (REASONING PIPES)
+* [ ] **Reasoning Pipe Architecture:** Implement the standardized naming schema: `docs/journals/ReasoningPipe_{agentName}.md`.
+* [ ] **Self-Improvement Foundation:** Establish these pipes as the primary dataset for future self-audit and capability evolution.
+* [ ] **Buffer-Append Protocol:** Implement the "Zero-Editing" logic where an active session buffer is appended to the agent-specific ReasoningPipe upon session completion.
+* [ ] **Action Visibility Trace:** Every agent, regardless of model internal reasoning capability, must log state-changes (e.g., "Modified file X") to ensure a complete audit trail.
+* [ ] **14-Day Cycle**: Reasoning data remains active for 14 days for forensic and self-learning analysis.
+
+### PHASE 7: ADVANCED KNOWLEDGE INDEXING
+* [ ] **From Semantic Keys to Knowledge Indexes:** Refactor the ingestion pipeline toward structured, concept-aware indexing.
+* [ ] **Hierarchical Summarization:** Deploy the **Gravitas Librarian** to generate "Big Picture" summaries of all local documentation.
+* [ ] **Relational Mapping:** Implement entity extraction to map dependencies between code files and architectural decisions.
+
+### PHASE 8: AGENT SPECIALIZATION (THE SCOUT'S EXPANSION)
+* [ ] **Multimodal Transcription:** Integrate `yt-dlp` and `Whisper` to allow the **Gravitas Scout** to ingest YouTube and audio sermons.
+* [ ] **Live Web Probing:** Implement live web search for the **Gravitas Scout**.
+* [ ] **L3 Feedback Loop:** Formalize the **Gravitas Scout**'s ability to "Ask L3" iterative reasoning questions.
+
+### PHASE 9: GRAVITAS AGENTIC INFRASTRUCTURE
+* [ ] **Mirroring Construction Protocols**: Research and implement a `.gravitas_agent` directory for each Gravitas Agent (**Gravitas Scout**, **Gravitas Librarian**, etc.).
+* [ ] **Standardized Startup**: Implement a `recon` phase for Gravitas Agents to ensure they sync with global project state.
+
+### PHASE 10: INTELLIGENCE AUDIT & BENCHMARKING
+* [ ] **Bi-Weekly Model Pulse:** Establish an automated sweep (every 14 days) of Ollama, DeepInfra, and Google for new model releases.
+* [ ] **Independent Test Suite:** Develop a project-specific benchmarking suite to validate model performance against Gravitas RAG and code synthesis tasks before promotion to active roles.
 
 ---
 

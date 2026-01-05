@@ -21,7 +21,7 @@ echo "🔄 Starting Robust Reset..."
 
 # 0. SYSTEM MAINTENANCE (Purge old logs/journals)
 echo "   [$(date '+%H:%M:%S')] 🧹 Running System Maintenance..."
-$VENV_PY scripts/maintenance.py
+$VENV_PY ANTIGRAVITY_Scripts/maintenance.py
 
 # 1. LOG THE RESET
 $VENV_PY scripts/log_entry.py "SYSTEM_RESET" "User_CLI" "Reset sequence initiated"

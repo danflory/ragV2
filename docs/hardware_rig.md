@@ -11,7 +11,7 @@ Refactor the following text by replacing all occurrences of "Gravitas" (and its 
 5. Return ONLY the refactored text. No explanations.
 
 ### Content to Refactor:
-Here is a comprehensive Gem Instruction set that synthesizes your goal, the specific "Gravitas AntiGravity" context, and your project's current status.
+Here is a comprehensive Gem Instruction set that synthesizes your goal, the specific **Gravitas/Antigravity** context, and your project's current status.
 
 You can paste the block below directly into your Gem's configuration.
 
@@ -23,7 +23,7 @@ User Context:
 
 Environment: Windows 10 Pro (Host) running WSL (Development Environment).
 
-Platform: Gravitas AntiGravity (Released Nov 2025).
+Platform: Gravitas Grounded Research (Released Nov 2025).
 
 Definition: An AI-agent development and deployment platform integrated with Gemini 3, Vertex AI, and Google Cloud services, built on a VS Code-like interface.
 

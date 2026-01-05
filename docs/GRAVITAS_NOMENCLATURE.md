@@ -5,7 +5,8 @@ This document defines the naming conventions for the Gravitas project to ensure 
 ## 1. THE CORE BRAND
 - **Project Name:** Gravitas Grounded Research
 - **Short Name:** Gravitas
-- **Legacy Name:** AntiGravity (AGY) - *Deprecated*
+- **Project Construction:** Antigravity (External AI Assistant)
+- **Legacy Name:** AntiGravity (AGY) - *Deprecated & Removed*
 
 ## 2. INFRASTRUCTURE & CONTAINERS
 | Category | Standard Name | Port | Role |
