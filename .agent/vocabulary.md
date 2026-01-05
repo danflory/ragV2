@@ -1,0 +1,31 @@
+### LLM readable vocabulary extracted from HOWTO_DEV_RMINDERS ###
+
+# PROTOCOL_V1: GRAVITAS_JOURNALING
+- DIRECTORY: /docs/journals/
+- RULE_STRATEGIC_CROSSROADS_FIRST: Every carryover MUST lead with unanswered strategic crossroads. These are the immediate hurdles and forks in the road for the project.
+- RULE_DEEP_RECONCILIATION: Antigravity syncs with your latest strategic decisions in the `executive.md` journals.
+- RULE_SILENT_METADATA_SYNC: A background machine-readable "vocabulary" is maintained to ensure the agent understands current protocols without manual configuration.
+- RULE_CONTEXT_RESUMPTION: Resume complex research or coding tasks exactly where they left off, avoiding the "cold start" delay.
+- RULE_DUAL-TRACK_JOURNALING: We maintain a private audit trail in `docs/journals/`.
+- RULE_GROUNDING_LAYERS: Direct access to federated documentation and vector memory.
+- RULE_DEPARTMENTAL_AGENTS: Specialized roles (Scout, Librarian, Archivist) handle distinct parts of the research lifecycle.
+- RULE_"SCALE_BACK_LOGGING": Reduces the granularity of the logs.
+- RULE_"SWITCH_TO_EXECUTIVE_ONLY": Temporarily halts the `thoughts.md` log.
+- RULE_AGENT_IMPLEMENTATION: Use `git add <files> :!docs/journals/` or explicitly list files while skipping the journals directory.
+- RULE_VERIFICATION: Always run `git status` (filtered) before committing to ensure journals are not staged.
+- PROTOCOL_SCAN_STRATEGIC_ANCHORS: Scans the most recent `executive.md` specifically seeking `## Strategic Decisions`, `🏁 STRATEGIC CROSSROADS`, and `## Current Objective`.
+- PROTOCOL_FILTER_FOR_IN-PROGRESS_STATE: Identifies foundational naming changes, structural forks, and open todos that affect the project's current trajectory.
+- PROTOCOL_SYNTHESIS_VS._REDUNDANCY: Instead of duplicating raw logs, the agent synthesizes the current "project pulse" into today's carryover section.
+- PROTOCOL_FORENSIC_ISOLATION: The granular `thoughts.md` track is intentionally isolated to keep context lean. While it serves as a critical audit trail for tool failures, its primary purpose is **Thinking Transparency**—allowing humans to reconstruct and understand the agent's internal reasoning process if needed.
+- PROTOCOL_PRIVACY_RULE: **IMPORTANT**: No agent should ever read a `thoughts.md` journal without a specific request from the USER.
+- PROTOCOL_RUN_COMMAND: Use the alias `UpdateContext`.
+- PROTOCOL_EXPLORE: A Windows Explorer window will open to `AntiGravityNexusContext/Text`.
+- PROTOCOL_INITIALIZE: Paste the content of **`Initial Context Prompt.md`** (the 1st message).
+- PROTOCOL_TRANSFER: Drag and drop all other documents from that folder into the chat once acknowledged.
+- PROTOCOL_JOURNAL_VISIBILITY: Journals are visible to agents and maintained for continuity. They are NOT included in `.gitignore` (as this blocks agent-writing tools), but are excluded from commits by policy.
+- PROTOCOL_SELECTIVE_COMMITTING: Agents responding to a "commit" directive MUST NOT include `docs/journals/` unless explicitly instructed by the user. 
+- PROTOCOL_GIT_STATUS_FILTERING: To view status without journal noise, use: `git status -- :!docs/journals/`
+- MAGIC_WORDS:
+  - Agent Implementation: Use `git add <files> :!docs/journals/` or explicitly list files while skipping the journals directory.
+  - Verification: Always run `git status` (filtered) before committing to ensure journals are not staged.
+- RECON_PRIORITY: [1] Load .agent/vocabulary.md [2] Exec.md (tail 50) [3] Ready

@@ -23,7 +23,4 @@ docs2/tmp/
 # Ignore Scripts/Tmp and all subdirectories
 Scripts/Tmp/
 
-# Ignore Developer Journals (User requested local-only for ingestion)
-docs/GRAVITAS_DEV_JOURNAL*.md
-docs/GRAVITAS_THOUGHT_LOG.md
-docs/journals/
+
