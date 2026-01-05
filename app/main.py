@@ -49,6 +49,14 @@ app.add_middleware(
 
 app.include_router(chat_router)
 
+@app.get("/health")
+async def health():
+    return {
+        "status": "online",
+        "active_L1_model": container.l1_driver.model_name,
+        "mode": container.current_mode
+    }
+
 if os.path.exists(dashboard_path):
     from fastapi.responses import FileResponse
     
@@ -57,11 +65,3 @@ if os.path.exists(dashboard_path):
         return FileResponse(os.path.join(dashboard_path, "index.html"))
 
     app.mount("/", StaticFiles(directory=dashboard_path, html=True), name="dashboard")
-
-@app.get("/health")
-async def health():
-    return {
-        "status": "online",
-        "active_L1_model": container.l1_driver.model_name,
-        "mode": container.current_mode
-    }

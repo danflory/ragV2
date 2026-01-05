@@ -93,7 +93,11 @@ function updateHealthUI(data) {
         const h = data.health;
 
         // 1. Update Detailed Status Text
-        elements.detailedStatus.innerHTML = `<span class="status-dot"></span> NVIDIA TITAN RTX: ${h.gpu.percentage}% LOAD`;
+        const isInitializing = h.ollama === 'offline' || h.qdrant === 'offline';
+        const statusText = isInitializing ? 'SYSTEM: INITIALIZING...' : `NVIDIA TITAN RTX: ${h.gpu.percentage}% LOAD`;
+        const dotColor = isInitializing ? '#ffaa00' : (h.api === 'online' ? '#107c10' : '#ff4d6d');
+
+        elements.detailedStatus.innerHTML = `<span class="status-dot" style="background: ${dotColor}"></span> ${statusText}`;
 
         // 2. Update VRAM Stats
         elements.statVram.innerText = `${h.gpu.used}MB / ${h.gpu.total}MB`;
@@ -268,7 +272,42 @@ elements.pullBtn.addEventListener('click', () => {
     if (model) handleAction('/model/pull', 'POST', { model });
 });
 
-elements.ingestBtn.addEventListener('click', () => handleAction('/ingest'));
+elements.ingestBtn.addEventListener('click', async () => {
+    // Show immediate feedback
+    const loadingId = appendMessage('system', '🔄 FORCE RE-SCAN INITIATED: Purging old memory...');
+
+    // Start continuous VRAM monitoring during ingestion
+    const healthMonitor = setInterval(() => refreshHealth(), 1000);
+
+    try {
+        const response = await fetch(`${API_URL}/ingest`, { method: 'POST' });
+        const data = await response.json();
+
+        // Stop monitoring
+        clearInterval(healthMonitor);
+
+        if (data.status === 'success') {
+            const summary = data.summary || {};
+            const msg = `✅ INGESTION COMPLETE\n` +
+                `📁 Files Processed: ${summary.files_processed || 0}\n` +
+                `📄 Chunks Ingested: ${summary.chunks_ingested || 0}\n` +
+                `⏱️ Memory refreshed and ready for queries.`;
+            updateMessage(loadingId, msg);
+
+            // Final refresh to show updated state
+            setTimeout(() => {
+                refreshHealth();
+                refreshStats();
+            }, 1000);
+        } else {
+            updateMessage(loadingId, `❌ INGESTION FAILED: ${data.message || 'Unknown error'}`);
+        }
+    } catch (e) {
+        // Stop monitoring on error
+        clearInterval(healthMonitor);
+        updateMessage(loadingId, `❌ CONNECTION ERROR: ${e.message}`);
+    }
+});
 elements.clearBtn.addEventListener('click', () => {
     if (confirm("Permanently wipe short-term memory?")) {
         handleAction('/history', 'DELETE');

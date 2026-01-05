@@ -80,7 +80,7 @@ async def chat_endpoint(request: ChatRequest):
     context_hint = ""
     if container.memory:
         try:
-            docs = container.memory.search(request.message, n_results=3)
+            docs = await container.memory.search(request.message, top_k=3)
             if docs:
                 context_hint = "--- KNOWLEDGE BASE ---\n" + "\n".join(docs) + "\n\n"
                 logger.info(f"🧠 RAG: Retrieved {len(docs)} chunks.")
@@ -323,10 +323,7 @@ async def health_stream(request: Request):
             # 2. Fetch Recent Stats (Optional: Add real-time tokens etc)
             # For now, just send health
             
-            yield {
-                "event": "update",
-                "data": json.dumps(health_data)
-            }
+            yield f"event: update\ndata: {json.dumps(health_data)}\n\n"
             
             await asyncio.sleep(2) # Stream every 2 seconds
 

@@ -3,14 +3,6 @@
 ## CURRENT STATE: v4.2.0 (GRAVITAS REBRAND & AGENTIC CONSTRUCTION)
 The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Memory + MinIO Storage, Postgres History) is stable. Agentic construction via Antigravity is active.
 
-### 🚩 URGENT FIX: Fix failure in Antigravity thought logging
-* [ ] **The First Rule**: Google Antigravity must not modify any other file or process unrelated to this specific urgent fix. for the duration of completing this fix. (System active)
-* [ ] **Identity Isolation**: Antigravity refers exclusively to Google Antigravity (the coding assistant). This fix applies to Antigravity and NOT to any files or content of Gravitas. (Codified in `GOOGLE_ANTIGRAVITY_SPEC.md`)
-* [ ] **Verbatim Reasoning**: Dump 100% of internal monologue/thought output into `current_session.md` in RAW format. Must occur in every chat from start to finish. (Enforced)
-* [ ] **New Chat Protocol**: Upon new chat creation, `current_session.md` is appended to the daily thoughts log and cleared. An interpreted summary (Jan 4th style) is appended to the daily executive journal. (Transition logic FAILED - Debugging)
-* [ ] **Antigravity Spec**: Create a new spec file for Google Antigravity usage. (Completed: `docs/GOOGLE_ANTIGRAVITY_SPEC.md`)
----
-
 ## COMPLETED PHASES
 
 ### PHASE 1: THE FOUNDATION (QDRANT & MINIO)

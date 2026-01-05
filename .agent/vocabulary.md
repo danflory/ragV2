@@ -29,6 +29,7 @@
 - PROTOCOL_SELECTIVE_COMMITTING: Agents responding to a "commit" directive MUST NOT include `docs/journals/` unless explicitly instructed by the user. 
 - PROTOCOL_GIT_STATUS_FILTERING: To view status without journal noise, use: `git status -- :!docs/journals/`
 - PROTOCOL_THE_REASONING_PIPE_RULE: MANDATORY. Every task cycle MUST conclude with a verbatim dump of all internal reasoning/actions to the current_session.md buffer.
+- PROTOCOL_MECHANICAL_COGNITION: (THE HOOD) Every significant internal reasoning block MUST be wrapped in `<thought_tap>` tags. This creates a machine-parseable "hood" for external logging and audit.
 - PROTOCOL_FORENSIC_SCHEMA: Internal thought dumps MUST use the '[itj-XXX]' prefix and categorical markers (Internal Monologue, Drafting Thought, Action, Status).
 - PROTOCOL_THE_FIRST_RULE: During urgent fixes, Antigravity is strictly forbidden from modifying any file unrelated to the specific target task.
 - PROTOCOL_ZERO-EDITING_POLICY: The agent is strictly forbidden from summarizing, re-phrasing, or "cleaning up" internal processes for the pipe. The dump must be a character-for-character mirror of the internal reasoning or action state.
