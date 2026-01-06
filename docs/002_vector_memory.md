@@ -1,6 +1,6 @@
 # 002_VECTOR_MEMORY.md
 # STATUS: ACTIVE
-# VERSION: 4.0.0 (Gravitas Grounded Research / Hybrid Search)
+# VERSION: 4.5.0 (Gravitas Command & Control / Telemetry Calibration)
 
 ## 1. OBJECTIVE
 Implement the "Retrieval" in RAG with **Hybrid Vector Search**. The system uses Qdrant to store document embeddings and implements Dense + Sparse search for precision retrieval.

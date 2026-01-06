@@ -11,17 +11,14 @@ logger = logging.getLogger("Gravitas_LIBRARIAN")
 
 class LibrarianAgent:
     """
-    The Librarian: An autonomous agent for processing raw data imports.
+    The Librarian: An autonomous agent for processing documentation and code.
+    Scans docs/ and app/ directories, generates AI summaries, and indexes them.
     Follows the Night Shift architecture.
     """
     def __init__(self, container):
         self.container = container
-        self.inbox_dir = "data/inbox"
-        self.archive_dir = "data/archive"
-
-        # Ensure directories exist
-        os.makedirs(self.inbox_dir, exist_ok=True)
-        os.makedirs(self.archive_dir, exist_ok=True)
+        from ..config import config
+        self.scan_dirs = config.DOCS_PATH  # Uses same paths as Ingestor
 
     async def summarize(self, text: str) -> str:
         """
@@ -39,84 +36,86 @@ class LibrarianAgent:
             logger.error(f"Error in summarize: {e}")
             return text[:500] + "..."
 
-    async def process_inbox(self) -> Dict[str, Any]:
+    async def process_docs(self) -> Dict[str, Any]:
         """
-        Scan data/inbox.
+        Scan docs/ and app/ directories.
         1. Upload Raw Content to MinIO (Blob).
-        2. Generate Summary.
+        2. Generate AI Summary using L1.
         3. Ingest Summary to Qdrant (Index).
-        4. Move file to data/archive.
         """
-        if not os.path.exists(self.inbox_dir):
-            return {"files_processed": 0, "status": "inbox_missing"}
-
-        files = [f for f in os.listdir(self.inbox_dir) if os.path.isfile(os.path.join(self.inbox_dir, f))]
+        paths = self.scan_dirs if isinstance(self.scan_dirs, list) else [self.scan_dirs]
         processed_count = 0
+        chunks_ingested = 0
         
-        if not files:
-            logger.info("Nothing to process in inbox.")
-            return {"files_processed": 0, "status": "success"}
+        for path in paths:
+            if not os.path.exists(path):
+                logger.warning(f"⚠️ LIBRARIAN: Directory {path} not found.")
+                continue
 
-        for filename in files:
-            file_path = os.path.join(self.inbox_dir, filename)
-            try:
-                # Read file
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    raw_content = f.read()
-                
-                if not raw_content.strip():
-                    logger.warning(f"Skipping empty file: {filename}")
-                    shutil.move(file_path, os.path.join(self.archive_dir, filename))
+            logger.info(f"🚀 LIBRARIAN: Scanning {path}...")
+            
+            for root, _, files in os.walk(path):
+                # Skip __pycache__ and other noise
+                if "__pycache__" in root or ".git" in root:
                     continue
 
-                # 1. Upload Raw Content to MinIO (Blob)
-                blob_key = f"raw_{uuid.uuid4().hex}"
-                success = await self.container.storage.upload(blob_key, raw_content)
-                if not success:
-                    logger.error(f"❌ Failed to upload {filename} to storage.")
-                    continue
+                for file in files:
+                    # Support .md, .txt, and .py
+                    if file.endswith((".md", ".txt", ".py")):
+                        full_path = os.path.join(root, file)
+                        rel_path = os.path.relpath(full_path, path)
+                        
+                        try:
+                            with open(full_path, 'r', encoding='utf-8') as f:
+                                raw_content = f.read()
+                                
+                            if not raw_content.strip():
+                                continue
 
-                # 2. Generate Summary
-                summary = await self.summarize(raw_content)
+                            # 1. Upload Raw Content to MinIO (Blob)
+                            blob_key = f"librarian_{uuid.uuid4().hex}"
+                            success = await self.container.storage.upload(blob_key, raw_content)
+                            if not success:
+                                logger.error(f"❌ Failed to upload {rel_path} to storage.")
+                                continue
 
-                # 3. Ingest Summary to Qdrant (Index)
-                # Ensure the Qdrant payload links to the MinIO blob
-                if self.container.memory and self.container.memory.client:
-                    vector = await asyncio.to_thread(self.container.memory.embedder.encode, summary)
-                    
-                    payload = {
-                        "source": filename,
-                        "blob_key": blob_key,
-                        "type": "librarian_processed",
-                        "summary_preview": summary[:500],
-                        "timestamp": datetime.now().isoformat()
-                    }
-                    
-                    self.container.memory.client.upsert(
-                        collection_name=self.container.memory.collection_name,
-                        points=[
-                            models.PointStruct(
-                                id=str(uuid.uuid4()),
-                                vector=vector.tolist(),
-                                payload=payload
-                            )
-                        ]
-                    )
-                else:
-                    logger.warning("⚠️ Memory not available, skipping vector indexing.")
+                            # 2. Generate AI Summary
+                            summary = await self.summarize(raw_content)
 
-                # 4. Move file to data/archive
-                archive_path = os.path.join(self.archive_dir, filename)
-                # Handle filename collisions in archive
-                if os.path.exists(archive_path):
-                    base, ext = os.path.splitext(filename)
-                    archive_path = os.path.join(self.archive_dir, f"{base}_{uuid.uuid4().hex[:4]}{ext}")
-                
-                shutil.move(file_path, archive_path)
-                processed_count += 1
-                logger.info(f"✅ Librarian processed: {filename} -> {blob_key}")
+                            # 3. Ingest Summary to Qdrant (Index)
+                            if self.container.memory and self.container.memory.client:
+                                vector = await asyncio.to_thread(self.container.memory.embedder.encode, summary)
+                                
+                                payload = {
+                                    "source": rel_path,
+                                    "blob_key": blob_key,
+                                    "type": "librarian_ai_summary",
+                                    "summary_preview": summary[:500],
+                                    "timestamp": datetime.now().isoformat()
+                                }
+                                
+                                self.container.memory.client.upsert(
+                                    collection_name=self.container.memory.collection_name,
+                                    points=[
+                                        models.PointStruct(
+                                            id=str(uuid.uuid4()),
+                                            vector=vector.tolist(),
+                                            payload=payload
+                                        )
+                                    ]
+                                )
+                                chunks_ingested += 1
+                            else:
+                                logger.warning("⚠️ Memory not available, skipping vector indexing.")
 
-            except Exception as e:
-                logger.error(f"❌ Librarian failed on {filename}: {e}")
+                            processed_count += 1
+                            logger.info(f"✅ Librarian processed: {rel_path} -> {blob_key}")
 
-        return {"files_processed": processed_count, "status": "success"}
+                        except Exception as e:
+                            logger.error(f"❌ Librarian failed on {rel_path}: {e}")
+
+        return {
+            "files_processed": processed_count, 
+            "chunks_ingested": chunks_ingested,
+            "status": "success"
+        }

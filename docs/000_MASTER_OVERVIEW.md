@@ -1,6 +1,6 @@
 # 000_MASTER_OVERVIEW.md
 # STATUS: ACTIVE
-# VERSION: 4.2.0 (Gravitas Grounded Research / Agentic Construction)
+# VERSION: 4.5.0 (Gravitas Command & Control / Telemetry Calibration)
 
 ## 1. CORE PHILOSOPHY
 **Gravitas Grounded Research** is a **Dual-GPU Production-Grade Hybrid RAG Architecture**. The internal system orchestration, logic, and departmental specialists (the "Workers") all operate under the **Gravitas** namespace. The development and deployment of this project are managed by the external AI assistant, **Antigravity**.
@@ -32,3 +32,4 @@ The system leverages **dual NVIDIA GPUs** for parallel processing and implements
 | 003 | [SECURITY_GATEKEEPER](file:///home/dflory/dev_env/Gravitas/docs/003_security_gatekeeper.md) | ACTIVE | Safety & Escalation |
 | 004 | [HARDWARE_OPERATIONS](file:///home/dflory/dev_env/Gravitas/docs/004_hardware_operations.md) | ACTIVE | VRAM & Dual-GPU |
 | 005 | [DEVELOPMENT_PROTOCOLS](file:///home/dflory/dev_env/Gravitas/docs/005_development_protocols.md) | ACTIVE | TDD & Retention Cycles |
+| 006 | [TELEMETRY_CALIBRATION](file:///home/dflory/dev_env/Gravitas/docs/006_TELEMETRY_CALIBRATION.md) | ACTIVE | Granular Metrics & Phase 4.5 |

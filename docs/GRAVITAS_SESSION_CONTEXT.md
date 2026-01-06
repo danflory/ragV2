@@ -1,6 +1,6 @@
 
 # Gravitas Grounded Research - Session Context
-**Generated:** 2026-01-05 12:58:10
+**Generated:** 2026-01-05 18:52:13
 **System:** Titan RTX (Local) + DeepInfra (Cloud)
 **App State:** Docker Microservices
 
@@ -58,20 +58,6 @@ The system runs in a multi-container environment with dedicated services:
 ## CURRENT STATE: v4.2.0 (GRAVITAS REBRAND & AGENTIC CONSTRUCTION)
 The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Memory + MinIO Storage, Postgres History) is stable. Agentic construction via Antigravity is active.
 
----
-
-## 🚨 URGENT FIX: INCONSISTENCY RESOLUTION (2026-01-05)
-- **Problem**: Retention policies and agent naming were inconsistent across documentation and code.
-- **Resolution**:
-    - **Telemetry**: 60-day aggregation window (Postgres).
-    - **Reasoning Pipes**: 14-day local archive (Files).
-    - **Identity**: **Antigravity** is the construction assistant. All departmental agents (Scout, Librarian) MUST be prefixed with **Gravitas**.
-    - **Protocol**: `docs/005_development_protocols.md` updated to v4.2.0 as the source of truth for these retention and identity rules.
-    - **Maintenance**: `maintenance.py` moved to `ANTIGRAVITY_Scripts/` and updated to handle the 14/60 day split.
-    - **Dashboard Sync**: Labels and UI system updated to Gravitas/Antigravity v4.2.0 standards.
-
----
-
 ## COMPLETED PHASES
 
 ### PHASE 1: THE FOUNDATION (QDRANT & MINIO)
@@ -79,29 +65,33 @@ The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Me
 * [x] **Verification:** Full ingestion and search pipeline verified in `tests/`.
 
 ### PHASE 2: PERSISTENCE & TELEMETRY
-* [x] **Infrastructure:** Provisioned `postgres_db` for chat history and metrics.
+* [x] **Infrastructure:** Provisioned `Gravitas_postgres` for chat history and metrics.
 * [x] **Telemetry:** Implemented `app/telemetry.py` for VRAM tracking and system events.
 
 ### PHASE 3: THE GRAVITAS EVOLUTION (REBRANDING)
 * [x] **Consistency:** Global rename of all legacy "agy" / "AntiGravity" terms to **Gravitas**.
 * [x] **Automation:** Hooked session context generation into the system startup.
-* [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/GRAVITAS_DEV_JOURNAL.md`.
+* [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/005_development_protocols.md`.
 
 ---
 
 ## UPCOMING PHASES
 
 ### PHASE 4: COMMAND & CONTROL (THE NEXUS DASHBOARD)
-* [ ] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
-* [ ] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
+* [x] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
+* [x] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
+
 
 ### PHASE 4.5: GRANULAR TELEMETRY CALIBRATION (THE SENSORS)
 * [ ] **Sensor Implementation:** Upgrade `app/telemetry.py` to record sub-second metrics: **Load Latency** (VRAM setup) and **Thought Latency** (Inference Speed).
+* [ ] **Weighted Telemetry Aggregation:** 
+    * **Pre-Calculation**: Refactor logging logic to measure "Work Units" (Tokens Generated) *before* database entry.
+    * **The Efficiency Score**: Store **Latency-Per-Token** (Weighted) rather than flat temporal averages to accurately reflected system strain under load.
 * [ ] **The 60-Day Historic Window:** Establish a 60-day data retention policy in Postgres to track long-term hardware performance.
 * [ ] **Safety (Aggregation & Monitoring):** 
-    * Implement **Telemetry Aggregation** (averaging hits every 60s) to prevent database bloat.
+    * **Aggregation**: Average the Weighted Efficiency Scores every 60s to prevent database bloat.
     * **Dashboard Widget**: Create a "Telemetry Footprint" monitor to track disk space used by the millions of potential hits.
-    * **Auto-Pruning**: Summarize data older than 60 days into daily performance benchmarks before purging raw logs.
+    * **Auto-Pruning Logic**: Implement the 60-day pruning mechanism in `ANTIGRAVITY_Scripts/maintenance.py` (Deferred from initial setup, now placed here).
 
 ### PHASE 5: DYNAMIC MODEL GOVERNANCE (THE SUPERVISOR)
 * [ ] **Data-Driven Dispatcher:** Use the 60 days of calibrated **Telemetry Data** to route tasks based on real-time load times, token speeds, and cost.
@@ -147,7 +137,6 @@ The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Me
 Gravitas/
     onArrival.txt
     .gitignore
-    check_vram.py
     rag_memory.db
     gravitas_mcp_config.json
     READ_ME_GRAVITAS_MASTER_MANUAL.md
@@ -156,8 +145,8 @@ Gravitas/
     .env
     .dockerignore
     Dockerfile
-    fixProject.py
     log_conf.yaml
+    debug_rag_retrieval.py
     CHANGELOG.md
     .env.example
         tools/
@@ -166,21 +155,29 @@ Gravitas/
             TEST_GUIDE.md
             hardware_rig.md
             gemini_3_model_guide.md
+            RAG_DEBUG_ANALYSIS.md
             001_core_architecture.md
             STRATEGY_SESSION_2026_01_04.md
             003_security_gatekeeper.md
+            GOOGLE_ANTIGRAVITY_SPEC.md
             HOWTO_DEV_REMINDERS.md
             function_cycles.md
+            COMPLETE_SESSION_SUMMARY.md
+            TEST_RESULTS_INTEGRATED_RAG.md
+            NEXUS_RESCAN_IMPROVEMENTS.md
             TEST_AUDIT.md
+            SESSION_SUMMARY_RAG_TESTING.md
             ROADMAP.md
             developerNotes.md
             005_development_protocols.md
             004_hardware_operations.md
             GRAVITAS_NOMENCLATURE.md
             002_vector_memory.md
+            FAQ.md
             model_integration.md
             000_MASTER_OVERVIEW.md
             Initial Context Prompt.md
+            RAG_REFUSAL_RESOLUTION.md
             journals/
                 2026-01-04_executive.md
                 current_session.md
@@ -230,16 +227,20 @@ Gravitas/
             executive_template.md
             vocabulary.md
             workflows/
+                log.md
                 recon.md
+                reason.md
         dashboard/
             app.js
             index.html
             style.css
         tests/
+            test_rag_diagnostics.py
             test_mode_switching.py
             test_minio_storage.py
             test_L3_google.py
             test_l3_integration.py
+            test_integrated_rag_prompts.py
             test_vram_safety.py
             test_ingestion_pipeline.py
             test_protocol_e2e.py
@@ -276,12 +277,10 @@ Gravitas/
             load_knowledge.py
             ingest.py
             inventory.sh
-            test_ingestor.py
-            sync_vocabulary.py
+            manual_ingest.py
             warmup.py
             debug_import.py
             global_rename.py
-            test_retrieval.py
             list_all_models.py
             reset_gravitas.sh
             manage.py
@@ -296,6 +295,45 @@ Gravitas/
             init_db.sql
             titan_stress.py
             test_qwen3_connection.py
+            experimental/
+                test_ingest_v2.py
+                test_minimal.py
+                test_final_metal.py
+                test_memory_ingest.py
+                test_rag_v3.py
+                v12_log.txt
+                fix_memory.py
+                test_ingest.py
+                check_vram.py
+                test_ingest_v5.py
+                test_ingest_v11.py
+                test_ingestor.py
+                test_output_metal.log
+                test_rag.py
+                test_final.py
+                test_retrieval.py
+                ingest_v5_output.txt
+                test_ingest_v6.py
+                test_ingest_v4.py
+                test_ingest_v10.py
+                test_rag_v4.py
+                test_output.log
+                test_ingest_v8.py
+                test_ingest_v12.py
+                test_ingest_v9.py
+                test_ingest_v7.py
+                test_db.py
+                test_sentence_transformers.py
+                test_rag_diagnostics_results.txt
+                test_ingest_v3.py
+                test_rag_direct.py
+                final_ingest_log.txt
+                test_rag_query.py
+                test_sentence_transformers_v2.py
+                ingest_v8_output.txt
+                test_rag_results.txt
+                test_rag_v2.py
+                test_ollama.py
         .pytest_cache/
             .gitignore
             README.md
@@ -350,8 +388,6 @@ app = FastAPI(
 
 # MOUNT DASHBOARD (STATIC FILES)
 dashboard_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dashboard")
-if os.path.exists(dashboard_path):
-    app.mount("/dashboard", StaticFiles(directory=dashboard_path, html=True), name="dashboard")
 
 # CORS CONFIGURATION
 app.add_middleware(
@@ -371,6 +407,15 @@ async def health():
         "active_L1_model": container.l1_driver.model_name,
         "mode": container.current_mode
     }
+
+if os.path.exists(dashboard_path):
+    from fastapi.responses import FileResponse
+    
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(os.path.join(dashboard_path, "index.html"))
+
+    app.mount("/", StaticFiles(directory=dashboard_path, html=True), name="dashboard")
 ```
 
 ### File: `app/config.py`
@@ -384,7 +429,8 @@ class Settings(BaseSettings):
     PORT: int = 5050
     
     # === LAYER 1 (Local - Titan RTX) ===
-    L1_URL: str = "http://ollama:11434"
+    L1_URL: str = "http://Gravitas_ollama:11434"
+    L1_EMBED_URL: str = "http://Gravitas_ollama_embed:11434"
     L1_MODEL: str = "codellama:7b"
     VRAM_THRESHOLD_GB: float = 2.0
 
@@ -421,9 +467,11 @@ class Settings(BaseSettings):
     CHROMA_URL: str = "http://chroma_db:8000" 
     CHROMA_COLLECTION: str = "Gravitas_knowledge"
     DOCS_PATH: list[str] = [
-        os.path.join(os.path.dirname(__file__), "../docs"),
-        os.path.join(os.path.dirname(__file__), "../app")
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs"),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app")
     ]
+
+
 
     # === DATABASE (Postgres) ===
     DB_HOST: str = "Gravitas_postgres"
@@ -729,8 +777,13 @@ class DeepInfraDriver(LLMDriver):
 ```python
 import logging
 import re
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from fastapi.responses import StreamingResponse
+import httpx
 from pydantic import BaseModel
+import asyncio
+import json
+import subprocess
 
 from .container import container
 from .reflex import execute_shell, write_file, execute_git_sync
@@ -804,7 +857,7 @@ async def chat_endpoint(request: ChatRequest):
     context_hint = ""
     if container.memory:
         try:
-            docs = container.memory.search(request.message, n_results=3)
+            docs = await container.memory.search(request.message, top_k=3)
             if docs:
                 context_hint = "--- KNOWLEDGE BASE ---\n" + "\n".join(docs) + "\n\n"
                 logger.info(f"🧠 RAG: Retrieved {len(docs)} chunks.")
@@ -898,14 +951,25 @@ async def chat_endpoint(request: ChatRequest):
 async def trigger_ingestion():
     """
     Manually triggers the Document Ingestor.
+    Purges existing memory first to ensure fresh data.
     """
     if not container.ingestor:
         return {"status": "error", "message": "Ingestor not initialized (Vector Store missing?)"}
     
     try:
-        # We run this in a background task if it's large, but for now blocking is okay for a dev tool
-        await container.ingestor.ingest_all()
-        return {"status": "success", "message": "Knowledge ingestion complete."}
+        # 1. PURGE EXISTING DATA (Prevent staleness)
+        if container.memory:
+            logger.info("🧹 Purging old memory before re-scan...")
+            await container.memory.purge()
+
+        # 2. RUN INGESTION
+        summary = await container.ingestor.ingest_all()
+        
+        if summary["status"] == "success":
+            msg = f"Knowledge memory purged and re-ingested. Processed {summary['files_processed']} files ({summary['chunks_ingested']} chunks)."
+            return {"status": "success", "message": msg, "summary": summary}
+        else:
+            return summary
     except Exception as e:
         logger.error(f"❌ INGESTION ENDPOINT ERROR: {e}")
         return {"status": "error", "message": str(e)}
@@ -970,13 +1034,14 @@ async def get_detailed_health():
     Checks connectivity for all microservices and GPU stats.
     """
     from .database import db
-    import subprocess
     
     health = {
         "api": "online",
         "postgres": "online" if db.is_ready() else "offline",
-        "chroma": "offline",
+        "qdrant": "offline",
+        "minio": "offline",
         "ollama": "offline",
+        "ollama_embed": "offline",
         "gpu": {"used": 0, "total": 0, "percentage": 0}
     }
     
@@ -984,16 +1049,25 @@ async def get_detailed_health():
     if await container.l1_driver.check_health():
         health["ollama"] = "online"
         
-    # Check Chroma
+    # Check Ollama Embed
     try:
-        if container.memory and container.memory.collection:
-             health["chroma"] = "online"
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            resp = await client.get(config.L1_EMBED_URL)
+            if resp.status_code == 200:
+                health["ollama_embed"] = "online"
     except:
         pass
 
+    # Check Qdrant
+    if container.memory and await container.memory.check_health():
+        health["qdrant"] = "online"
+        
+    # Check MinIO
+    if container.storage and await container.storage.check_health():
+        health["minio"] = "online"
+
     # Check GPU (NVIDIA)
     try:
-        # Get first GPU's memory usage
         res = subprocess.check_output(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits"], encoding="utf-8")
         lines = res.strip().split("\n")
         if lines:
@@ -1007,6 +1081,43 @@ async def get_detailed_health():
         logger.warning(f"Failed to fetch GPU stats: {e}")
         
     return {"status": "success", "health": health, "current_mode": container.current_mode}
+
+@router.get("/health/stream")
+async def health_stream(request: Request):
+    """
+    Server-Sent Events (SSE) stream for real-time health and telemetry metrics.
+    """
+    async def event_generator():
+        from .database import db
+        while True:
+            # If client closes connection, stop sending
+            if await request.is_disconnected():
+                break
+
+            # 1. Fetch Health Data (Reuse logic but faster)
+            health_data = await get_detailed_health()
+            
+            # 2. Fetch Recent Stats (Optional: Add real-time tokens etc)
+            # For now, just send health
+            
+            yield f"event: update\ndata: {json.dumps(health_data)}\n\n"
+            
+            await asyncio.sleep(2) # Stream every 2 seconds
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+@router.post("/system/reset")
+async def reset_system():
+    """
+    Warms up the reset script to restore Gravitas to a clean state.
+    """
+    try:
+        # Trigger the reset script in the background
+        subprocess.Popen(["bash", "scripts/reset_gravitas.sh"])
+        return {"status": "success", "message": "System reset sequence initiated. Containers will restart."}
+    except Exception as e:
+        logger.error(f"❌ RESET FAILURE: {e}")
+        return {"status": "error", "message": str(e)}
 
 class PullRequest(BaseModel):
     model: str
@@ -1305,12 +1416,12 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_HOST=Gravitas_postgres
       - QDRANT_HOST=Gravitas_qdrant
-      - OLLAMA_HOST=Gravitas_ollama # GPU 0
-      - OLLAMA_EMBED_HOST=Gravitas_ollama_embed # GPU 1
+      - L1_URL=http://Gravitas_ollama:11434
+      - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
       - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
-      - POSTGRES_USER=${DB_USER:-agy_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
+      - POSTGRES_USER=${DB_USER:-Gravitas_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     ports:
       - "8001:8000" # Maps port 8000 inside to 8001 outside (just in case)
@@ -1402,8 +1513,8 @@ services:
     image: postgres:16-alpine
     container_name: Gravitas_postgres
     environment:
-      - POSTGRES_USER=${DB_USER:-agy_user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-agy_pass}
+      - POSTGRES_USER=${DB_USER:-Gravitas_user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-Gravitas_pass}
       - POSTGRES_DB=${DB_NAME:-chat_history}
     volumes:
       - ./data/postgres_data:/var/lib/postgresql/data
@@ -1424,9 +1535,10 @@ services:
     ports:
       - "5050:5050"
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-agy_user}:${DB_PASSWORD:-agy_pass}@Gravitas_postgres:5432/${DB_NAME:-chat_history}
+      - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@Gravitas_postgres:5432/${DB_NAME:-chat_history}
       - DB_HOST=Gravitas_postgres
       - L1_URL=http://Gravitas_ollama:11434
+      - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
     depends_on:
       - Gravitas_postgres
       - qdrant

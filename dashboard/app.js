@@ -117,13 +117,27 @@ function updateHealthUI(data) {
             }
         });
 
-        // 4. Update Mode Toggle Buttons
+        // 4. Update Mode Toggle Buttons & Tool Access
         if (data.current_mode === 'RAG') {
             elements.modeRagBtn.classList.add('active');
             elements.modeDevBtn.classList.remove('active');
+
+            // Enable RAG tools
+            elements.librarianBtn.disabled = false;
+            elements.librarianBtn.style.opacity = "1";
+            elements.librarianBtn.innerText = "START NIGHT SHIFT (PROCESS INBOX)";
+            elements.ingestBtn.disabled = false;
+            elements.ingestBtn.style.opacity = "1";
         } else {
             elements.modeDevBtn.classList.add('active');
             elements.modeRagBtn.classList.remove('active');
+
+            // Disable RAG tools
+            elements.librarianBtn.disabled = true;
+            elements.librarianBtn.style.opacity = "0.5";
+            elements.librarianBtn.innerText = "LIBRARIAN (RAG MODE ONLY)";
+            elements.ingestBtn.disabled = true;
+            elements.ingestBtn.style.opacity = "0.5";
         }
     }
 }

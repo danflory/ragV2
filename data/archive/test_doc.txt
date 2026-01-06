@@ -1,0 +1,4 @@
+This is a test document for the Librarian.
+It describes the Gravitas system architecture.
+Gravitas uses a dual-GPU setup for RAG operations.
+TITAN RTX handles generation and GTX 1060 handles embeddings.

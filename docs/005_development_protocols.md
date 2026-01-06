@@ -1,6 +1,6 @@
 # 005_development_protocols.md
 # STATUS: ACTIVE
-# VERSION: 4.2.0 (Gravitas Grounded Research / Agentic Construction)
+# VERSION: 4.5.0 (Gravitas Command & Control / Telemetry Calibration)
 
 ## 1. THE ARCHITECT'S OATH (TDD)
 We follow a strict **Test-Driven Development (TDD)** loop for all new features:

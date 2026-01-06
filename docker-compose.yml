@@ -15,7 +15,7 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_HOST=Gravitas_postgres
       - QDRANT_HOST=Gravitas_qdrant
-      - L1_URL=http://Gravitas_ollama:11434
+      - L1_URL=http://gravitas_supervisor:8000
       - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
       - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
@@ -136,13 +136,36 @@ services:
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@Gravitas_postgres:5432/${DB_NAME:-chat_history}
       - DB_HOST=Gravitas_postgres
-      - L1_URL=http://Gravitas_ollama:11434
+      - L1_URL=http://gravitas_supervisor:8000
       - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
     depends_on:
       - Gravitas_postgres
       - qdrant
+      - gravitas_supervisor
     networks:
       - Gravitas_net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+  # --- SUPERVISOR: DISPATCH AND QUEUE ---
+  gravitas_supervisor:
+    build:
+      context: ./gravitas_supervisor
+    container_name: gravitas_supervisor
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://Gravitas_ollama:11434/v1/chat/completions
+    depends_on:
+      - ollama
+    networks:
+      - Gravitas_net
+    restart: unless-stopped
 
 networks:
   Gravitas_net:

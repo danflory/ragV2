@@ -164,3 +164,38 @@ Nomenclature drift leads to cognitive load and RAG pollution. By establishing a 
 
 ### Strategic Crossroads
 - **Telemetry Pruning Implementation**: While documenting the 60-day window, the actual Postgres pruning logic for `usage_stats` hasn't been built yet. Should this be added to `ANTIGRAVITY_Scripts/maintenance.py` now, or wait until Phase 4.5?
+
+## [2026-01-05 15:26] - URGENT FIX: ANTIGRAVITY LOGGING IMPLEMENTATION
+**Objective:** Resolve the failure in session transition logic and finalize the "Reasoning Pipe" architecture.
+
+### Actions Taken
+- **Infrastructure Restore:** Restored v4.2.0 baseline for `.agent` configuration and daily journals (01-04/01-05).
+- **Protocol Enforced:** Updated `.agent/workflows/recon.md` and `.agent/vocabulary.md` to mandate `reasoning_pipe.py` execution on session start.
+- **Script Logic Hardening:** Updated `ANTIGRAVITY_Scripts/reasoning_pipe.py` to handle "Phase A" (Buffer Archival) and "Phase B" (Executive Synthesis triggering).
+- **Spec Compliance:** Updated `GOOGLE_ANTIGRAVITY_SPEC.md` to link requirements directly to the new script logic.
+
+### Reasoning Strategy
+The previous implementation relied on assumed behavior which failed to execute during the session transition. By hard-coding the `reasoning_pipe.py` call into the reconnaissance workflow and updating the script to handle null-argument initialization, we ensure that every new session automatically archives and clears the previous session's buffer. This mechanically enforces "Thinking Transparency" without relying on manual agent compliance.
+
+### Strategic Crossroads
+- **Legacy Log Handling:** The failure of the previous session left a "stranded" buffer in `current_session.md`. This was manually remediated in the subsequent session (timestamp 15:42), proving the need for a "Buffer Safety Check" workflow.
+
+---
+
+## [2026-01-05 16:00] - EXECUTIVE DECISIONS: ARCHITECTURE & TELEMETRY
+**Objective:** Architecture definition based on User Command (Step 12).
+
+### Strategic Decisions
+1.  **Department Model:** **Micro-services**. We will build the Scout, Librarian, and Archivist as independent services rather than internal classes. This favors modularity and independent scaling despite the higher initial complexity.
+2.  **Git Policy:** **Technical Control**. We will implement a `pre-commit` hook to mechanically prevent journal leakage, ensuring privacy compliance is not dependent on social habits.
+3.  **Telemetry Pruning:** **Deferred**. Risk accepted. Pruning logic implementation is postponed to Phase 4.5.
+4.  **Synthesis & Buffer:** 
+    - **Trigger:** **Milestones**. Executive synthesis will occur at logical project milestones, not just session boundaries.
+    - **Safety:** **Lookback Buffer**. We will implement a 1-session safety retention buffer.
+
+### Strategic Decisions: Telemetry Architecture
+5.  **Telemetry Aggregation:** **Weighted (Latency-Per-Token)**.
+    - **Rationale:** We will "pay the tax now" to pre-calculate work units (tokens) before logging. This ensures the 60-second averages reflect true system efficiency rather than just duration.
+    - **Action:** Roadmap Phase 4.5 updated to include "Pre-Calculation" and "Efficiency Score" requirements.
+
+---

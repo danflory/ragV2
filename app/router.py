@@ -175,7 +175,11 @@ async def trigger_ingestion():
     """
     Manually triggers the Document Ingestor.
     Purges existing memory first to ensure fresh data.
+    Restricted to RAG mode only.
     """
+    if container.current_mode != config.MODE_RAG:
+        return {"status": "error", "message": "Ingestion is restricted to RAG mode."}
+
     if not container.ingestor:
         return {"status": "error", "message": "Ingestor not initialized (Vector Store missing?)"}
     
@@ -250,6 +254,41 @@ async def get_stats_summary():
     except Exception as e:
         logger.error(f"❌ STATS SUMMARY ERROR: {e}")
         return {"status": "error", "message": str(e)}
+
+@router.get("/telemetry/footprint")
+async def get_telemetry_footprint():
+    """
+    Returns telemetry database footprint metrics for monitoring.
+    """
+    try:
+        from .telemetry import telemetry
+        footprint = await telemetry.get_telemetry_footprint()
+        
+        if footprint:
+            return {"status": "success", "footprint": footprint}
+        else:
+            return {"status": "error", "message": "Failed to retrieve telemetry footprint"}
+    except Exception as e:
+        logger.error(f"❌ TELEMETRY FOOTPRINT ERROR: {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.get("/telemetry/60day")
+async def get_60day_telemetry():
+    """
+    Returns 60-day historic telemetry statistics for performance analysis.
+    """
+    try:
+        from .telemetry import telemetry
+        stats = await telemetry.get_60day_statistics()
+        
+        if stats:
+            return {"status": "success", "statistics": stats}
+        else:
+            return {"status": "error", "message": "Failed to retrieve 60-day statistics"}
+    except Exception as e:
+        logger.error(f"❌ 60-DAY TELEMETRY ERROR: {e}")
+        return {"status": "error", "message": str(e)}
+
 
 @router.get("/health/detailed")
 async def get_detailed_health():
@@ -401,10 +440,14 @@ async def get_financial_report():
 @router.post("/agents/librarian/run")
 async def run_librarian():
     """
-    Manually triggers the Librarian Agent to process the inbox.
+    Manually triggers the Librarian Agent to process docs/ and app/.
+    Restricted to RAG mode only.
     """
+    if container.current_mode != config.MODE_RAG:
+        return {"status": "error", "message": "Librarian is restricted to RAG mode."}
+
     try:
-        result = await container.librarian.process_inbox()
+        result = await container.librarian.process_docs()
         return result
     except Exception as e:
         logger.error(f"❌ LIBRARIAN ENDPOINT ERROR: {e}")

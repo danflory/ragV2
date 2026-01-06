@@ -12,7 +12,7 @@ class LocalLlamaDriver(LLMDriver):
     def __init__(self, config: Settings):
         self.base_url = config.L1_URL
         self.model_name = config.L1_MODEL
-        self.timeout = 60.0
+        self.timeout = 180.0
 
     async def load_model(self, model_name: str) -> bool:
         """Switches the active model and ensures it is available."""
