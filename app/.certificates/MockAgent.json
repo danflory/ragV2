@@ -1,0 +1,7 @@
+{
+    "agent_name": "MockAgent",
+    "issued_at": "2026-01-05T23:12:20.457151",
+    "expires_at": "2026-02-04T23:12:20.457151",
+    "signature": "cacdadbed0bf56fc5119e3acd3407214f5fbb93c91bd2a8f028ec383b0ea6dae",
+    "version": "1.0"
+}

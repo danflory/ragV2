@@ -1,12 +1,13 @@
 # 005_development_protocols.md
 # STATUS: ACTIVE
-# VERSION: 4.5.0 (Gravitas Command & Control / Telemetry Calibration)
+# VERSION: 6.0.0 (Reasoning Pipes & Wrapper Certification)
 
 ## 1. THE ARCHITECT'S OATH (TDD)
 We follow a strict **Test-Driven Development (TDD)** loop for all new features:
 1.  **Red:** Write a failing test in `tests/`.
 2.  **Green:** Write minimal implementation code to pass.
 3.  **Refactor:** Clean the code while keeping the test Green.
+4.  **Certify:** Agent wrappers MUST pass `WrapperCertifier` validation before being enabled in the Registry.
 
 ## 2. THE SOLID STANDARD
 1.  **SRP:** Single Responsibility Principle. Modules like `safety.py` and `reflex.py` must stay decoupled.
@@ -41,4 +42,12 @@ We follow a strict **Test-Driven Development (TDD)** loop for all new features:
 ## 6. IDENTITY COMPLIANCE
 * **Antigravity**: The designation for the external AI Assistant tool used for project construction and orchestration of development tasks.
 * **Gravitas**: The designation for the internal RAG system, its core logic, and its departmental specialist agents (e.g., **Gravitas Scout**, **Gravitas Librarian**).
+
+## 7. REASONING PIPE PROTOCOL
+All agent wrappers must implement the **Reasoning Pipe** protocol to capture high-fidelity chain-of-thought data.
+1.  **Wrapper Certification**: No wrapper can be deployed without passing static and dynamic certification via the `WrapperCertifier`.
+2.  **Standardized Journaling**: Logs must be written to `docs/journals/ReasoningPipe_{agent}_{session}.md` in the approved markdown format.
+3.  **Supervisor Integration**: Every session must be registered with the `SupervisorGuardian` before execution starts.
+4.  **Zero-Editing Policy**: Reasoning logs are raw and immutable. They are the ground truth for system logic.
+5.  **Monthly Audits**: All certified agents are subject to monthly quality audits by the `ReasoningPipeAuditor`.
 

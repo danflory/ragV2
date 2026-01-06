@@ -1,6 +1,6 @@
 # 007: MODEL GOVERNANCE & DYNAMIC ROUTING
 
-**Version:** 5.0.0  
+**Version:** 6.0.0  
 **Status:** Active  
 **Last Updated:** 2026-01-05
 
@@ -16,6 +16,7 @@ The **Gravitas Supervisor** is a standalone FastAPI proxy service that intellige
 2. **Disruption Avoidance:** Queue management prevents model thrashing
 3. **Intelligent Offloading:** Route complex tasks to appropriate tiers
 4. **Observable Performance:** Shadow-audit loop tracks all routing decisions
+5. **Certified Safety:** No model can be routed without a valid Wrapper Certificate
 
 ---
 
@@ -227,6 +228,37 @@ export GOOGLE_API_KEY="your_key_here"
 - 60-second timeout for large context operations
 - Response format conversion to OpenAI schema
 - Error logging and graceful degradation
+
+---
+
+## WRAPPER CERTIFICATION & GUARDIAN
+
+Before an agent can be registered in the routing system, it must pass a dual validation process ensuring it complies with the **Reasoning Pipe** protocol.
+
+### Certification Flow
+```
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│  Wrapper Code   │─────▶│ WrapperCertifier │─────▶│ JSON Certificate│
+│ (Implementation)│      │ (Static/Dynamic) │      │ (app/.certs/)   │
+└─────────────────┘      └──────────────────┘      └────────┬────────┘
+                                                            │
+                                                            ▼
+┌─────────────────┐      ┌──────────────────┐      ┌─────────────────┐
+│     Client      │─────▶│ Gravitas         │─────▶│ Supervisor      │
+│     Request     │      │ Supervisor       │      │ Guardian        │
+└─────────────────┘      └──────────────────┘      └────────┬────────┘
+                                                            │
+                                                            ▼
+                                                   { Verify Signature }
+                                                            │
+                                                   ┌────────┴────────┐
+                                                   │      ALLOW      │
+                                                   └─────────────────┘
+```
+
+1. **Static Analysis**: Certifier checks for inheritance from `GravitasAgentWrapper` and implementation of required abstract methods (`_execute_internal`, `_parse_thought`).
+2. **Dynamic Validation**: Certifier executes a test task and validates the generated `ReasoningPipe` markdown for format compliance and content fidelity.
+3. **Guardian Enforcement**: Upon every task execution, the `SupervisorGuardian` verifies that the agent has a non-expired certificate before allowing the session to start.
 
 ---
 
@@ -508,10 +540,11 @@ docker logs -f gravitas_supervisor
 - [ ] Real-time model performance tracking
 - [ ] A/B testing framework for routing rules
 
-### Phase 6 Integration
-- [ ] Reasoning Pipe integration for routing decisions
-- [ ] Self-learning routing optimization
-- [ ] Automatic model capability discovery
+### Phase 6 Integration (Active)
+- [x] Reasoning Pipe integration for routing decisions
+- [x] Wrapper Certification enforcement
+- [x] Standardized journaling via `ReasoningPipe` library
+- [ ] Self-learning routing optimization (Phase 7)
 
 ---
 
