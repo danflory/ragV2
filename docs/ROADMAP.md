@@ -16,7 +16,8 @@
 - [x] **Certification System:** Wrapper Certifier, Certificate Issuance, Compliance Auditor.
 - [x] **Agent Wrappers:** L3 Frontier (Gemini/Claude), L2 Specialized, L1 Local.
 - [x] **Validation:** Spec tests, Certification workflow, Performance audit.
-- [x] **Verification:** All tests passed. (Phase considered technically complete, moving to optimization).
+- [x] **Operationalization:** Standalone Supervisor Service (Port 8000) implemented.
+- [x] **Verification:** All tests passed (Unit/Spec/E2E).
 
 ### PHASE 6.5: THE CONCEPTUAL SHIFT (Codebase Alignment) - ✅ CORE COMPLETE
 **Objective:** Align backend architecture (Registry, DB, Infrastructure) with the Gravitas Meta-Model.
@@ -24,10 +25,9 @@
 - [x] **Shell Registry:** Rename `agent_registry.py` to `shell_registry.py` and strictly catalog Models.
 - [x] **Backward Compatibility:** Create `agent_registry.py` facade with deprecation warnings.
 - [x] **DB Alignment:** Update Postgres `history` table with `ghost_id` and `shell_id` columns (98 records backfilled).
-- [x] **Infrastructure:** Rename `rag_app` to `gravitas_lobby` in `docker-compose.yml`.
-- [x] **Artifacts:** Update `ReasoningPipe` to name journals by Ghost Identity.
+- [x] **Infrastructure:** Create `app/services/supervisor/main.py` (The Intelligent Gateway).
 - [ ] **Refactor:** Move orphaned `scripts/` into Agent Tool definitions (Deferred to Phase 7).
-- [ ] **Refactor:** Remove routing logic from `app/router.py` (Deferred - requires Supervisor refactor).
+- [ ] **Refactor:** Decommission legacy routing logic in `app/router.py` (Pending full client migration).
 
 ---
 
@@ -38,6 +38,10 @@
 - [ ] **7.1 The Security Officer:** Implement Access Control Policy engine (`access_groups`).
 - [ ] **7.2 The Security Cop:** Implement Runtime enforcement and audit logs.
 - [ ] **7.3 Identity Management:** JWT-based Auth and "Badge" System for Agents.
+- [ ] **7.4 Supervisor Hardening (Code Review Debt):**
+  - [x] Replace `"created": 0` with actual timestamp in `router.py:125`. ✅ Fixed 2026-01-06
+  - [ ] Use `urllib.parse` for OLLAMA_URL manipulation (fragile string split).
+  - [ ] Replace string matching (`"gemini" in`) with `ModelSpec.provider` lookup.
 
 ### PHASE 8: THE ACQUISITION TIER (THE HORSES)
 *Equipping the Scout with real power.*

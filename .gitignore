@@ -21,8 +21,10 @@ data/huggingface/
 *.log
 system.log
 
-# Journals (Should be visible to Antigravity, but maybe not all tracked if too large)
-# For now, let's keep them tracked as requested by nomenclature protocols
+# Journals - INTENTIONALLY NOT GITIGNORED
+# Reason: Antigravity models hide .gitignore'd paths from AI context.
+# Journals must remain visible to Antigravity for session continuity.
+# Policy: Journals are temporal research items - manually exclude at commit time.
 # docs/journals/
 
 # Antigravity Scripts

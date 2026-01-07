@@ -34,25 +34,27 @@ class TestL1QueueManagement:
             # Submit 3 requests quickly
             for i in range(3):
                 payload = {
-                    "model": "gemma2:27b",
+                    "model": "codellama:7b",
                     "messages": [{"role": "user", "content": f"Request {i}"}],
-                    "complexity": 3  # Force L1
+                    "complexity": 3
                 }
-                # Note: In a real scenario, these would be submitted concurrently
-                # For now, we'll just verify the endpoint accepts them
                 try:
                     resp = await client.post(
                         f"{SUPERVISOR_URL}/v1/chat/completions",
                         json=payload,
-                        timeout=5.0
+                        timeout=30.0
                     )
                     requests.append({"index": i, "status": resp.status_code})
+                    # Strict validation for integration test
+                    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
                 except Exception as e:
                     requests.append({"index": i, "error": str(e)})
         
-        # All requests should have been accepted
+        # All requests should have been accepted and processed
         assert len(requests) == 3
-        print(f"✓ L1 Queue FIFO Test: {len(requests)} requests processed")
+        for req in requests:
+            assert "status" in req and req["status"] == 200, f"Request failed: {req}"
+        print(f"✓ L1 Queue FIFO Test: {len(requests)} requests processed successfully")
     
     @pytest.mark.asyncio
     async def test_l1_priority_bump(self):
@@ -62,7 +64,7 @@ class TestL1QueueManagement:
         async with httpx.AsyncClient() as client:
             # Submit low priority request
             low_priority = {
-                "model": "gemma2:27b",
+                "model": "codellama:7b",
                 "messages": [{"role": "user", "content": "Low priority task"}],
                 "complexity": 3,
                 "priority": 20  # Low priority
@@ -70,7 +72,7 @@ class TestL1QueueManagement:
             
             # Submit high priority request (Mr. Big Guy)
             high_priority = {
-                "model": "gemma2:27b",
+                "model": "codellama:7b",
                 "messages": [{"role": "user", "content": "URGENT: High priority"}],
                 "complexity": 3,
                 "priority": -1  # Mr. Big Guy priority
@@ -81,17 +83,17 @@ class TestL1QueueManagement:
                 resp1 = await client.post(
                     f"{SUPERVISOR_URL}/v1/chat/completions",
                     json=low_priority,
-                    timeout=5.0
+                    timeout=30.0
                 )
                 resp2 = await client.post(
                     f"{SUPERVISOR_URL}/v1/chat/completions",
                     json=high_priority,
-                    timeout=5.0
+                    timeout=30.0
                 )
                 
                 # High priority should process even if low priority was first
-                assert resp1.status_code in [200, 404, 500]  # Accept various states
-                assert resp2.status_code in [200, 404, 500]
+                assert resp1.status_code == 200, f"Request 1 failed: {resp1.text}"
+                assert resp2.status_code == 200, f"Request 2 failed: {resp2.text}"
                 print(f"✓ L1 Priority Bump Test: High priority request accepted")
             
             except httpx.TimeoutException as e:
