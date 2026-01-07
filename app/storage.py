@@ -3,6 +3,7 @@ import asyncio
 import logging
 from typing import Optional
 from minio import Minio
+from minio.error import S3Error
 from app.interfaces import ObjectStore
 
 logger = logging.getLogger("Gravitas_STORAGE")
@@ -35,8 +36,13 @@ class MinioConnector(ObjectStore):
 
     def _ensure_bucket(self):
         """Ensures the bucket exists (synchronous, called in init)."""
-        if not self.client.bucket_exists(self.bucket_name):
-            self.client.make_bucket(self.bucket_name)
+        try:
+            if not self.client.bucket_exists(self.bucket_name):
+                self.client.make_bucket(self.bucket_name)
+        except S3Error as e:
+            logger.critical(f"MinIO S3Error during init: {e}")
+        except Exception as e:
+            logger.critical(f"MinIO connection failed during init: {e}")
 
     async def check_health(self) -> bool:
         """Verifies connectivity to MinIO."""
@@ -56,8 +62,11 @@ class MinioConnector(ObjectStore):
                 await asyncio.to_thread(self.client.remove_object, self.bucket_name, obj.object_name)
             logger.info(f"🧹 STORAGE PURGED: All blobs removed from {self.bucket_name}")
             return True
+        except S3Error as e:
+            logger.error(f"❌ MINIO API ERROR (Purge): {e}")
+            return False
         except Exception as e:
-            logger.error(f"❌ STORAGE PURGE ERROR: {e}")
+            logger.error(f"❌ STORAGE SYSTEM ERROR (Purge): {e}")
             return False
 
     async def upload(self, key: str, data: str) -> bool:
@@ -74,8 +83,11 @@ class MinioConnector(ObjectStore):
                 content_type="text/plain"
             )
             return True
+        except S3Error as e:
+             logger.error(f"❌ MINIO API ERROR (Upload): {e}")
+             return False
         except Exception as e:
-            logger.error(f"MinIO Upload Error: {e}")
+            logger.error(f"❌ STORAGE SYSTEM ERROR (Upload): {e}")
             return False
 
     async def get(self, key: str) -> Optional[str]:
@@ -92,6 +104,10 @@ class MinioConnector(ObjectStore):
             finally:
                 response.close()
                 response.release_conn()
+        except S3Error:
+             # Regular "Not Found" or similar, just return None for the getter logic
+             logger.warning(f"MinIO: Object {key} not found or inaccessible.")
+             return None
         except Exception as e:
-            logger.error(f"MinIO Get Error: {e}")
+            logger.error(f"❌ STORAGE SYSTEM ERROR (Get): {e}")
             return None

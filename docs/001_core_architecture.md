@@ -3,7 +3,7 @@
 # VERSION: 4.5.0 (Gravitas Command & Control / Telemetry Calibration)
 
 ## 1. THE DRIVER PATTERN (The "Hands")
-The system connects to LLMs via **Drivers**. These are low-level adapters that translate our internal requests into vendor-specific API calls, following the LLMDriver interface contract.
+The system connects to **Shells** (LLM Runtimes) via **Drivers**. These are low-level adapters that translate our internal requests into vendor-specific API calls, following the LLMDriver interface contract.
 
 ### 1.1 Interface Standardization
 All drivers implement the `LLMDriver` abstract base class ensuring consistent interfaces across all layers.

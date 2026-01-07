@@ -5,11 +5,17 @@
 ## 1. CORE PHILOSOPHY
 **Gravitas Grounded Research** is a **Dual-GPU Production-Grade Hybrid RAG Architecture**. The internal system orchestration, logic, and departmental specialists (the "Workers") all operate under the **Gravitas** namespace. The development and deployment of this project are managed by the external AI assistant, **Antigravity**.
 
-*   **L1 (Reflex):** Zero-cost tier. Ollama/Titan RTX. Default for capable tasks.
-*   **L2 (Edge):** Low-cost tier. DeepInfra. High-speed reasoning.
-*   **L3 (Elite):** High-cost tier. Gemini 3 Pro. Deep research and architectural synthesis.
+## 2. THE GRAVITAS META-MODEL
+*The Physics of the World.*
 
-## 2. THE DUAL-GPU ARCHITECTURE
+| Concept | Gravitas Primitive | Definition |
+| :--- | :--- | :--- |
+| **Identity** | **Ghost** | The permanent role (e.g., The Librarian). |
+| **Brain** | **Shell** | The interchangeable runtime model (e.g., gemma2). |
+| **Object** | **Artifact** | Passive data with value (Books, Journals). |
+| **Space** | **Context Scope** | **Public:** Lobby (Ephemeral). **Private:** Room (Persistent). |
+
+## 3. THE DUAL-GPU ARCHITECTURE
 The system leverages **dual NVIDIA GPUs** for parallel processing and implements **Dense + Sparse hybrid vector search** via Qdrant.
 
 *   **GPU 0 (Titan RTX 24GB):** Primary Compute / Generation (Gravitas Brain)

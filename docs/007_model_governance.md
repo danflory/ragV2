@@ -262,9 +262,9 @@ Before an agent can be registered in the routing system, it must pass a dual val
 
 ---
 
-## AGENT REGISTRY
+## AGENT REGISTRY (GHOST-TO-SHELL MAPPING)
 
-Formal catalog of available models with capability metadata:
+Formal catalog mapping permanent **Identities (Ghosts)** to their current runtime **Shells (Models)**:
 
 ```python
 AGENT_REGISTRY = {

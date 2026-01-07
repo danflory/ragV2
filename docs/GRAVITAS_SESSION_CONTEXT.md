@@ -1,6 +1,6 @@
 
 # Gravitas Grounded Research - Session Context
-**Generated:** 2026-01-05 18:52:13
+**Generated:** 2026-01-06 07:16:37
 **System:** Titan RTX (Local) + DeepInfra (Cloud)
 **App State:** Docker Microservices
 
@@ -10,7 +10,7 @@
 
 # 004_HARDWARE_OPERATIONS.md
 # STATUS: ACTIVE
-# VERSION: 4.0.0 (Gravitas Grounded Research / Dual-GPU)
+# VERSION: 5.0.0 (Model Governance)
 
 ## 1. DUAL-GPU ARCHITECTURE
 The system leverages **dual NVIDIA GPUs** for parallel processing and optimal resource utilization.
@@ -19,6 +19,7 @@ The system leverages **dual NVIDIA GPUs** for parallel processing and optimal re
     * **Role:** Dedicated AI Inference / Local LLM (L1) / Training
     * **Services:** `Gravitas_ollama` (Port 11434)
     * **Models:** `gemma2:27b-instruct-q4_k_m` (~17GB VRAM)
+    * **Routing:** Managed by `gravitas_supervisor` for intelligent tier selection
 
 *   **GPU 1 (GTX 1060 6GB):** Dedicated Embedding Engine
     * **Role:** Runs productive workloads instead of idle display duty
@@ -32,22 +33,26 @@ To prevent system crashes or OOM (Out Of Memory) during long context sessions, t
 2.  **Logic:** Prior to any L1 inference, `GPUtil` queries all GPUs.
 3.  **Action:** If `Free_VRAM < 2GB` on any GPU, the request **must** be promoted to L2 to avoid crash.
 4.  **Telemetry:** All VRAM checks and load/thought latency metrics logged to Postgres for monitoring and **Phase 5 Dynamic Governance**. 60-day history maintained via aggregation.
+5.  **Intelligent Routing:** Supervisor service monitors VRAM and routes to L2/L3 when local resources constrained (see `007_model_governance.md`).
 
 ## 3. MICROSERVICES TOPOLOGY
 The system runs in a multi-container environment with dedicated services:
 
+*   **`gravitas_supervisor`:** Intelligent routing proxy for L1/L2/L3 tier selection (Port 8000)
 *   **`Gravitas_mcp`:** Main application container with sleep infinity for manual process injection
 *   **`Gravitas_ollama`:** L1 model hosting (GPU 0 - Titan RTX)
 *   **`Gravitas_ollama_embed`:** Embedding models (GPU 1 - GTX 1060)
 *   **`Gravitas_qdrant`:** Hybrid vector database (CPU)
 *   **`Gravitas_minio`:** Object storage for raw documents (CPU)
-*   **`postgres_db`:** Chat history and telemetry logging (CPU)
+*   **`Gravitas_postgres`:** Chat history, telemetry logging, and routing audit (CPU)
+*   **`Gravitas_rag_backend`:** Legacy RAG API service (Port 5050)
 
 ## 4. ADVANCED HARDWARE FEATURES
 * **Parallel Processing:** Embeddings don't block generation
 * **VRAM Optimization:** Frees 6-7GB on Titan RTX for larger context
 * **Cost Efficiency:** GTX 1060 runs productive workloads instead of idle display duty
 * **Circuit Breaker:** GPU embedding with CPU fallback for resilience
+* **Intelligent Offloading:** Automatic L2/L3 routing when local GPUs saturated (Phase 5)
 
 
 ---
@@ -55,80 +60,160 @@ The system runs in a multi-container environment with dedicated services:
 
 # GRAVITAS GROUNDED RESEARCH - STRATEGIC ROADMAP
 
-## CURRENT STATE: v4.2.0 (GRAVITAS REBRAND & AGENTIC CONSTRUCTION)
-The core infrastructure (Dockerized local RAG, Dual-GPU orchestration, Qdrant Memory + MinIO Storage, Postgres History) is stable. Agentic construction via Antigravity is active.
+## CURRENT STATE: v5.0.0 (DYNAMIC GOVERNANCE)
+The core infrastructure is stable. Phase 5 (Model Governance) is complete, providing a standalone supervisor service, agent registry, and priority-aware routing. Phase 6 (Reasoning Pipes) is currently in early implementation.
+
+---
+
+## PHASE COMPLETION CRITERIA
+
+**A phase is NOT considered complete until ALL of the following requirements are met:**
+
+### 1. Documentation Requirements
+- [x] All relevant `docs/00x_*.md` specifications updated
+- [x] Specification version numbers incremented
+- [x] `ROADMAP.md` updated with phase details
+- [x] Phase completion summary document created
+
+### 2. Test Suite Requirements
+- [x] Specification test files created (`test_spec_00X_*.py`)
+- [x] Integration test files created for new features
+- [x] All unit tests passing locally
+- [x] Test runner executes successfully (`python tests/run_spec_tests.py`)
+
+### 3. Docker Integration Requirements
+- [x] All Docker containers configured in `docker-compose.yml`
+- [x] Integration tests pass inside Docker environment
+- [x] **Full reset test passes:** `bash scripts/reset_gravitas.sh` followed by tests
+- [x] Service health checks confirm all containers running
+- [x] Database persistence verified
+
+### 4. Production Readiness
+- [x] No failing tests in test suite
+- [x] No Docker container failures
+- [x] Performance benchmarks met
+- [x] Documentation complete and accurate
+
+---
 
 ## COMPLETED PHASES
 
 ### PHASE 1: THE FOUNDATION (QDRANT & MINIO)
-* [x] **Hybrid Storage:** Split vectors (Qdrant) from blobs (MinIO) for hardware efficiency.
-* [x] **Verification:** Full ingestion and search pipeline verified in `tests/`.
+- [x] **Hybrid Storage:** Split vectors (Qdrant) from blobs (MinIO) for hardware efficiency.
+- [x] **Verification:** Full ingestion and search pipeline verified in `tests/`.
 
 ### PHASE 2: PERSISTENCE & TELEMETRY
-* [x] **Infrastructure:** Provisioned `Gravitas_postgres` for chat history and metrics.
-* [x] **Telemetry:** Implemented `app/telemetry.py` for VRAM tracking and system events.
+- [x] **Infrastructure:** Provisioned `Gravitas_postgres` for chat history and metrics.
+- [x] **Telemetry:** Implemented `app/telemetry.py` for VRAM tracking and system events.
 
 ### PHASE 3: THE GRAVITAS EVOLUTION (REBRANDING)
-* [x] **Consistency:** Global rename of all legacy "agy" / "AntiGravity" terms to **Gravitas**.
-* [x] **Automation:** Hooked session context generation into the system startup.
-* [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/005_development_protocols.md`.
+- [x] **Consistency:** Global rename of all legacy terms to **Gravitas**.
+- [x] **Automation:** Hooked session context generation into the system startup.
+- [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/005_development_protocols.md`.
+
+### PHASE 4: COMMAND & CONTROL (THE NEXUS DASHBOARD)
+- [x] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets.
+- [x] **Real-time Metrics:** Integrated VRAM and Docker health metrics via SSE.
+- [x] **Health API:** Implemented `/health` endpoints for all containers.
+
+### PHASE 4.5: GRANULAR TELEMETRY CALIBRATION (THE SENSORS)
+- [x] **Sensor Implementation:** Upgraded `app/telemetry.py` for Load and Thought latency tracking.
+- [x] **Weighted Aggregation:** Refactored logging to measure Work Units (Tokens) and Efficiency Scores.
+- [x] **Retention Policy:** Established a 60-day historic window in Postgres.
+- [x] **Footprint Monitor:** Added dashboard widget for telemetry disk usage.
+- [x] **Auto-Pruning:** Implemented the 60-day pruning mechanism.
+
+**Verification (2026-01-05):**
+- [x] **Documentation:** `006_TELEMETRY_CALIBRATION.md` created
+- [x] **Integration:** `test_docker_telemetry_integration.py` - **3/3 PASSED**
+- [x] **Efficiency:** 15.01 ms/token performance verified.
+
+### PHASE 5: DYNAMIC MODEL GOVERNANCE (THE SUPERVISOR)
+- [x] **Standalone Supervisor:** Built `gravitas_supervisor` Docker proxy service for L1/L2/L3 tiers.
+- [x] **Agent Registry:** Defined agent capabilities, costs, and performance metrics in code.
+- [x] **L1 Orbit Logic:** Implemented Request Queuing, Model Locking, and Context Persistence.
+- [x] **Priority Yield:** Added "Mr. Big Guy" logic for high-priority task preemption.
+- [x] **Data-Driven Dispatcher:** Heuristic routing based on complexity and Phase 4.5 telemetry.
+- [x] **Shadow-Audit Loop:** passive self-correction mechanism logging dispatch decisions.
+
+**Verification (2026-01-05):**
+- [x] **Documentation:** `007_model_governance.md` created (v5.0.0)
+- [x] **Integration:** `test_phase5_model_governance.py` - **6/6 PASSED**
+- [x] **Core Services:** RequestQueue, ModelLock, DispatcherRouter, AgentRegistry, ShadowAudit operational.
+
+## ACTIVE PHASE (COMPLETED)
+
+### PHASE 6: SELF-LEARNING DATA (REASONING PIPES)
+**Target**: Enable wrapper-certified reasoning capture for L1, L2, and L3 models.
+
+**Architecture: Wrapper Certification Model**
+- Supervisor validates agent code (not data).
+- Agents are responsible for parsing and pipe writing.
+- **Benefits**: Scalability, lower latency, distributed parsing.
+
+#### 1. Core Infrastructure
+- [x] **ReasoningPipe Library**: Implement `app/lib/reasoning_pipe.py` (log_thought, log_action, finalize).
+- [x] **Supervisor Guardian**: Implement `app/services/supervisor/guardian.py` for runtime enforcement.
+- [x] **Markdown Protocol**: Standardized `ReasoningPipe_{agent}_{session}.md` format.
+
+#### 2. Certification System
+- [x] **Wrapper Certifier**: Static analysis and dynamic validation of agent wrappers.
+- [x] **Certificate Issuance**: SHA-256 signed certs with 30-day validity.
+- [x] **Compliance Auditor**: Monthly quality scoring and re-certification triggers.
+
+#### 3. Agent Wrapper Implementations
+- [x] **L3 Frontier**: Gemini 2.0 Flash Thinking & Claude 4.5 Sonnet Thinking.
+- [x] **L2 Specialized**: DeepInfra (Qwen2.5-Coder).
+- [x] **L1 Local**: Ollama base wrapper (codellama, llama3, etc.).
+
+#### 4. Testing & Validation
+- [x] **Specification Tests**: 100% coverage for `reasoning_pipe.py` and Guardian.
+- [x] **Certification Workflow**: End-to-end test of the certification process.
+- [x] **Performance Audit**: Ensure < 5% overhead from reasoning capture.
+
+#### 5. Documentation
+- [x] **Wrapper Guide**: `docs/WRAPPER_DEVELOPMENT_GUIDE.md` created.
+- [x] **Governance**: `docs/007_model_governance.md` updated with certification routing.
+
+**Verification Checklist:**
+- [x] All 4 initial wrappers certified (`python certifier.py --list`).
+- [x] Integration tests pass in Docker environment.
+- [x] Reasoning documentation updated to v6.0.0.
 
 ---
 
 ## UPCOMING PHASES
 
-### PHASE 4: COMMAND & CONTROL (THE NEXUS DASHBOARD)
-* [x] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets. **Includes integrated VRAM and Docker health metrics via Server-Sent Events (SSE)** for real-time monitoring.
-* [x] **Health API:** Implement `/health` endpoints for all containers to feed real-time status to the Nexus.
+### PHASE 7: THEOLOGY ENGINE (KNOWLEDGE GRAPH)
+- [ ] **Infrastructure:** Deploy **Neo4j** (Graph DB) alongside Qdrant (Vector DB).
+- [ ] **The Librarian:** Implement the `GravitasLibrarian` agent responsible for knowledge ingestion and retrieval.
+- [ ] **Entity Extraction Pipeline:** Build the "Ingestion Engine" to parse books, extract theological concepts, and link them (Graph-ETL).
+- [ ] **GraphRAG:** Implement Graph-Augmented Retrieval to answer complex, multi-hop theological queries.
+- [ ] **Orchestration:** Update Supervisor to route "Knowledge Queries" to the Librarian.
 
-
-### PHASE 4.5: GRANULAR TELEMETRY CALIBRATION (THE SENSORS)
-* [ ] **Sensor Implementation:** Upgrade `app/telemetry.py` to record sub-second metrics: **Load Latency** (VRAM setup) and **Thought Latency** (Inference Speed).
-* [ ] **Weighted Telemetry Aggregation:** 
-    * **Pre-Calculation**: Refactor logging logic to measure "Work Units" (Tokens Generated) *before* database entry.
-    * **The Efficiency Score**: Store **Latency-Per-Token** (Weighted) rather than flat temporal averages to accurately reflected system strain under load.
-* [ ] **The 60-Day Historic Window:** Establish a 60-day data retention policy in Postgres to track long-term hardware performance.
-* [ ] **Safety (Aggregation & Monitoring):** 
-    * **Aggregation**: Average the Weighted Efficiency Scores every 60s to prevent database bloat.
-    * **Dashboard Widget**: Create a "Telemetry Footprint" monitor to track disk space used by the millions of potential hits.
-    * **Auto-Pruning Logic**: Implement the 60-day pruning mechanism in `ANTIGRAVITY_Scripts/maintenance.py` (Deferred from initial setup, now placed here).
-
-### PHASE 5: DYNAMIC MODEL GOVERNANCE (THE SUPERVISOR)
-* [ ] **Data-Driven Dispatcher:** Use the 60 days of calibrated **Telemetry Data** to route tasks based on real-time load times, token speeds, and cost.
-* [ ] **Predictive Context Orchestration:** Define acceptable context switching costs based on **Actual Historic Data** (e.g., loading a 70B model for a long work queue vs. rapid switching on a 6GB card).
-* [ ] **Dynamic Trade-off Self-Correction:** Implement an autonomous feedback loop where the Supervisor audits its own scheduling decisions and automatically adjusts the routing plan.
-
-### PHASE 6: SELF-LEARNING DATA (REASONING PIPES)
-* [ ] **Reasoning Pipe Architecture:** Implement the standardized naming schema: `docs/journals/ReasoningPipe_{agentName}.md`.
-* [ ] **Self-Improvement Foundation:** Establish these pipes as the primary dataset for future self-audit and capability evolution.
-* [ ] **Buffer-Append Protocol:** Implement the "Zero-Editing" logic where an active session buffer is appended to the agent-specific ReasoningPipe upon session completion.
-* [ ] **Action Visibility Trace:** Every agent, regardless of model internal reasoning capability, must log state-changes (e.g., "Modified file X") to ensure a complete audit trail.
-* [ ] **14-Day Cycle**: Reasoning data remains active for 14 days for forensic and self-learning analysis.
-
-### PHASE 7: ADVANCED KNOWLEDGE INDEXING
-* [ ] **From Semantic Keys to Knowledge Indexes:** Refactor the ingestion pipeline toward structured, concept-aware indexing.
-* [ ] **Hierarchical Summarization:** Deploy the **Gravitas Librarian** to generate "Big Picture" summaries of all local documentation.
-* [ ] **Relational Mapping:** Implement entity extraction to map dependencies between code files and architectural decisions.
-
-### PHASE 8: AGENT SPECIALIZATION (THE SCOUT'S EXPANSION)
-* [ ] **Multimodal Transcription:** Integrate `yt-dlp` and `Whisper` to allow the **Gravitas Scout** to ingest YouTube and audio sermons.
-* [ ] **Live Web Probing:** Implement live web search for the **Gravitas Scout**.
-* [ ] **L3 Feedback Loop:** Formalize the **Gravitas Scout**'s ability to "Ask L3" iterative reasoning questions.
+### PHASE 8: THE AGENTIC ENTERPRISE (SPECIALIZATION)
+- [ ] **Agent Registry 2.0:** Formalize "Job Descriptions" for all agents (Librarian, Scout, Theologian, Engineer).
+- [ ] **Cloud Bursting:** Implement Supervisor logic to overflow heavy reasoning tasks to L3 Cloud Agents (e.g., DeepInfra/Gemini).
+- [ ] **The Scout:** Implement `GravitasScout` for live web probing and external research.
+- [ ] **Iterative Reasoning:** Formalize "Scout-to-Theologian" feedback loops for deep research tasks.
 
 ### PHASE 9: GRAVITAS AGENTIC INFRASTRUCTURE
-* [ ] **Mirroring Construction Protocols**: Research and implement a `.gravitas_agent` directory for each Gravitas Agent (**Gravitas Scout**, **Gravitas Librarian**, etc.).
-* [ ] **Standardized Startup**: Implement a `recon` phase for Gravitas Agents to ensure they sync with global project state.
+- [ ] **Mirroring Protocols:** Standardized `.gravitas_agent` directory structures.
+- [ ] **Recon Protocol:** Generalized startup sequence for all agents to sync with project state.
+- [ ] **Verification:** Dockerized execution of standardized agent startup.
 
 ### PHASE 10: INTELLIGENCE AUDIT & BENCHMARKING
-* [ ] **Bi-Weekly Model Pulse:** Establish an automated sweep (every 14 days) of Ollama, DeepInfra, and Google for new model releases.
-* [ ] **Independent Test Suite:** Develop a project-specific benchmarking suite to validate model performance against Gravitas RAG and code synthesis tasks before promotion to active roles.
+- [ ] **Bi-Weekly Pulse:** Automated sweep of Ollama/DeepInfra/Google for new releases.
+- [ ] **Independent Benchmarking:** Project-specific RAG/Coding performance scoring.
+- [ ] **Automation:** Automated promotion/demotion logic based on scores.
 
 ---
 
 ## BACKLOG / TECH DEBT
-* **Secret Hygiene:** Scan codebase for hardcoded keys before pushing to public repo.
-* [x] **Journal Rotation:** Implement dated journal snapshots for high-fidelity RAG ingestion. (Completed: `docs/journals/`)
-* **VENV Hardening:** Standardize cross-platform dependency resolution in `requirements.txt`.
+- [ ] **Secret Hygiene:** Scan codebase for hardcoded keys.
+- [x] **Journal Rotation:** Implement dated journal snapshots. (Done: `docs/journals/`)
+- [ ] **VENV Hardening:** Standardize cross-platform dependency resolution.
+- [ ] **Error Boundary:** Improve global exception handling for high-latency storage operations.
 
 
 ---
@@ -143,8 +228,11 @@ Gravitas/
     docker-compose.yml
     requirements.txt
     .env
+    PHASE_6_TODO.md
+    PHASE_6_IMPLEMENTATION_SUMMARY.md
     .dockerignore
     Dockerfile
+    PHASE_7_TODO.md
     log_conf.yaml
     debug_rag_retrieval.py
     CHANGELOG.md
@@ -153,42 +241,122 @@ Gravitas/
             switch_brain.py
         docs/
             TEST_GUIDE.md
+            PHASE_4_5_FINAL_VALIDATION_REPORT.md
+            PHASE_5_IMPLEMENTATION_REVIEW.md
             hardware_rig.md
+            PHASE_5_FINAL_COMPLETION_SUMMARY.md
             gemini_3_model_guide.md
             RAG_DEBUG_ANALYSIS.md
+            WRAPPER_DEVELOPMENT_GUIDE.md
+            006_TELEMETRY_CALIBRATION.md
             001_core_architecture.md
             STRATEGY_SESSION_2026_01_04.md
+            RESET_SCRIPT_UPDATE.md
+            ROADMAP_COMPLETION_CRITERIA_UPDATE.md
             003_security_gatekeeper.md
             GOOGLE_ANTIGRAVITY_SPEC.md
             HOWTO_DEV_REMINDERS.md
+            SESSION_COMPLETE_SUMMARY.md
             function_cycles.md
+            008_reasoning_pipes.md
             COMPLETE_SESSION_SUMMARY.md
             TEST_RESULTS_INTEGRATED_RAG.md
             NEXUS_RESCAN_IMPROVEMENTS.md
+            SPECIFICATION_TESTING_SUMMARY.md
             TEST_AUDIT.md
             SESSION_SUMMARY_RAG_TESTING.md
+            PHASE_4.5_COMPLETION_SUMMARY.md
             ROADMAP.md
             developerNotes.md
             005_development_protocols.md
             004_hardware_operations.md
             GRAVITAS_NOMENCLATURE.md
+            TELEMETRY_INTEGRATION_TEST_RESULTS.md
             002_vector_memory.md
             FAQ.md
             model_integration.md
             000_MASTER_OVERVIEW.md
+            Phase_6_Value.md
             Initial Context Prompt.md
+            007_model_governance.md
             RAG_REFUSAL_RESOLUTION.md
+            Phase_6TODO/
+                Priority_2_Wrappers.md
+                Task_5_2_Update_Existing_Specs.md
+                Priority_3_Certification_System.md
+                Task_2_4_DeepInfra_Wrapper.md
+                README.md
+                Task_2_2_Claude_Sonnet_4_5_Thinking_Wrapper.md
+                Task_4_1_Specification_Tests.md
+                Task_1_1_ReasoningPipe_Standard_Library.md
+                Task_4_2_Wrapper_Certification_Tests.md
+                Priority_4_Testing.md
+                Task_1_2_Supervisor_Guardian.md
+                Task_1_3_Base_Wrapper_Class.md
+                Task_3_2_Monthly_Auditor.md
+                Task_2_3_Ollama_Local_Models_Wrapper.md
+                Priority_1_Infrastructure.md
+                Task_2_1_Gemini_2_0_Flash_Thinking_Wrapper.md
+                Task_4_3_End_to_End_Integration_Tests.md
+                Task_5_1_Wrapper_Development_Guide.md
+                Task_3_1_Wrapper_Certifier.md
+                Priority_5_Documentation.md
             journals/
+                ReasoningPipe_Ollama_model-for-testing_test_session_20260105_232045.md
+                ReasoningPipe_Ollama_model-for-testing_test_session_20260105_232510.md
+                ReasoningPipe_MockAgent_test_session_20260105_231220.md
+                ReasoningPipe_ValidAgent_test_session_20260105_231731.md
+                ReasoningPipe_Claude_Thinking_test_session_123.md
+                PHASE_5_STRATEGIC_ASSESSMENT.md
+                ReasoningPipe_Claude_Thinking_test_session_20260105_232117.md
+                ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_231947.md
+                ReasoningPipe_Gemini_Thinking_test_session_20260105_232044.md
+                ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_deepinfra_789.md
+                ReasoningPipe_Ollama_codellama_7b_test_ollama_456.md
                 2026-01-04_executive.md
+                ReasoningPipe_Gemini_Thinking_test_session_20260105_232016.md
+                ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232046.md
+                ReasoningPipe_Claude_Thinking.md
+                ReasoningPipe_ValidAgent_test_session_20260105_232505.md
+                ReasoningPipe_Claude_Thinking_test_session_20260105_232045.md
+                ReasoningPipe_ValidAgent.md
+                ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232117.md
                 current_session.md
+                ReasoningPipe_Ollama_codellama_7b.md
                 2026-01-05_thoughts.md
+                ReasoningPipe_Claude_Thinking_test_session_20260105_231946.md
                 2026-01-05_executive.md
+                ReasoningPipe_DeepInfra_Qwen2.5-Coder.md
+                ReasoningPipe_Gemini_Thinking_test_session_20260105_232510.md
+                ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232017.md
+                ReasoningPipe_MockAgent.md
+                ReasoningPipe_Claude_Thinking_test_session_20260105_232510.md
+                ReasoningPipe_Gemini_Thinking_test_session_20260105_232117.md
+                ReasoningPipe_Ollama_model-for-testing_test_session_20260105_232117.md
+                ReasoningPipe_Gemini_Thinking.md
+                ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232511.md
+                ReasoningPipe_Claude_Thinking_test_session_20260105_232016.md
+                ReasoningPipe_Ollama_model-for-testing.md
                 2026-01-04_thoughts.md
             archived/
                 todo9.md
                 completed_phase9.md
             architecture/
                 thinking_transparency.md
+        gravitas_supervisor/
+            main.py
+            Dockerfile
+            clients/
+                deepinfra.py
+                gemini.py
+            services/
+                scheduler/
+                    lock.py
+                    queue.py
+                dispatcher/
+                    router.py
+            utils/
+                repo_walker.py
         .clinerules/
             01-status-and-audit.md
             03-base-rules.md
@@ -213,13 +381,48 @@ Gravitas/
             reflex.py
             container.py
             memory.py
+            lib/
+                __init__.py
+                reasoning_pipe.py
+            clients/
+                deepinfra.py
+                gemini.py
             agents/
                 librarian.py
                 scout.py
+            wrappers/
+                __init__.py
+                base_wrapper.py
+                deepinfra_wrapper.py
+                ollama_wrapper.py
+                claude_wrapper.py
+                gemini_wrapper.py
+            .certificates/
+                DeepInfra_Qwen2.5-Coder.json
+                Claude_Thinking.json
+                Ollama_codellama_7b.json
+                MockAgent.json
             governance/
                 inspector.py
                 global_renamer.py
                 accountant.py
+            services/
+                audit/
+                    shadow_audit.py
+                scheduler/
+                    lock.py
+                    queue.py
+                registry/
+                    agent_registry.py
+                dispatcher/
+                    router.py
+                supervisor/
+                    __init__.py
+                    auditor.py
+                    guardian.py
+                    certifier.py
+            utils/
+                repo_walker.py
         temporaryTesting/
             2026-01-05_FileAccessAudit.md
             session_file_reads.md
@@ -234,8 +437,11 @@ Gravitas/
             app.js
             index.html
             style.css
+            VERSION_POLICY.md
         tests/
             test_rag_diagnostics.py
+            test_integration_telemetry_phase45.py
+            test_docker_telemetry_integration.py
             test_mode_switching.py
             test_minio_storage.py
             test_L3_google.py
@@ -243,27 +449,58 @@ Gravitas/
             test_integrated_rag_prompts.py
             test_vram_safety.py
             test_ingestion_pipeline.py
+            test_spec_005_development_protocols.py
             test_protocol_e2e.py
+            test_spec_003_security_gatekeeper.py
             test_L2_connection.py
             test_embed_breaker.py
+            README.md
             test_safety_logic.py
+            test_telemetry_standalone_integration.py
             test_telemetry.py
             test_hybrid_search.py
             test_inspector.py
             test_mcp_connection.py
+            test_advanced_rag.py
             test_dual_gpu.py
+            test_wrapper_certification.py
+            test_spec_002_vector_memory.py
             test_ioc_refactor.py
+            test_spec_001_core_architecture.py
             test_infra_connection.py
             test_3L_pipeline.py
             test_ioc_baseline.py
+            test_warm_librarian.py
             test_deepseek_sidecar.py
+            test_spec_006_telemetry_calibration.py
             test_nexus_api.py
             test_librarian.py
             test_memory_logic.py
             test_accountant.py
+            test_spec_004_hardware_operations.py
             test_memory_pruning.py
             test_reflex.py
             test_current_stack.py
+            test_spec_008_reasoning_pipes.py
+            run_spec_tests.py
+            unit/
+                test_model_lock.py
+                test_supervisor_guardian.py
+                test_dispatcher_router.py
+                test_queue_logic.py
+                test_clients.py
+                test_base_wrapper.py
+                test_gemini_wrapper.py
+                test_reasoning_pipe.py
+                test_repo_walker.py
+                test_queue_basic.py
+            integration/
+                test_reasoning_pipe_e2e.py
+                test_phase5_model_governance.py
+            manual/
+                test_deepinfra_wrapper_mock.py
+                test_ollama_wrapper_mock.py
+                test_claude_wrapper_mock.py
         .vscode/
             sessions.json
             settings.json
@@ -271,6 +508,7 @@ Gravitas/
             maintenance.py
             reasoning_pipe.py
         scripts/
+            verify_repo_walker.py
             log_entry.py
             generate_context.py
             verify_chat.py
@@ -287,6 +525,8 @@ Gravitas/
             mcp_entrypoint.sh
             stats.py
             test_minio.py
+            test_connections.py
+            verify_phase5.py
             audit_gravitas.sh
             monitor.sh
             check_models.py
@@ -509,7 +749,7 @@ class LocalLlamaDriver(LLMDriver):
     def __init__(self, config: Settings):
         self.base_url = config.L1_URL
         self.model_name = config.L1_MODEL
-        self.timeout = 60.0
+        self.timeout = 180.0
 
     async def load_model(self, model_name: str) -> bool:
         """Switches the active model and ensures it is available."""
@@ -952,7 +1192,11 @@ async def trigger_ingestion():
     """
     Manually triggers the Document Ingestor.
     Purges existing memory first to ensure fresh data.
+    Restricted to RAG mode only.
     """
+    if container.current_mode != config.MODE_RAG:
+        return {"status": "error", "message": "Ingestion is restricted to RAG mode."}
+
     if not container.ingestor:
         return {"status": "error", "message": "Ingestor not initialized (Vector Store missing?)"}
     
@@ -1027,6 +1271,41 @@ async def get_stats_summary():
     except Exception as e:
         logger.error(f"❌ STATS SUMMARY ERROR: {e}")
         return {"status": "error", "message": str(e)}
+
+@router.get("/telemetry/footprint")
+async def get_telemetry_footprint():
+    """
+    Returns telemetry database footprint metrics for monitoring.
+    """
+    try:
+        from .telemetry import telemetry
+        footprint = await telemetry.get_telemetry_footprint()
+        
+        if footprint:
+            return {"status": "success", "footprint": footprint}
+        else:
+            return {"status": "error", "message": "Failed to retrieve telemetry footprint"}
+    except Exception as e:
+        logger.error(f"❌ TELEMETRY FOOTPRINT ERROR: {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.get("/telemetry/60day")
+async def get_60day_telemetry():
+    """
+    Returns 60-day historic telemetry statistics for performance analysis.
+    """
+    try:
+        from .telemetry import telemetry
+        stats = await telemetry.get_60day_statistics()
+        
+        if stats:
+            return {"status": "success", "statistics": stats}
+        else:
+            return {"status": "error", "message": "Failed to retrieve 60-day statistics"}
+    except Exception as e:
+        logger.error(f"❌ 60-DAY TELEMETRY ERROR: {e}")
+        return {"status": "error", "message": str(e)}
+
 
 @router.get("/health/detailed")
 async def get_detailed_health():
@@ -1178,10 +1457,14 @@ async def get_financial_report():
 @router.post("/agents/librarian/run")
 async def run_librarian():
     """
-    Manually triggers the Librarian Agent to process the inbox.
+    Manually triggers the Librarian Agent to process docs/ and app/.
+    Restricted to RAG mode only.
     """
+    if container.current_mode != config.MODE_RAG:
+        return {"status": "error", "message": "Librarian is restricted to RAG mode."}
+
     try:
-        result = await container.librarian.process_inbox()
+        result = await container.librarian.process_docs()
         return result
     except Exception as e:
         logger.error(f"❌ LIBRARIAN ENDPOINT ERROR: {e}")
@@ -1416,7 +1699,7 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_HOST=Gravitas_postgres
       - QDRANT_HOST=Gravitas_qdrant
-      - L1_URL=http://Gravitas_ollama:11434
+      - L1_URL=http://gravitas_supervisor:8000
       - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
       - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
@@ -1537,13 +1820,36 @@ services:
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@Gravitas_postgres:5432/${DB_NAME:-chat_history}
       - DB_HOST=Gravitas_postgres
-      - L1_URL=http://Gravitas_ollama:11434
+      - L1_URL=http://gravitas_supervisor:8000
       - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
     depends_on:
       - Gravitas_postgres
       - qdrant
+      - gravitas_supervisor
     networks:
       - Gravitas_net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+  # --- SUPERVISOR: DISPATCH AND QUEUE ---
+  gravitas_supervisor:
+    build:
+      context: ./gravitas_supervisor
+    container_name: gravitas_supervisor
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://Gravitas_ollama:11434/v1/chat/completions
+    depends_on:
+      - ollama
+    networks:
+      - Gravitas_net
+    restart: unless-stopped
 
 networks:
   Gravitas_net:

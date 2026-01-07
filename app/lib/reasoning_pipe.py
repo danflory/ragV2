@@ -15,8 +15,23 @@ class ReasoningPipe:
     Standard library for capturing reasoning model chain-of-thought and session metadata.
     """
 
-    def __init__(self, agent_name: str, session_id: str, model: str, tier: str):
-        self.agent_name = agent_name
+    def __init__(self, ghost_name: str, session_id: str, model: str, tier: str, agent_name: str = None):
+        """
+        Initialize a ReasoningPipe for capturing agent reasoning.
+        
+        Args:
+            ghost_name: The Ghost identity (permanent role like "Librarian", "Scout")
+            session_id: Unique session identifier
+            model: Shell model name (e.g., "gemma2:27b")
+            tier: L1/L2/L3 tier
+            agent_name: DEPRECATED - Use ghost_name instead. Kept for backward compatibility.
+        """
+        # Backward compatibility: if agent_name is provided but ghost_name is not, use agent_name
+        if agent_name and not ghost_name:
+            ghost_name = agent_name
+        
+        self.ghost_name = ghost_name
+        self.agent_name = ghost_name  # Alias for backward compatibility
         self.session_id = session_id
         self.model = model
         self.tier = tier
@@ -33,8 +48,8 @@ class ReasoningPipe:
         self.is_finalized = False
         
         self.journals_dir = Path("docs/journals")
-        self.output_path = self.journals_dir / f"ReasoningPipe_{agent_name}_{session_id}.md"
-        self.summary_path = self.journals_dir / f"ReasoningPipe_{agent_name}.md"
+        self.output_path = self.journals_dir / f"{ghost_name}_{session_id}.md"
+        self.summary_path = self.journals_dir / f"{ghost_name}_journal.md"
 
     def _get_timestamp_str(self, timestamp: Optional[datetime] = None) -> str:
         ts = timestamp or datetime.now()
@@ -81,7 +96,7 @@ class ReasoningPipe:
         Writes the buffer to a markdown file and clears the buffer.
         """
         if self.is_finalized:
-            logger.warning(f"ReasoningPipe for {self.agent_name} session {self.session_id} already finalized.")
+            logger.warning(f"ReasoningPipe for {self.ghost_name} session {self.session_id} already finalized.")
             return self.output_path
 
         try:
@@ -96,7 +111,7 @@ class ReasoningPipe:
 
             buffer_contents = "\n\n".join(self.buffer)
             
-            template = f"""# ReasoningPipe: {self.agent_name} | Session: {self.session_id}
+            template = f"""# ReasoningPipe: {self.ghost_name} | Session: {self.session_id}
 
 **Started**: {self.start_time.isoformat()}  
 **Model**: {self.model}  

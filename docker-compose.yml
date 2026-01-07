@@ -123,10 +123,10 @@ services:
       - Gravitas_net
     restart: always
 
-  # --- API: RAG BACKEND (LEGACY/ROUTER) ---
-  rag_app:
+  # --- API: GRAVITAS LOBBY (PUBLIC ENTRY POINT) ---
+  gravitas_lobby:
     build: .
-    container_name: Gravitas_rag_backend
+    container_name: Gravitas_lobby
     # Optional: If you run the main app via uvicorn
     command: uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload
     volumes:
