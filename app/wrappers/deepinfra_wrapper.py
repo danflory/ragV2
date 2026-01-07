@@ -14,7 +14,7 @@ class DeepInfraWrapper(GravitasAgentWrapper):
 
     def __init__(self, session_id: str, model_name: str = "Qwen/Qwen2.5-Coder-32B-Instruct", api_key: Optional[str] = None):
         super().__init__(
-            agent_name="DeepInfra_Qwen2.5-Coder",
+            ghost_name="DeepInfra_Qwen2.5-Coder",
             session_id=session_id,
             model=model_name,
             tier="L2"

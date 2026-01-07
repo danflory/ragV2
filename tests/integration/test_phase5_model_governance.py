@@ -108,6 +108,13 @@ class TestL1QueueManagement:
                 assert "Connection" in str(e) or "connection" in str(type(e).__name__).lower()
 
 
+# Helper for safe availability check
+def is_supervisor_ready():
+    try:
+        return httpx.get(f"{SUPERVISOR_URL}/health", timeout=1.0).status_code == 200
+    except Exception:
+        return False
+
 class TestL2DeepInfraSpecialists:
     """
     Test L2 (DeepInfra) routing for specialized cloud tasks.
@@ -119,7 +126,7 @@ class TestL2DeepInfraSpecialists:
     
     @pytest.mark.asyncio
     @pytest.mark.skipif(
-        not httpx.get(f"{SUPERVISOR_URL}/health", timeout=2.0).status_code == 200,
+        not is_supervisor_ready(),
         reason="Supervisor not running"
     )
     async def test_l2_document_summarization(self):

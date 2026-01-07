@@ -41,7 +41,7 @@ class GravitasAgentWrapper(ABC):
         """
         # 1. Request permission from Supervisor
         permission = await self.supervisor.notify_session_start(
-            agent=self.agent_name,
+            agent=self.ghost_name,
             session_id=self.session_id,
             metadata={"task": task, "model": self.model, "tier": self.tier}
         )

@@ -1,3 +1,4 @@
+
 import pytest
 import json
 import os
@@ -5,7 +6,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional, Dict
 from unittest.mock import MagicMock, AsyncMock
-from app.wrappers.gemini_wrapper import GeminiWrapper
+from app.wrappers.claude_wrapper import ClaudeThinkingWrapper
 from app.services.supervisor.guardian import SupervisorGuardian
 from app.lib.reasoning_pipe import ReasoningPipe
 
@@ -14,13 +15,13 @@ def mock_certs_dir(tmp_path):
     d = tmp_path / "certs"
     d.mkdir()
     cert_data = {
-        "agent_name": "Gemini_Thinking",
+        "agent_name": "Claude_Thinking",
         "issued_at": datetime.now().isoformat(),
         "expires_at": (datetime.now() + timedelta(days=1)).isoformat(),
         "signature": "mock",
         "version": "1.0"
     }
-    (d / "Gemini_Thinking.json").write_text(json.dumps(cert_data))
+    (d / "Claude_Thinking.json").write_text(json.dumps(cert_data))
     return d
 
 @pytest.fixture
@@ -30,9 +31,9 @@ def mock_journals_dir(tmp_path):
     return d
 
 @pytest.mark.asyncio
-async def test_gemini_wrapper_execute(mock_certs_dir, mock_journals_dir, monkeypatch):
+async def test_claude_wrapper_execute(mock_certs_dir, mock_journals_dir, monkeypatch):
     # Set environment variable for API key
-    monkeypatch.setenv("GOOGLE_API_KEY", "mock_key")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "mock_key")
     
     # Mock SupervisorGuardian to use our temp certs dir
     original_guardian_init = SupervisorGuardian.__init__
@@ -57,15 +58,18 @@ async def test_gemini_wrapper_execute(mock_certs_dir, mock_journals_dir, monkeyp
         self.summary_path = self.journals_dir / f"{ghost_name}_journal.md"
     monkeypatch.setattr(ReasoningPipe, "__init__", mock_pipe_init)
 
-    # Mock Gemini Client
-    mock_model_instance = MagicMock()
+    # Mock Anthropic Client
+    mock_client_instance = AsyncMock()
     
     # Create a mock async stream response
     class MockChunk:
-        def __init__(self, text=None, thinking=None):
+        def __init__(self, type, delta=None):
+            self.type = type
+            self.delta = delta
+
+    class MockDelta:
+        def __init__(self, text):
             self.text = text
-            self.thinking = thinking
-            self.candidates = []
 
     class MockAsyncResponse:
         def __init__(self, chunks):
@@ -77,27 +81,29 @@ async def test_gemini_wrapper_execute(mock_certs_dir, mock_journals_dir, monkeyp
                 raise StopAsyncIteration
             return self.chunks.pop(0)
 
-    mock_response = MockAsyncResponse([
-        MockChunk(thinking="Let's think about this."),
-        MockChunk(text="The answer is 42.")
-    ])
+    # Mock chunks mimicking Anthropic response
+    chunks = [
+        MockChunk(type="content_block_delta", delta=MockDelta("<thinking>Thinking deeply...</thinking>")),
+        MockChunk(type="content_block_delta", delta=MockDelta("The answer is 42."))
+    ]
+    mock_response = MockAsyncResponse(chunks)
     
-    mock_model_instance.generate_content_async = AsyncMock(return_value=mock_response)
-    
-    # Patch genai.GenerativeModel to return our mock instance
-    import google.generativeai as genai
-    monkeypatch.setattr(genai, "GenerativeModel", lambda model_name: mock_model_instance)
-    monkeypatch.setattr(genai, "configure", lambda api_key: None)
+    # Setup the mock message create call
+    mock_client_instance.messages.create.return_value = mock_response
 
-    wrapper = GeminiWrapper(session_id="gemini_sess_001")
-    result = await wrapper.execute_task({"prompt": "What is the meaning of life?"})
+    # Patch AsyncAnthropic where it is used
+    monkeypatch.setattr("app.wrappers.claude_wrapper.AsyncAnthropic", lambda api_key: mock_client_instance)
+
+    wrapper = ClaudeThinkingWrapper(session_id="claude_sess_001")
+    result = await wrapper.execute_task({"prompt": "What is 6 * 7?"})
     
-    assert "The answer is 42" in result["output"]
+    assert "The answer is 42." in result["output"]
     
     # Check if ReasoningPipe was written
-    pipe_file = mock_journals_dir / "Gemini_Thinking_gemini_sess_001.md"
+    pipe_file = mock_journals_dir / "Claude_Thinking_claude_sess_001.md"
     assert pipe_file.exists()
     
     content = pipe_file.read_text()
-    assert "THOUGHT: Let's think about this." in content
-    assert "RESULT: Generated 17 characters." in content
+    assert "THOUGHT: Thinking deeply..." in content
+    assert "RESULT: Generated" in content
+    assert "characters." in content

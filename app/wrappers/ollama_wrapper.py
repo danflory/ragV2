@@ -12,7 +12,7 @@ class OllamaWrapper(GravitasAgentWrapper):
 
     def __init__(self, session_id: str, model_name: str, ollama_url: str = "http://localhost:11434"):
         super().__init__(
-            agent_name=f"Ollama_{model_name.replace(':', '_')}",
+            ghost_name=f"Ollama_{model_name.replace(':', '_')}",
             session_id=session_id,
             model=model_name,
             tier="L1"

@@ -19,7 +19,7 @@ class IntegrationMockWrapper(GravitasAgentWrapper):
     """A real-ish wrapper for E2E testing that doesn't call real APIs."""
     def __init__(self, session_id: str, model_name: str = "integration-mock"):
         super().__init__(
-            agent_name="IntegrationAgent",
+            ghost_name="IntegrationAgent",
             session_id=session_id,
             model=model_name,
             tier="L1"
@@ -64,7 +64,7 @@ from typing import Optional, Dict
 
 class ValidIntegrationWrapper(GravitasAgentWrapper):
     def __init__(self, session_id: str = "test", model_name: str = "test"):
-        super().__init__("IntegrationAgent", session_id, model_name, "L1")
+        super().__init__(ghost_name="IntegrationAgent", session_id=session_id, model=model_name, tier="L1")
     async def _execute_internal(self, task: Dict) -> Dict:
         self.pipe.log_thought("Thinking...")
         self.pipe.log_result("Success")
@@ -101,8 +101,8 @@ class ValidIntegrationWrapper(GravitasAgentWrapper):
     wrapper.supervisor = guardian
     # Point pipe to test journals
     wrapper.pipe.journals_dir = journals_dir
-    wrapper.pipe.output_path = journals_dir / f"ReasoningPipe_{wrapper.agent_name}_{wrapper.session_id}.md"
-    wrapper.pipe.summary_path = journals_dir / f"ReasoningPipe_{wrapper.agent_name}.md"
+    wrapper.pipe.output_path = journals_dir / f"{wrapper.ghost_name}_{wrapper.session_id}.md"
+    wrapper.pipe.summary_path = journals_dir / f"{wrapper.ghost_name}_journal.md"
     
     await wrapper.execute_task({"prompt": "E2E Test"})
     
@@ -136,12 +136,12 @@ async def test_multi_agent_concurrent_execution(e2e_env):
     
     async def run_agent(name, sess_id):
         wrapper = IntegrationMockWrapper(session_id=sess_id)
-        wrapper.agent_name = name
+        wrapper.ghost_name = name
         wrapper.supervisor = guardian
-        wrapper.pipe.agent_name = name
+        wrapper.pipe.ghost_name = name
         wrapper.pipe.journals_dir = journals_dir
-        wrapper.pipe.output_path = journals_dir / f"ReasoningPipe_{name}_{sess_id}.md"
-        wrapper.pipe.summary_path = journals_dir / f"ReasoningPipe_{name}.md"
+        wrapper.pipe.output_path = journals_dir / f"{name}_{sess_id}.md"
+        wrapper.pipe.summary_path = journals_dir / f"{name}_journal.md"
         return await wrapper.execute_task({"prompt": f"Task for {name}"})
 
     # Run simultaneously
@@ -151,8 +151,8 @@ async def test_multi_agent_concurrent_execution(e2e_env):
     )
     
     assert len(results) == 2
-    assert (journals_dir / "ReasoningPipe_AgentA_sess_A.md").exists()
-    assert (journals_dir / "ReasoningPipe_AgentB_sess_B.md").exists()
+    assert (journals_dir / "AgentA_sess_A.md").exists()
+    assert (journals_dir / "AgentB_sess_B.md").exists()
     
     stats = guardian.get_session_stats()
     assert stats["AgentA"]["completed_total"] == 1

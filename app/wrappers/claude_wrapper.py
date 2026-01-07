@@ -11,7 +11,7 @@ class ClaudeThinkingWrapper(GravitasAgentWrapper):
 
     def __init__(self, session_id: str, api_key: Optional[str] = None):
         super().__init__(
-            agent_name="Claude_Thinking",
+            ghost_name="Claude_Thinking",
             session_id=session_id,
             model="claude-sonnet-4-5-thinking",
             tier="L3"
