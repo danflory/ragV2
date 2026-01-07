@@ -10,13 +10,28 @@ class GravitasAgentWrapper(ABC):
     Handles the ReasoningPipe protocol and Supervisor certification enforcement.
     """
 
-    def __init__(self, agent_name: str, session_id: str, model: str, tier: str):
-        self.agent_name = agent_name
+    def __init__(self, ghost_name: str = None, session_id: str = None, model: str = None, tier: str = None, agent_name: str = None):
+        """
+        Initialize the agent wrapper.
+        
+        Args:
+            ghost_name: The Ghost identity (permanent role like "Librarian", "Scout")
+            session_id: Unique session identifier
+            model: Shell model name (e.g., "gemma2:27b")
+            tier: L1/L2/L3 tier
+            agent_name: DEPRECATED - Use ghost_name instead. Kept for backward compatibility.
+        """
+        # Backward compatibility: if agent_name is provided but ghost_name is not, use agent_name
+        if agent_name and not ghost_name:
+            ghost_name = agent_name
+        
+        self.ghost_name = ghost_name
+        self.agent_name = ghost_name  # Alias for backward compatibility
         self.session_id = session_id
         self.model = model
         self.tier = tier
         
-        self.pipe = ReasoningPipe(agent_name, session_id, model, tier)
+        self.pipe = ReasoningPipe(ghost_name=ghost_name, session_id=session_id, model=model, tier=tier)
         self.supervisor = SupervisorGuardian()
 
     async def execute_task(self, task: Dict) -> Dict:

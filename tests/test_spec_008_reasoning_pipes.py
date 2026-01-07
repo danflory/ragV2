@@ -33,21 +33,22 @@ def temp_env(tmp_path):
 
 class TestReasoningPipeClass:
     def test_init_creates_proper_paths(self):
-        pipe = ReasoningPipe("Scout", "sess123", "gpt-4", "L2")
+        pipe = ReasoningPipe(ghost_name="Scout", session_id="sess123", model="gpt-4", tier="L2")
         # Default journals_dir in implementation is docs/journals
-        assert pipe.agent_name == "Scout"
+        assert pipe.ghost_name == "Scout"
+        assert pipe.agent_name == "Scout"  # Backward compatibility alias
         assert pipe.session_id == "sess123"
-        assert "ReasoningPipe_Scout_sess123.md" in str(pipe.output_path)
-        assert "ReasoningPipe_Scout.md" in str(pipe.summary_path)
+        assert "Scout_sess123.md" in str(pipe.output_path)
+        assert "Scout_journal.md" in str(pipe.summary_path)
 
     def test_log_thought_adds_to_buffer(self):
-        pipe = ReasoningPipe("Scout", "sess123", "gpt-4", "L2")
+        pipe = ReasoningPipe(ghost_name="Scout", session_id="sess123", model="gpt-4", tier="L2")
         pipe.log_thought("Thinking about gravitas")
         assert len(pipe.buffer) == 1
         assert "THOUGHT: Thinking about gravitas" in pipe.buffer[0]
 
     def test_log_action_formats_details(self):
-        pipe = ReasoningPipe("Scout", "sess123", "gpt-4", "L2")
+        pipe = ReasoningPipe(ghost_name="Scout", session_id="sess123", model="gpt-4", tier="L2")
         pipe.log_action("Search", {"query": "gravitas", "engine": "google"})
         assert len(pipe.buffer) == 1
         assert "ACTION: Search" in pipe.buffer[0]
@@ -55,7 +56,7 @@ class TestReasoningPipeClass:
         assert "engine: google" in pipe.buffer[0]
 
     def test_log_result_stores_metrics(self):
-        pipe = ReasoningPipe("Scout", "sess123", "gpt-4", "L2")
+        pipe = ReasoningPipe(ghost_name="Scout", session_id="sess123", model="gpt-4", tier="L2")
         metrics = {"tokens": 100, "cost": 0.01}
         pipe.log_result("Success", metrics)
         assert len(pipe.buffer) == 1
@@ -65,11 +66,11 @@ class TestReasoningPipeClass:
 
     def test_finalize_writes_file(self, temp_env):
         certs_dir, journals_dir = temp_env
-        pipe = ReasoningPipe("Scout", "sess123", "gpt-4", "L2")
+        pipe = ReasoningPipe(ghost_name="Scout", session_id="sess123", model="gpt-4", tier="L2")
         # Point to temp dirs
         pipe.journals_dir = journals_dir
-        pipe.output_path = journals_dir / f"ReasoningPipe_{pipe.agent_name}_{pipe.session_id}.md"
-        pipe.summary_path = journals_dir / f"ReasoningPipe_{pipe.agent_name}.md"
+        pipe.output_path = journals_dir / f"{pipe.ghost_name}_{pipe.session_id}.md"
+        pipe.summary_path = journals_dir / f"{pipe.ghost_name}_journal.md"
         
         pipe.log_thought("Initial thought")
         pipe.finalize()
@@ -82,7 +83,7 @@ class TestReasoningPipeClass:
 
     def test_finalize_creates_directory_if_missing(self, tmp_path):
         missing_dir = tmp_path / "missing_journals"
-        pipe = ReasoningPipe("Scout", "sess123", "gpt-4", "L2")
+        pipe = ReasoningPipe(ghost_name="Scout", session_id="sess123", model="gpt-4", tier="L2")
         pipe.journals_dir = missing_dir
         pipe.output_path = missing_dir / "test.md"
         pipe.summary_path = missing_dir / "summary.md"
@@ -93,7 +94,7 @@ class TestReasoningPipeClass:
 
     def test_double_finalize_warning(self, temp_env, caplog):
         certs_dir, journals_dir = temp_env
-        pipe = ReasoningPipe("Scout", "sess123", "gpt-4", "L2")
+        pipe = ReasoningPipe(ghost_name="Scout", session_id="sess123", model="gpt-4", tier="L2")
         pipe.journals_dir = journals_dir
         pipe.output_path = journals_dir / "test.md"
         pipe.summary_path = journals_dir / "summary.md"
@@ -230,7 +231,7 @@ class TestBaseWrapper:
 
     def test_abstract_methods_must_be_implemented(self):
         with pytest.raises(TypeError):
-            GravitasAgentWrapper("Scout", "sess1", "gpt-4", "L2")
+            GravitasAgentWrapper(ghost_name="Scout", session_id="sess1", model="gpt-4", tier="L2")
 
 # --- TestWrapperCertifier ---
 
