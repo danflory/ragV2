@@ -3,7 +3,7 @@
 
 ## CURRENT STATUS (v7.1.0 - THE MICROSERVICES TIER)
 - **Active Phase:** Phase 8 (The Acquisition Tier) - *Planning*
-- **Recent Major Achievement:** Completed **RFC-001: Supervisor Decomposition**. System is now fully decoupled into Gatekeeper, Router, and Guardian services.
+- **Recent Major Achievement:** Completed **[Database Decomposition RFC-003](file:///home/dflory/dev_env/Gravitas/docs/planning/rfcs/Database_Decomposition_Strategy_RFC-003.md)**. System is now fully decoupled into Gatekeeper, Router, and Guardian services.
 - **History:** Completed Phases 1-5 are archived in `docs/archived/COMPLETED_PHASES_1-5.md`.
 
 ---

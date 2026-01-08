@@ -28,7 +28,7 @@ This phase builds upon **Phase 1: Database Decomposition** by professionalizing 
 - **Impact**: Hardcoded `init_schema()` SQL strings removed; schema evolution is now version-tracked.
 
 ### 2.3 Documentation & Tooling
-- **RFC**: Created `docs/planning/rfcs/RFC-005_SCALABLE_AUDIT_AND_MIGRATIONS.md`.
+- **RFC**: Created [Scalable Audit & Migrations RFC-005](file:///home/dflory/dev_env/Gravitas/docs/planning/rfcs/Scaling_And_Migrations_RFC-005.md).
 - **Requirements**: Updated `requirements/common.txt` with `alembic` and `asyncpg`.
 - **Tests**: Created `tests/integration/test_audit_buffering.py`.
 
@@ -87,4 +87,4 @@ PGPASSWORD=Gravitas_pass psql -h localhost -U Gravitas_user -d chat_history -c "
 ---
 
 ## 5. Next Steps
-Proceed to **Phase 3: Telemetry & Observability Decoupling (RFC-002)**.
+Proceed to **Phase 3: Telemetry & Observability Decoupling ([Telemetry Decoupling RFC-002](file:///home/dflory/dev_env/Gravitas/docs/planning/rfcs/Telemetry_Decoupling_RFC-002.md))**.
