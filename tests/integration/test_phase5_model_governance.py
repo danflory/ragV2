@@ -8,9 +8,10 @@ import pytest
 import asyncio
 import httpx
 from typing import Dict, Any
+import os
 
-# Base URL for supervisor service
-SUPERVISOR_URL = "http://localhost:8000"
+# Base URL for supervisor service - override via env for Docker
+SUPERVISOR_URL = os.getenv("SUPERVISOR_URL", "http://localhost:8000")
 
 
 class TestL1QueueManagement:

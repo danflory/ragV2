@@ -47,6 +47,7 @@ data/ollama_embed_models/
 data/chroma_db/
 data/huggingface/
 data/archive/
+data/model_backup/
 *.db
 !rag_memory.db
 

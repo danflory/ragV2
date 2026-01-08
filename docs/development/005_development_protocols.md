@@ -51,3 +51,11 @@ All agent wrappers must implement the **Reasoning Pipe** protocol to capture hig
 4.  **Zero-Editing Policy**: Reasoning logs are raw and immutable. They are the ground truth for system logic.
 5.  **Monthly Audits**: All certified agents are subject to monthly quality audits by the `ReasoningPipeAuditor`.
 
+
+## 8. CODING STANDARDS & BEST PRACTICES
+All code must adhere to the standards defined in [CODING_STANDARDS.md](file:///home/dflory/dev_env/Gravitas/docs/CODING_STANDARDS.md):
+1.  **Datetime Handling**: Always use timezone-aware datetimes to prevent comparison errors
+2.  **Error Handling**: Define custom exception types for domain-specific errors
+3.  **Type Hints**: Annotate all public function signatures
+4.  **Async/Await**: Properly await all async calls and avoid blocking the event loop
+5.  **Pre-Commit Checks**: Run `mypy`, `ruff`, and `black` before committing code

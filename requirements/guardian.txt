@@ -1,0 +1,8 @@
+# Guardian service specific dependencies
+# Handles certificate validation and session management
+
+# --- DATABASE ---
+asyncpg==0.31.0
+
+# --- SECURITY ---
+pyjwt==2.10.1

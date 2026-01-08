@@ -9,16 +9,16 @@ from pydantic import BaseModel, Field
 
 from app.services.registry.ghost_registry import GhostRegistry, GhostSpec
 from app.services.registry.shell_registry import ShellRegistry, ModelSpec, ModelTier
-from app.services.supervisor.guardian import SupervisorGuardian, AgentNotCertifiedError
+from app.services.supervisor.guardian_client import GuardianClient
+from app.services.supervisor.guardian import AgentNotCertifiedError
 from app.services.scheduler.queue import RequestQueue
+from app.services.supervisor.gatekeeper_client import gatekeeper_client
 from app.wrappers.base_wrapper import GravitasAgentWrapper
 from app.wrappers.gemini_wrapper import GeminiWrapper
 from app.wrappers.claude_wrapper import ClaudeThinkingWrapper
 from app.wrappers.deepinfra_wrapper import DeepInfraWrapper
 from app.wrappers.ollama_wrapper import OllamaWrapper
-from app.services.security.policy_engine import policy_engine
-from app.services.security.audit_log import audit_logger, AuditEvent
-from app.services.security.deps import get_current_user
+# Policy/Audit/Deps replaced by Gatekeeper Client
 
 logger = logging.getLogger("Gravitas_SUPERVISOR_ROUTER")
 
@@ -40,7 +40,7 @@ class SupervisorEngine:
     Orchestrates routing, certification, and execution.
     """
     def __init__(self):
-        self.guardian = SupervisorGuardian()
+        self.guardian = GuardianClient(fallback_to_local=True)
         self.queue = RequestQueue()
         self.active_workers = 0
         self.max_workers = 5 # Parallelism for L2/L3, L1 is serialized by model lock
@@ -99,7 +99,7 @@ class SupervisorEngine:
         
         raise ValueError(f"No wrapper found for {shell_name} at tier {tier}")
 
-    async def process_chat(self, request: ChatCompletionRequest, user_payload: Dict[str, Any]):
+    async def process_chat(self, request: ChatCompletionRequest, authorization: str):
         """
         The main processing flow.
         """
@@ -107,11 +107,6 @@ class SupervisorEngine:
         
         # 1. Routing Decision
         target_tier = self.determine_routing(request)
-        
-        # 2. Identity Resolution
-        # Trust the token subject as the Ghost Identity.
-        # Fallbacks are only for AUTH_DISABLED mode (handled by get_current_user).
-        ghost_name = user_payload.get("sub", "Supervisor_Managed_Agent")
         
         # 'request.model' specifies the TARGET execution shell (e.g. "gemma2:27b")
         # However, if the user requested a Ghost Name as the model (e.g. "Librarian"),
@@ -124,18 +119,41 @@ class SupervisorEngine:
         else:
             # User asked for "gemma2:27b" -> use as is
             shell_name = request.model
+            
+        # 2. Gatekeeper Validation (Auth + Policy + Audit)
+        if not authorization:
+             # Check for AUTH_DISABLED environment variable logic here OR just raise 401
+             # Since we want to support AUTH_DISABLED, we should check it?
+             # But gatekeeper_client handles that logic?
+             # Gatekeeper Client fallback handles logic if we pass None?
+             # Wait, gatekeeper_client.validate_request calls Gatekeeper service.
+             # Gatekeeper service checks AUTH_DISABLED.
+             # BUT Gatekeeper service expects a token if AUTH_DISABLED is false.
+             # If I pass None to validate_request?
+             # Let's simple check validation logic below.
+             pass
+             
+        if not authorization and os.getenv("AUTH_DISABLED", "false").lower() != "true":
+             raise HTTPException(status_code=401, detail="Missing Authorization header")
 
-        # 2.5 Security Check (Phase 7)
-        if not policy_engine.check_permission(ghost_name, "execute", shell_name):
-            await audit_logger.log_event(AuditEvent(
-                ghost_id=ghost_name,
-                shell_id=shell_name,
-                action="execute",
-                resource=shell_name,
-                result="DENIED",
-                reason="Insufficient permissions for this shell"
-            ))
-            raise HTTPException(status_code=403, detail=f"Ghost '{ghost_name}' is not authorized to execute shell '{shell_name}'")
+        token = authorization.replace("Bearer ", "") if authorization else ""
+        metadata = {"shell_id": shell_name, "routing_tier": target_tier.value}
+        
+        validation = await gatekeeper_client.validate_request(
+            token=token, 
+            action="execute", 
+            resource=shell_name, 
+            metadata=metadata
+        )
+        
+        if not validation["allowed"]:
+            detail = validation.get("detail", "Access denied")
+            error_code = validation.get("error_code", 403)
+            logger.warning(f"Gatekeeper denied request: {detail}")
+            raise HTTPException(status_code=error_code, detail=detail)
+            
+        ghost_name = validation["ghost_id"]
+        # groups = validation["groups"]
 
         # 3. Wrapper Initialization
         try:
@@ -156,14 +174,8 @@ class SupervisorEngine:
             task = {"prompt": request.messages[-1]["content"], "messages": request.messages}
             result = await wrapper.execute_task(task)
             
-            # Audit success
-            await audit_logger.log_event(AuditEvent(
-                ghost_id=ghost_name,
-                shell_id=shell_name,
-                action="execute",
-                resource=shell_name,
-                result="SUCCESS"
-            ))
+            # Audit success via standard logging (Gatekeeper logged the access grant)
+            logger.info(f"Execution successful for {ghost_name} on {shell_name}")
             
             # Format to OpenAI response
             return {
@@ -198,8 +210,17 @@ class SupervisorEngine:
 router = APIRouter()
 engine = SupervisorEngine()
 
+from fastapi import Header
+
 @router.post("/v1/chat/completions")
-async def chat_completions(request: ChatCompletionRequest, user: Dict = Depends(get_current_user)):
-    return await engine.process_chat(request, user)
+async def chat_completions(request: ChatCompletionRequest, authorization: Optional[str] = Header(None)):
+    if not authorization:
+        # Check env for AUTH_DISABLED, but really Gatekeeper handles that logic too? 
+        # Gatekeeper client local fallback handles AUTH_DISABLED check if implemented there.
+        # Let's pass None and let Gatekeeper/Fallback decide.
+        # Actually Supervisor main.py had logic for AUTH_DISABLED.
+        pass
+    
+    return await engine.process_chat(request, authorization)
 
 

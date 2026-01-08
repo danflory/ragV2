@@ -6,7 +6,7 @@ import os
 import uuid
 from app.config import config
 
-SUPERVISOR_URL = "http://localhost:8000"
+SUPERVISOR_URL = os.getenv("SUPERVISOR_URL") or os.getenv("L1_URL") or "http://localhost:8000"
 
 # Secret matching the default in app.config
 SECRET_KEY = config.JWT_SECRET_KEY
@@ -115,4 +115,4 @@ async def test_policy_deny_resource():
             headers=headers
         )
         assert resp.status_code == 403
-        assert "not authorized" in resp.text
+        assert "Access denied" in resp.text
