@@ -1,6 +1,84 @@
 # GRAVITAS GROUNDED RESEARCH - STRATEGIC ROADMAP
 > **Vision**: Transform from a single-user RAG system into a secure, multi-agent "Knowledge Factory" (The Agentic Enterprise).
 
+## CURRENT STATUS (v7.1.0 - THE MICROSERVICES TIER)
+- **Active Phase:** Phase 8 (The Acquisition Tier) - *Planning*
+- **Recent Major Achievement:** Completed **RFC-001: Supervisor Decomposition**. System is now fully decoupled into Gatekeeper, Router, and Guardian services.
+- **History:** Completed Phases 1-5 are archived in `docs/archived/COMPLETED_PHASES_1-5.md`.
+
+---
+
+## COMPLETED RECENT PHASES
+
+### PHASE 6: SELF-LEARNING DATA (REASONING PIPES) - ✅ COMPLETE
+**Target**: Enable wrapper-certified reasoning capture for L1, L2, and L3 models.
+- [x] **Core Infrastructure:** ReasoningPipe Library, Supervisor Guardian, Markdown Protocol.
+- [x] **Certification System:** Wrapper Certifier, Certificate Issuance, Compliance Auditor.
+- [x] **Agent Wrappers:** L3 Frontier (Gemini/Claude), L2 Specialized, L1 Local.
+- [x] **Operationalization:** Standalone Supervisor Service (Port 8000) implemented.
+
+### PHASE 6.5: THE CONCEPTUAL SHIFT (Codebase Alignment) - ✅ COMPLETE
+**Objective:** Align backend architecture (Registry, DB, Infrastructure) with the Gravitas Meta-Model.
+- [x] **Ghost Registry:** Create `app/services/registry/ghost_registry.py` to map Identities to Shells.
+- [x] **Shell Registry:** Rename `agent_registry.py` to `shell_registry.py` and strictly catalog Models.
+- [x] **DB Alignment:** Update Postgres `history` table with `ghost_id` and `shell_id` columns.
+- [x] **Infrastructure:** Create `app/services/supervisor/main.py` (The Intelligent Gateway).
+
+### PHASE 7: THE SECURITY TIER (RFC-001 MICROSERVICES) - ✅ COMPLETE
+**Objective:** Decompose the Supervisor Monolith into resilient microservices (RFC-001).
+- [x] **7.1 The Gatekeeper (Security):** Deployed dedicated `gravitas_gatekeeper` service (Auth, Policy, Audit).
+- [x] **7.2 The Router (Traffic):** Deployed dedicated `gravitas_router` service (L1/L2/L3 Routing).
+- [x] **7.3 The Guardian (Identity):** Deployed dedicated `gravitas_guardian` service (Certificates, Badges).
+- [x] **7.4 Architecture Hardening:**
+  - [x] **RFC-001 Implementation:** Full decomposition of Supervisor.
+  - [x] **Service Isolation:** Independent Dockerfiles for all components.
+  - [x] **Legacy Decommission:** Retired monolithic Supervisor and legacy router logic.
+
+---
+
+## ACTIVE: STRATEGIC HORIZON
+
+### PHASE 8: THE ACQUISITION TIER (THE HORSES)
+*Equipping the Scout with real power.*
+- [ ] **8.1 Scout Engine Upgrade:** Migrate Scout to `gemini-2.0-flash`.
+- [ ] **8.2 The Crawler:** Implement `GravitasCrawler` (Headless Browser).
+- [ ] **8.3 The Transcriber:** Implement `GravitasMiner` with `yt-dlp` + Whisper.
+- [ ] **8.4 The OCR Specialist:** Implement Tesseract pipeline for PDF ingestion.
+
+### PHASE 9: THE REFINEMENT TIER (THE TWO HEMISPHERES)
+*Building the Theology Engine.*
+- [ ] **9.1 Neo4j Integration:** Deploy Graph DB container alongside Qdrant.
+- [ ] **9.2 Dual-Write Protocol:** Update Librarian to write to R-Brain (Vectors) and L-Brain (Graph).
+- [ ] **9.3 Graph RAG:** Implement multi-hop retrieval logic.
+
+### PHASE 10: THE WRITERS GUILD (THE ARTISTS)
+*Specialized Output Engines.*
+- [ ] **10.1 The Persona Engine:** Framework for defining Agent Personality (Tone, Vocabulary).
+- [ ] **10.2 The Tech Writer:** Implement the "Private Room Interface" agent.
+- [ ] **10.3 The Author:** Implement Long-Context book writing pipeline.
+
+### PHASE 11: THE OFFICE (USER EXPERIENCE)
+*The "VSCode for Knowledge" UI.*
+- [ ] **11.1 The Lobby:** Public-facing dashboard with "Chat Twins" (Simulation Mode).
+- [ ] **11.2 The Workbench:** "Dark Mode" IDE interface (Monaco Editor Integration).
+- [ ] **11.3 The Vaults:** Multi-tenant storage logic (User ID separation).
+
+### PHASE 12: THE AGENTIC MARKETPLACE
+*Scaling the workforce.*
+- [ ] **12.1 Agent Registry 2.0:** Dynamic loading of Agent Profiles from YAML.
+- [ ] **12.2 Brain Swapping:** Hot-swap logic for upgrading Agent Models.
+- [ ] **12.3 The "Cooler":** Intra-agent messaging bus for social simulation.
+
+---
+
+## BACKLOG / TECH DEBT
+- [x] **SecurityCop:** Scan codebase for hardcoded keys (Secret Hygiene).
+- [x] **Journal Rotation:** Implement dated journal snapshots. (Done: `docs/journals/`)
+- [x] **GravitasEngineer:** Standardize cross-platform dependency resolution (VENV Hardening).
+- [x] **GravitasEngineer:** Improve global exception handling for high-latency storage operations.
+- [x] **Architecture:** Full code review to identify further opportunities for microservice decomposition. (Completed via RFC-001)
+> **Vision**: Transform from a single-user RAG system into a secure, multi-agent "Knowledge Factory" (The Agentic Enterprise).
+
 ## CURRENT STATUS (v7.0.0 - THE SECURITY TIER)
 - **Active Phase:** Phase 8 (The Acquisition Tier) - *Planning*
 - **Next Up:** Phase 8 (Scout Engine Upgrade & Data Miners)

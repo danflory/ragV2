@@ -1,43 +1,34 @@
 # 001_CORE_ARCHITECTURE.md
 # STATUS: ACTIVE
-# VERSION: 4.5.0 (Gravitas Command & Control / Telemetry Calibration)
+# VERSION: 7.1.0 (Microservices & Drivers)
 
-## 1. THE DRIVER PATTERN (The "Hands")
-The system connects to **Shells** (LLM Runtimes) via **Drivers**. These are low-level adapters that translate our internal requests into vendor-specific API calls, following the LLMDriver interface contract.
+## 1. THE SERVICE MESH (The "body")
+The system is composed of localized microservices that communicate via HTTP/REST (and eventually gRPC).
 
-### 1.1 Interface Standardization
-All drivers implement the `LLMDriver` abstract base class ensuring consistent interfaces across all layers.
+### 1.1 The Operational Flow
+1.  **Lobby (UI):** User sends a request.
+2.  **Supervisor (Orchestrator):** Receives request, determines intent.
+3.  **Gatekeeper (Security):** Validates JWT and Policy `POST /gatekeeper/validate`.
+4.  **Guardian (Identity):** Verifies Agent Certificate `GET /guardian/validate`.
+5.  **Router (Traffic):** Dispatches to the appropriate Model Driver `POST /v1/chat/completions`.
 
-#### Type A: The Local Driver (L1 - Titan RTX)
-* **Target:** `LocalLlamaDriver` (Ollama/Titan RTX)
-* **Injection Pattern:** **Config Object Injection**
-* **Signature:** `__init__(self, config: Settings)`
-* **Reasoning:** Local drivers need access to multiple hardware settings (URL, VRAM limits, timeouts, model paths) simultaneously. Passing the full config object reduces argument bloat.
-* **Pros:** Easy to add new local settings without changing the signature.
-* **Cons:** Tighter coupling between Driver and Config.
+## 2. THE DRIVER PATTERN (The "Hands")
+*Used inside the `gravitas_router` service.*
+The Router connects to **Shells** (LLM Runtimes) via **Drivers**. These adapters translate internal requests into vendor-specific API calls.
 
-#### Type B: The Cloud Driver (L2 - DeepInfra)
-* **Target:** `DeepInfraDriver`
-* **Injection Pattern:** **Explicit Constructor Injection**
-* **Signature:** `__init__(self, api_key: str, base_url: str, model: str)`
-* **Features:** Retry logic with exponential backoff, usage statistics logging
+### 2.1 Driver Types
+*   **Type A (Local L1):** `LocalLlamaDriver`. Config-injected. Targeted at Ollama/Titan RTX.
+*   **Type B (Cloud L2):** `DeepInfraDriver`. Key-injected. Targeted at Specialized Models.
+*   **Type C (Research L3):** `GeminiDriver`. targeted at Frontier Models (Gemini 2.0 Flash / Pro).
 
-#### Type C: The Research Driver (L3 - Gemini 3 Pro)
-* **Target:** `GeminiDriver` (Vertex AI / Google)
-* **Role:** High-context synthesis and research.
-* **Injection Pattern:** **Explicit Constructor Injection**
+## 3. THE CONTAINER (The "Switchboard")
+*   **File:** `app/container.py`
+*   **Role:** **Inversion of Control (IoC) Root**.
+*   **Usage:** Each microservice instantiates its own `Container` to manage internal dependencies (Database connections, Logging, Telemetry).
+*   **Rule:** Business logic **MUST NEVER** instantiate drivers or infrastructure directly. It must request them from the `container`.
 
-## 2. THE CONTAINER (The "Switchboard")
-* **File:** `app/container.py`
-* **Role:** **Inversion of Control (IoC) Root**.
-* **Responsibility:** It bridges the gap between the divergent driver interfaces and manages system resources.
-    * It knows *how* to construct L1 (passing `config`).
-    * It knows *how* to construct L2 (extracting strings).
-    * It manages the VectorStore, Ingestor, and Telemetry components.
-* **Rule:** The rest of the application (`router.py`) **MUST NEVER** instantiate a driver directly. It must always import `container`.
+## 4. THE REFLEX LOOP (The "Nervous System")
+*   **Rule:** Actions (Tool Calls) are proposed by the Shell, but executed by the Supervisor.
+*   **Flow:** Shell (Thought) -> Supervisor (Catch) -> Gatekeeper (Check Policy) -> Tool Execution.
+*   **Safety:** `app/safety.py` provides the static analysis engine used by the Gatekeeper service to scan for dangerous syntax, secrets, and destructive commands.
 
-## 3. THE REFLEX SYSTEM (The "Nervous System")
-* **Rule:** Actions are proposed by L1/L2 and validated through the Gatekeeper.
-* **Gatekeeper:** `app/safety.py` sits between the Router and the Reflex (`app/reflex.py`).
-* **Flow:** L2 (Thought) -> XML Tag -> Router (Parse) -> Safety (Check) -> Reflex (Act).
-* **Components:** Shell execution, file writing, Git synchronization with authentication resilience

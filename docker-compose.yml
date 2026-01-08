@@ -15,7 +15,7 @@ services:
       - PYTHONPATH=/app
       - POSTGRES_HOST=Gravitas_postgres
       - QDRANT_HOST=Gravitas_qdrant
-      - L1_URL=http://gravitas_supervisor:8000
+      - L1_URL=http://gravitas_router:8004
       - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
       - MINIO_HOST=Gravitas_minio
       # Ensure these match your .env
@@ -131,7 +131,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-Gravitas_user}:${DB_PASSWORD:-Gravitas_pass}@Gravitas_postgres:5432/${DB_NAME:-chat_history}
       - DB_HOST=Gravitas_postgres
-      - L1_URL=http://gravitas_supervisor:8000
+      - L1_URL=http://gravitas_router:8004
       - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
     networks:
       - Gravitas_net
@@ -187,29 +187,13 @@ services:
       - OLLAMA_URL=http://Gravitas_ollama:11434/v1/chat/completions
       - GATEKEEPER_URL=http://gravitas_gatekeeper:8001
       - GUARDIAN_URL=http://gravitas_guardian:8003
-      - AUTH_DISABLED=true
+      - AUTH_DISABLED=false
       # Add provider keys if needed, e.g. GEMINI_API_KEY from .env
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - DEEPINFRA_API_KEY=${DEEPINFRA_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     depends_on:
       - gravitas_gatekeeper
-      - gravitas_guardian
-    networks:
-      - Gravitas_net
-    restart: unless-stopped
-
-  gravitas_supervisor:
-    build: .
-    container_name: gravitas_supervisor
-    command: uvicorn app.services.supervisor.main:app --host 0.0.0.0 --port 8000
-    ports:
-      - "8000:8000"
-    environment:
-      - OLLAMA_URL=http://Gravitas_ollama:11434/v1/chat/completions
-      - GUARDIAN_URL=http://gravitas_guardian:8003
-      - GATEKEEPER_URL=http://gravitas_gatekeeper:8001
-    depends_on:
       - gravitas_guardian
     networks:
       - Gravitas_net

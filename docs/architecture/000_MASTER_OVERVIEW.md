@@ -1,9 +1,9 @@
 # 000_MASTER_OVERVIEW.md
 # STATUS: ACTIVE
-# VERSION: 4.5.0 (Gravitas Command & Control / Telemetry Calibration)
+# VERSION: 7.1.0 (Gravitas Microservices & Security Tier)
 
 ## 1. CORE PHILOSOPHY
-**Gravitas Grounded Research** is a **Dual-GPU Production-Grade Hybrid RAG Architecture**. The internal system orchestration, logic, and departmental specialists (the "Workers") all operate under the **Gravitas** namespace. The development and deployment of this project are managed by the external AI assistant, **Antigravity**.
+**Gravitas Grounded Research** is a **Microservices-Based Agentic Architecture**. It separates **Identity** (Ghosts), **Execution** (Shells), **Governance** (Supervisor), and **Security** (Gatekeeper/Guardian) into distinct, resilient services. The internal system orchestration, logic, and departmental specialists (the "Workers") all operate under the **Gravitas** namespace.
 
 ## 2. THE GRAVITAS META-MODEL
 *The Physics of the World.*
@@ -15,27 +15,35 @@
 | **Object** | **Artifact** | Passive data with value (Books, Journals). |
 | **Space** | **Context Scope** | **Public:** Lobby (Ephemeral). **Private:** Room (Persistent). |
 
-## 3. THE DUAL-GPU ARCHITECTURE
-The system leverages **dual NVIDIA GPUs** for parallel processing and implements **Dense + Sparse hybrid vector search** via Qdrant.
+## 3. THE MICROSERVICES ARCHITECTURE (RFC-001)
+The system is decomposed into specialized tiers:
 
-*   **GPU 0 (Titan RTX 24GB):** Primary Compute / Generation (Gravitas Brain)
-*   **GPU 1 (GTX 1060 6GB):** Dedicated Embedding Engine (Memory Indexer)
+1.  **Lobby (5050):** PUBLIC. User Interface and Session Management.
+2.  **Supervisor (8000):** PRIVATE. Orchestration and Routing.
+3.  **Gatekeeper (8001/8002):** PRIVATE. Security Policy and Audit Logging.
+4.  **Guardian (8003):** PRIVATE. Identity Certification and Badge Management.
+5.  **Router (8005):** PRIVATE. Traffic dispatch to L1/L2/L3 Models.
 
-## 3. CORE DESIGN PRINCIPLES
+## 4. THE DUAL-GPU HARDWARE LAYER
+*   **GPU 0 (Titan RTX 24GB):** Primary Compute (L1 Models).
+*   **GPU 1 (GTX 1060 6GB):** Embedding Engine.
+
+## 5. CORE DESIGN PRINCIPLES
 1.  **Thinking Transparency:** Bit-for-bit faithfulness in reasoning logs via Reasoning Pipes.
-2.  **Dual-Track Journaling:** Separation of Strategic (Executive) and Forensic (Reasoning) logs.
-3.  **SOLID Architecture:** Enforced via `app/container.py` (IoC).
-4.  **Test-Driven Development (TDD):** Red-Green-Refactor is the law.
-5.  **Reflex Security:** All actions pass through the Gatekeeper (`app/safety.py`).
-6.  **Inference Economy:** Cost-optimized routing based on 60-day performance telemetry.
+2.  **Zero-Trust Security:** Every action requires a Valid Certificate (Guardian) and Policy Approval (Gatekeeper).
+3.  **Inversion of Control:** Dependencies managed via `app/container.py`.
+4.  **Test-Driven Development:** Red-Green-Refactor.
+5.  **Inference Economy:** Cost-optimized routing.
 
-## 4. DOCUMENTATION MAP
+## 6. DOCUMENTATION MAP
 | ID | Document | Status | Scope |
 | :--- | :--- | :--- | :--- |
-| 000 | [MASTER_OVERVIEW](file:///home/dflory/dev_env/Gravitas/docs/000_MASTER_OVERVIEW.md) | ACTIVE | Philosophy & Pipeline |
-| 001 | [CORE_ARCHITECTURE](file:///home/dflory/dev_env/Gravitas/docs/001_core_architecture.md) | ACTIVE | IoC, Drivers, Contracts |
-| 002 | [VECTOR_MEMORY](file:///home/dflory/dev_env/Gravitas/docs/002_vector_memory.md) | ACTIVE | Qdrant Hybrid Search |
-| 003 | [SECURITY_GATEKEEPER](file:///home/dflory/dev_env/Gravitas/docs/003_security_gatekeeper.md) | ACTIVE | Safety & Escalation |
-| 004 | [HARDWARE_OPERATIONS](file:///home/dflory/dev_env/Gravitas/docs/004_hardware_operations.md) | ACTIVE | VRAM & Dual-GPU |
-| 005 | [DEVELOPMENT_PROTOCOLS](file:///home/dflory/dev_env/Gravitas/docs/005_development_protocols.md) | ACTIVE | TDD & Retention Cycles |
-| 006 | [TELEMETRY_CALIBRATION](file:///home/dflory/dev_env/Gravitas/docs/006_TELEMETRY_CALIBRATION.md) | ACTIVE | Granular Metrics & Phase 4.5 |
+| 000 | [MASTER_OVERVIEW](file:///home/dflory/dev_env/Gravitas/docs/architecture/000_MASTER_OVERVIEW.md) | **v7.1** | Philosophy & Pipeline |
+| 001 | [CORE_ARCHITECTURE](file:///home/dflory/dev_env/Gravitas/docs/architecture/001_core_architecture.md) | **v7.1** | Services, Drivers, IoC |
+| 002 | [VECTOR_MEMORY](file:///home/dflory/dev_env/Gravitas/docs/architecture/002_vector_memory.md) | **v4.5** | Qdrant Hybrid Search |
+| 003 | [SECURITY_GATEKEEPER](file:///home/dflory/dev_env/Gravitas/docs/architecture/003_security_gatekeeper.md) | **v7.1** | Gatekeeper & Safety |
+| 004 | [HARDWARE_OPERATIONS](file:///home/dflory/dev_env/Gravitas/docs/architecture/004_hardware_operations.md) | **v4.5** | VRAM & Dual-GPU |
+| 005 | [DEVELOPMENT_PROTOCOLS](file:///home/dflory/dev_env/Gravitas/docs/development/005_development_protocols.md) | **v6.0** | TDD & Retention Cycles |
+| 007 | [MODEL_GOVERNANCE](file:///home/dflory/dev_env/Gravitas/docs/architecture/007_model_governance.md) | **v7.0** | Certification & Wrappers |
+| 008 | [REASONING_PIPES](file:///home/dflory/dev_env/Gravitas/docs/architecture/008_reasoning_pipes.md) | **v7.0** | Thinking Transparency |
+

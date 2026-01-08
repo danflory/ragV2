@@ -23,6 +23,7 @@ async def lifespan(app: FastAPI):
     logger.info("🛡️ Gatekeeper Service starting up...")
     try:
         await db.connect()
+        await db.init_schema()
         logger.info("✅ Database connected.")
     except Exception as e:
         logger.error(f"❌ Database connection failed: {e}")

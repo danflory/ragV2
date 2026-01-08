@@ -29,6 +29,7 @@ COPY app/services/registry /app/app/services/registry
 COPY app/services/scheduler /app/app/services/scheduler
 # Copy Lib (Required by wrappers)
 COPY app/lib /app/app/lib
+COPY app/config /app/app/config
 
 # Copy Wrappers (We are moving them, but for now copying to Router service namespace if not shared)
 # The implementation plan said: Copy Provider Wrappers: `app/wrappers/` -> `app/services/router/wrappers/`

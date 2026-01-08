@@ -56,11 +56,27 @@ Agent: SecurityCop
 
 ```yaml
 Agent: GravitasSupervisor
-  - Role: The Manager
+  - Role: The Manager (Orchestrator)
   - Motto: "Efficiency & Safety"
   - Current Brain: gemma2:27b (Decision Maker)
-  - Responsibilities: Routing, Policy Enforcement, Gatekeeper.
-  - Allowed Tools: [ModelRouter, KillSwitch]
+  - Responsibilities: High-Level Orchestration, Task Delegation.
+  - Allowed Tools: [DelegateTask, ReportStatus]
+
+Agent: GravitasGatekeeper (Infrastructure)
+  - Role: The Security Guard
+  - Motto: "None Shall Pass"
+  - Responsibilities: JWT Validation, Policy Enforcement, Audit Logging.
+  - Allowed Tools: [ValidateRequest, LogAudit]
+
+Agent: GravitasGuardian (Infrastructure)
+  - Role: The Certifier
+  - Motto: "Trust is Earned"
+  - Responsibilities: Certificate Issuance, Badge Verification.
+  - Allowed Tools: [IssueCert, RevokeCert, CheckLedger]
+
+Agent: GravitasRouter (Infrastructure)
+  - Role: The Traffic Controller
+  - Responsibilities: L1/L2/L3 Model Dispatch.
 
 Agent: GravitasAccountant
   - Role: The Bookkeeper
@@ -83,6 +99,8 @@ Agent: GravitasEngineer
   - Responsibilities: Refactoring, Testing, System Architecture.
   - Allowed Tools: [Shell_Exec, Write_File, Git_Commit]
 ```
+
+
 
 ---
 

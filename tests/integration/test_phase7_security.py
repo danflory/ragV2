@@ -6,7 +6,7 @@ import os
 import uuid
 from app.config import config
 
-SUPERVISOR_URL = os.getenv("SUPERVISOR_URL") or os.getenv("L1_URL") or "http://localhost:8000"
+SUPERVISOR_URL = os.getenv("ROUTER_URL") or os.getenv("SUPERVISOR_URL") or os.getenv("L1_URL") or "http://localhost:8005"
 
 # Secret matching the default in app.config
 SECRET_KEY = config.JWT_SECRET_KEY

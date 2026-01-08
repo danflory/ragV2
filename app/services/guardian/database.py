@@ -2,12 +2,12 @@ import logging
 import asyncpg
 from app.config import config
 
-logger = logging.getLogger("Gravitas_DATABASE")
+logger = logging.getLogger("Gravitas_DATABASE_GUARDIAN")
 
 class Database:
     """
-    Asynchronous Postgres Driver for Gravitas.
-    Manages connection pooling and core DB operations.
+    Asynchronous Postgres Driver for Gravitas Guardian.
+    Manages connection pooling and Guardian-specific DB operations.
     """
     def __init__(self):
         self.pool = None
@@ -29,37 +29,34 @@ class Database:
                 max_size=10
             )
             logger.info("✅ POSTGRES POOL READY.")
+            
         except Exception as e:
             logger.error(f"❌ DATABASE CONNECTION FAILURE: {e}")
             self.pool = None
 
     async def init_schema(self):
-        """Initializes the database schema for the Gatekeeper service."""
+        """Initializes the database schema for the Guardian service."""
         if not self.pool:
             logger.warning("⚠️ Cannot initialize schema: Database not connected.")
             return
 
         try:
             async with self.pool.acquire() as conn:
-                # AUDIT LOG TABLE (Phase 7 Security)
-                # Gatekeeper is the authoritative owner of this table.
+                # AGENT BADGES TABLE (Phase 7 Identity)
+                # Guardian Service is the Owner.
                 await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS audit_log (
+                    CREATE TABLE IF NOT EXISTS agent_badges (
                         id SERIAL PRIMARY KEY,
-                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         ghost_id VARCHAR(100) NOT NULL,
-                        shell_id VARCHAR(100),
-                        action VARCHAR(100) NOT NULL,
-                        resource VARCHAR(255) NOT NULL,
-                        result VARCHAR(20) NOT NULL,
-                        reason TEXT,
-                        metadata TEXT
+                        badge_name VARCHAR(100) NOT NULL,
+                        granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(ghost_id, badge_name)
                     );
                 ''')
-                await conn.execute('CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp);')
-                await conn.execute('CREATE INDEX IF NOT EXISTS idx_audit_ghost ON audit_log(ghost_id);')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_badges_ghost ON agent_badges(ghost_id);')
+
+                logger.info("✅ Guardian Schema Initialized (agent_badges).")
                 
-                logger.info("✅ Gatekeeper Schema Initialized (audit_log).")
         except Exception as e:
             logger.error(f"❌ SCHEMA INITIALIZATION FAILURE: {e}")
 

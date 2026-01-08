@@ -4,7 +4,7 @@ import logging
 from typing import Optional
 from fastapi import FastAPI, Header, HTTPException, Depends
 from contextlib import asynccontextmanager
-from app.database import db
+from app.services.supervisor.database import db
 from app.services.supervisor.router import router as supervisor_router, engine
 # from app.services.security.auth import decode_access_token # Removed
 from app.services.security.badges import badge_system
@@ -24,6 +24,7 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Supervisor Service starting up...")
     try:
         await db.connect()
+        await db.init_schema()
         logger.info("✅ Database connected.")
         
         # Initialize badge cache

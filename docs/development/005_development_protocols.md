@@ -52,6 +52,7 @@ All agent wrappers must implement the **Reasoning Pipe** protocol to capture hig
 5.  **Monthly Audits**: All certified agents are subject to monthly quality audits by the `ReasoningPipeAuditor`.
 
 
+
 ## 8. CODING STANDARDS & BEST PRACTICES
 All code must adhere to the standards defined in [CODING_STANDARDS.md](file:///home/dflory/dev_env/Gravitas/docs/CODING_STANDARDS.md):
 1.  **Datetime Handling**: Always use timezone-aware datetimes to prevent comparison errors
@@ -59,3 +60,31 @@ All code must adhere to the standards defined in [CODING_STANDARDS.md](file:///h
 3.  **Type Hints**: Annotate all public function signatures
 4.  **Async/Await**: Properly await all async calls and avoid blocking the event loop
 5.  **Pre-Commit Checks**: Run `mypy`, `ruff`, and `black` before committing code
+
+## 9. THE HANDOVER PROTOCOL
+To ensure seamless continuity between sessions and agentic shifts, a strict location policy is enforced for all handover artifacts.
+
+1.  **Mandatory Location**: All Handover documents, Transition Briefs, and Conceptual Reviews **SHALL** be placed in the `docs/handovers/` directory.
+2.  **Naming Convention**: Files must follow the pattern `YYYY-MM-DD_Subject_Name.md` (e.g., `2026-01-08_Phase7_Completion_Brief.md`).
+3.  **Content Requirement**: Handovers must include:
+    *   **Context:** What was just finished?
+    *   **State:** What is currently broken or pending?
+    *   **Next Action:** What is the immediate next step for the incoming agent?
+4.  **Archival:** Old handovers are never deleted; they serve as part of the project's long-term memory.
+
+## 10. THE REQUEST FOR COMMENTS (RFC) PROTOCOL
+Significant changes to the system architecture require a formal RFC process to ensure consensus, risk assessment, and documentation.
+
+### 10.1 When is an RFC Required?
+An RFC is **Mandatory** for:
+1.  **Architecture Shifts**: Any change to the service mesh, database schema, or core container logic.
+2.  **API Contracts**: Breaking changes to internal HTTP/gRPC interfaces (e.g., Gatekeeper API).
+3.  **Critical Risks**: Changes that impact security boundaries (Auth, Policy, Certificates).
+4.  **New Features**: Major capability additions (e.g., "Phase 8: The Crawler").
+
+### 10.2 The Process
+1.  **Draft**: Copy `docs/rfcs/TEMPLATE.md` to `docs/rfcs/RFC-XXX-Title.md`.
+2.  **Review**: Submit for "Review" (Self-Correction/Reasoning Check).
+3.  **Approve**: Mark as "Approved" once risks are mitigated and design is solidified.
+4.  **Implement**: Use the RFC as the checklist for the implementation plan.
+5.  **Complete**: Mark as "COMPLETE ✅" after verification tests pass.

@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir -r common.txt -r guardian.txt
 COPY app/services/guardian /app/app/services/guardian
 COPY app/__init__.py /app/app/
 COPY app/services/__init__.py /app/app/services/
+COPY app/config /app/app/config
 
 # Expose Guardian port
 EXPOSE 8003

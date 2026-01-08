@@ -17,10 +17,29 @@ from app.services.guardian.core import (
     CertificationExpiredError
 )
 
+from contextlib import asynccontextmanager
+from app.services.guardian.database import db
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Gravitas_GUARDIAN_SERVICE")
 
-app = FastAPI(title="Gravitas Guardian Service", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("🛡️ Guardian Service starting up...")
+    try:
+        await db.connect()
+        await db.init_schema()
+    except Exception as e:
+        logger.error(f"Failed to connect to DB: {e}")
+    
+    yield
+    
+    # Shutdown
+    await db.disconnect()
+    logger.info("🛑 Guardian Service shutting down.")
+
+app = FastAPI(title="Gravitas Guardian Service", version="1.0.0", lifespan=lifespan)
 
 # Initialize Guardian with certificates directory
 certificates_dir = os.getenv("CERTIFICATES_DIR", "app/.certificates")
