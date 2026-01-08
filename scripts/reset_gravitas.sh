@@ -4,6 +4,105 @@
 # --- HOMING BEACON ---
 cd "$(dirname "$0")/.." || exit
 
+# --- PREFLIGHT CHECKS ---
+echo "🔍 Running preflight checks..."
+
+# Check for docker-compose
+if ! command -v docker-compose &> /dev/null; then
+    echo "❌ ERROR: docker-compose not found!"
+    echo "   Docker Desktop WSL integration may not be enabled."
+    echo "   Please enable WSL integration in Docker Desktop settings:"
+    echo "   Settings → Resources → WSL Integration"
+    echo ""
+    exit 1
+fi
+
+# Check for docker daemon
+if ! docker info &> /dev/null; then
+    echo "❌ ERROR: Docker daemon is not running!"
+    echo "   Please start Docker Desktop."
+    echo ""
+    exit 1
+fi
+
+# Check for virtual environment
+if [ ! -d "venv" ]; then
+    echo "❌ ERROR: Virtual environment not found at ./venv"
+    echo "   Please create it with: python3 -m venv venv"
+    echo ""
+    exit 1
+fi
+
+# Check for requirements.txt
+if [ ! -f "requirements.txt" ]; then
+    echo "❌ ERROR: requirements.txt not found!"
+    exit 1
+fi
+
+# Check for critical Python dependencies
+VENV_PY="venv/bin/python3"
+echo "   → Validating Python dependencies..."
+
+# Create a temporary script to validate all dependencies
+VALIDATE_SCRIPT=$(mktemp)
+cat > "$VALIDATE_SCRIPT" << 'VALIDATION_EOF'
+import sys
+import importlib.util
+
+# Critical modules that must be present for the app to start
+CRITICAL_MODULES = [
+    'yaml',        # uvicorn logging config
+    'GPUtil',      # L1_local.py
+    'fastapi',     # Core framework
+    'uvicorn',     # Server
+    'httpx',       # Networking
+    'ollama',      # LLM driver
+    'asyncpg',     # Database
+    'google.genai', # L3_google.py (new SDK)
+]
+
+missing = []
+for module in CRITICAL_MODULES:
+    if importlib.util.find_spec(module) is None:
+        missing.append(module)
+
+if missing:
+    print("MISSING:" + ",".join(missing))
+    sys.exit(1)
+else:
+    print("OK")
+    sys.exit(0)
+VALIDATION_EOF
+
+VALIDATION_RESULT=$($VENV_PY "$VALIDATE_SCRIPT" 2>&1)
+VALIDATION_EXIT=$?
+rm -f "$VALIDATE_SCRIPT"
+
+if [ $VALIDATION_EXIT -ne 0 ]; then
+    MISSING_MODULES=$(echo "$VALIDATION_RESULT" | grep "^MISSING:" | cut -d: -f2)
+    echo ""
+    echo "❌ DEPENDENCY CHECK FAILED!"
+    echo "   Missing Python modules: $MISSING_MODULES"
+    echo ""
+    echo "   🔧 Auto-fixing: Installing all requirements..."
+    $VENV_PY -m pip install -r requirements.txt -q
+    
+    if [ $? -ne 0 ]; then
+        echo "   ❌ Installation failed!"
+        echo "   Please run manually: source venv/bin/activate && pip install -r requirements.txt"
+        echo ""
+        echo "   📋 Filing incident report..."
+        $VENV_PY scripts/log_entry.py "DEPENDENCY_FAILURE" "Reset_Script" "Missing modules: $MISSING_MODULES"
+        exit 1
+    fi
+    
+    echo "   ✅ Dependencies installed successfully"
+    echo ""
+fi
+
+echo "✅ All preflight checks passed!"
+echo ""
+
 # --- HOST OVERRIDES (Running on Metal) ---
 export QDRANT_HOST="localhost"
 export MINIO_ENDPOINT="localhost:9000"
@@ -113,5 +212,8 @@ echo "   ✅ Supervisor running (PID: $SUPERVISOR_PID)"
 # 11. LAUNCH SERVER (Foreground)
 echo "   [$(date '+%H:%M:%S')] 🚀 Launching Gravitas Lobby (Port 5050)..."
 echo "-----------------------------------------------------"
+
+# Launch browser after a short delay to let server start
+(sleep 3 && (xdg-open http://localhost:5050 2>/dev/null || sensible-browser http://localhost:5050 2>/dev/null)) &
 
 $VENV_PY -u -m uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload --reload-dir app --log-config log_conf.yaml
