@@ -34,7 +34,7 @@ During Phase 1 (Database Decomposition), the system relied on hardcoded `init_sc
 
 ### Goals
 1.  **Eliminate Latency**: Move audit logging to a non-blocking background process.
-2.  **Formalize Schema Management**: Introduce Alembic for versioned migrations, building on the [Database Decomposition](file:///home/dflory/dev_env/Gravitas/docs/planning/rfcs/RFC-003_DATABASE_DECOMPOSITION.md) introduced in RFC-003.
+2.  **Formalize Schema Management**: Introduce Alembic for versioned migrations, building on the [Database Decomposition](file:///home/dflory/dev_env/Gravitas/docs/planning/rfcs/Database_Decomposition_RFC-003.md) introduced in RFC-003.
 3.  **Service Independence**: Ensure each microservice maintains its own independent schema history.
 
 ---
