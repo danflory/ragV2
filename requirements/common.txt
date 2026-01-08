@@ -15,3 +15,5 @@ python-multipart>=0.0.9
 
 # --- DATABASE ---
 asyncpg==0.31.0
+alembic==1.13.1
+psycopg2-binary>=2.9.9

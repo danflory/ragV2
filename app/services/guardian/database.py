@@ -35,30 +35,28 @@ class Database:
             self.pool = None
 
     async def init_schema(self):
-        """Initializes the database schema for the Guardian service."""
+        """Initializes the database schema using Alembic."""
         if not self.pool:
             logger.warning("⚠️ Cannot initialize schema: Database not connected.")
             return
 
         try:
-            async with self.pool.acquire() as conn:
-                # AGENT BADGES TABLE (Phase 7 Identity)
-                # Guardian Service is the Owner.
-                await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS agent_badges (
-                        id SERIAL PRIMARY KEY,
-                        ghost_id VARCHAR(100) NOT NULL,
-                        badge_name VARCHAR(100) NOT NULL,
-                        granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        UNIQUE(ghost_id, badge_name)
-                    );
-                ''')
-                await conn.execute('CREATE INDEX IF NOT EXISTS idx_badges_ghost ON agent_badges(ghost_id);')
-
-                logger.info("✅ Guardian Schema Initialized (agent_badges).")
-                
+            # Programmatic Alembic upgrade
+            import os
+            from alembic.config import Config
+            from alembic import command
+            
+            # Use absolute path to alembic.ini
+            base_dir = os.path.dirname(__file__)
+            alembic_cfg = Config(os.path.join(base_dir, "alembic.ini"))
+            alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "migrations"))
+            
+            # Run upgrade head
+            command.upgrade(alembic_cfg, "head")
+            
+            logger.info("✅ Guardian Schema Versioned via Alembic.")
         except Exception as e:
-            logger.error(f"❌ SCHEMA INITIALIZATION FAILURE: {e}")
+            logger.error(f"❌ ALEMBIC MIGRATION FAILURE: {e}")
 
     async def disconnect(self):
         """Closes the connection pool."""

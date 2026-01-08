@@ -25,22 +25,55 @@ class AuditEvent:
 class AuditLogger:
     """
     Records security-relevant events to the database and system logs.
+    Uses an internal queue and background worker to prevent blocking requests.
     """
     def __init__(self, enabled: bool = True):
         self.enabled = enabled
+        self.queue = asyncio.Queue()
+        self._worker_task = None
+        self._loop = None
+
+    def _start_worker(self):
+        """Starts the background worker if not already running."""
+        try:
+            loop = asyncio.get_running_loop()
+            if self._worker_task is None or self._worker_task.done():
+                self._worker_task = loop.create_task(self._worker())
+                self._loop = loop
+                logger.info("🚀 Audit background worker started.")
+        except RuntimeError:
+            # No running loop, will start on log_event
+            pass
 
     async def log_event(self, event: AuditEvent):
-        """Logs an event asynchronously."""
+        """Logs an event by adding it to the queue (non-blocking)."""
         if not self.enabled:
             return
 
-        # 1. Log to system logs immediately
+        # 1. Log to system logs immediately (minimal overhead)
         log_msg = f"AUDIT: [{event.result}] Ghost:{event.ghost_id} Action:{event.action} Resource:{event.resource}"
         if event.reason:
             log_msg += f" Reason:{event.reason}"
         logger.info(log_msg)
 
-        # 2. Log to Database
+        # 2. Add to queue for DB persistence
+        self._start_worker()
+        self.queue.put_nowait(event)
+
+    async def _worker(self):
+        """Background worker that persists events to DB."""
+        logger.info("👷 Audit worker processing queue...")
+        while True:
+            event = await self.queue.get()
+            try:
+                await self._persist_to_db(event)
+            except Exception as e:
+                logger.error(f"Error in audit worker: {e}")
+            finally:
+                self.queue.task_done()
+
+    async def _persist_to_db(self, event: AuditEvent):
+        """Internal method to perform the actual DB write."""
         try:
             if not db.is_ready():
                 await db.connect()
@@ -64,7 +97,25 @@ class AuditLogger:
                 )
         except Exception as e:
             logger.error(f"Failed to write to audit_log table: {e}")
-            # We don't raise here to avoid breaking the application flow on logging failure
+
+    async def flush(self):
+        """Waits for all pending events in the queue to be processed."""
+        if self.queue.empty():
+            return
+        logger.info(f"⏳ Flushing {self.queue.qsize()} audit events...")
+        await self.queue.join()
+        logger.info("✅ Audit buffer flushed.")
+
+    async def stop(self):
+        """Stops the worker and flushes the queue."""
+        if self._worker_task:
+            await self.flush()
+            self._worker_task.cancel()
+            try:
+                await self._worker_task
+            except asyncio.CancelledError:
+                pass
+            logger.info("🛑 Audit worker stopped.")
 
     async def query_events(self, ghost_id: Optional[str] = None, limit: int = 100) -> List[Dict]:
         """Retrieves recent audit events."""

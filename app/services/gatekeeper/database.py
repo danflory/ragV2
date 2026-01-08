@@ -34,34 +34,30 @@ class Database:
             self.pool = None
 
     async def init_schema(self):
-        """Initializes the database schema for the Gatekeeper service."""
+        """Initializes the database schema using Alembic."""
         if not self.pool:
             logger.warning("⚠️ Cannot initialize schema: Database not connected.")
             return
 
         try:
-            async with self.pool.acquire() as conn:
-                # AUDIT LOG TABLE (Phase 7 Security)
-                # Gatekeeper is the authoritative owner of this table.
-                await conn.execute('''
-                    CREATE TABLE IF NOT EXISTS audit_log (
-                        id SERIAL PRIMARY KEY,
-                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        ghost_id VARCHAR(100) NOT NULL,
-                        shell_id VARCHAR(100),
-                        action VARCHAR(100) NOT NULL,
-                        resource VARCHAR(255) NOT NULL,
-                        result VARCHAR(20) NOT NULL,
-                        reason TEXT,
-                        metadata TEXT
-                    );
-                ''')
-                await conn.execute('CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp);')
-                await conn.execute('CREATE INDEX IF NOT EXISTS idx_audit_ghost ON audit_log(ghost_id);')
-                
-                logger.info("✅ Gatekeeper Schema Initialized (audit_log).")
+            # Programmatic Alembic upgrade
+            import os
+            from alembic.config import Config
+            from alembic import command
+            
+            # Use absolute path to alembic.ini
+            base_dir = os.path.dirname(__file__)
+            alembic_cfg = Config(os.path.join(base_dir, "alembic.ini"))
+            alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "migrations"))
+            
+            # Run upgrade head
+            # Note: This is synchronous in Alembic, but we wrap in thread if needed.
+            # For startup, a brief block is acceptable or we use run_in_executor.
+            command.upgrade(alembic_cfg, "head")
+            
+            logger.info("✅ Gatekeeper Schema Versioned via Alembic.")
         except Exception as e:
-            logger.error(f"❌ SCHEMA INITIALIZATION FAILURE: {e}")
+            logger.error(f"❌ ALEMBIC MIGRATION FAILURE: {e}")
 
     async def disconnect(self):
         """Closes the connection pool."""

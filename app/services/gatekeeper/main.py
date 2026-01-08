@@ -32,6 +32,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
+    await audit_logger.stop()
     await db.disconnect()
     logger.info("🛑 Gatekeeper Service shutting down.")
 
