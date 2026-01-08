@@ -38,44 +38,36 @@ def get_next_id():
     return f"itj-{next_id:03d}"
 
 def log_thought(content):
-    """Appends verbatim content with auto-incrementing ID to the current session buffer."""
+    """Appends verbatim content to both the session buffer and the daily thoughts log."""
     if not os.path.exists(THOUGHTS_DIR):
         os.makedirs(THOUGHTS_DIR)
     
-    # Auto-numbering logic
+    thoughts_log, _ = get_dated_filenames()
     entry_id = get_next_id()
     
     # Structure: [itj-XXX] Content
     formatted_entry = f"[{entry_id}] {content}"
     
+    # 1. Live Feed: Daily Thoughts Log
+    with open(thoughts_log, "a") as f:
+        f.write(formatted_entry + "\n")
+        f.flush()
+        os.fsync(f.fileno())
+
+    # 2. Buffer: Current Session (for /reason synthesis)
     with open(CURRENT_SESSION_FILE, "a") as f:
         f.write(formatted_entry + "\n")
 
 def handle_session_transition():
-    """Fulfills Section 3 of the Spec: Buffer Archival and Executive Synthesis."""
-    if not os.path.exists(CURRENT_SESSION_FILE) or os.path.getsize(CURRENT_SESSION_FILE) == 0:
-        # Buffer is already clear, just ensure it exists
+    """Clears the session buffer. Since /log trickles live, archival is already done."""
+    if not os.path.exists(CURRENT_SESSION_FILE):
         open(CURRENT_SESSION_FILE, 'w').close()
         return
 
-    thoughts_log, executive_log = get_dated_filenames()
-    
-    # PHASE A: Buffer Archival
-    with open(CURRENT_SESSION_FILE, "r") as f:
-        buffer_content = f.read()
-    
-    with open(thoughts_log, "a") as f:
-        f.write(f"\n--- SESSION START: {datetime.now().strftime('%H:%M:%S')} ---\n")
-        f.write(buffer_content)
-    
-    # PHASE B: Executive Synthesis (Triggered)
-    # Note: Full automated synthesis requires LLM inference. 
-    # This script prepares the buffer and clears it.
-    
     # Clear the buffer
     open(CURRENT_SESSION_FILE, 'w').close()
-    print(f"✅ Session archived to {thoughts_log}. Buffer cleared.")
-    print("Status: [itj-000] Session Transition Complete. Thinking Transparency Active.")
+    print("✅ Session buffer cleared. Thoughts were trickled to the dated log during the session.")
+    print("Status: [itj-000] Session Transition Complete.")
 
 if __name__ == "__main__":
     if not os.path.exists(EXECUTIVE_DIR):

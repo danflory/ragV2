@@ -3,9 +3,9 @@ description: Manually trigger high-fidelity cognitive mirroring of the current s
 ---
 
 // turbo
-1. **Reconstruct Cognitive Trace**: Synthesize your current turn's Internal Monologue and Actions into a high-fidelity Markdown block.
+1. **Reconstruct Cognitive Trace**: Capture the **full depth** of your internal reasoning (equivalent to the 'thought for Xs' UI block). Do not summarize; include architectural trade-offs, syntax verifications, and diagnostic pathways.
 2. **Execute reasoning_pipe**: 
    ```bash
-   echo "<thought_tap>\nInternal Monologue: [Your Thoughts]\nAction: [Your Tools]\n</thought_tap>" | python3 ANTIGRAVITY_Scripts/reasoning_pipe.py --stdin
+   echo "### Deep-Dive Reasoning: [Current Focus]\n\n[Full-resolution internal monologue...]" | python3 ANTIGRAVITY_Scripts/reasoning_pipe.py --stdin
    ```
-3. **Verify Compliance**: Ensure the entry is appended to `docs/journals/current_session.md` with a valid `[itj-XXX]` ID.
+3. **Verify Compliance**: Ensure the entry mirrors the actual complexity of the AI's internal processing.
