@@ -1,0 +1,48 @@
+# Dockerfile for Gravitas Router Service
+# Traffic Management and Provider Logic
+
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Minimal system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies
+COPY requirements/common.txt requirements/router.txt ./
+RUN pip install --no-cache-dir -r common.txt -r router.txt
+
+# Copy Router service code
+# We create the package structure expected by imports
+COPY app/__init__.py /app/app/
+COPY app/services/__init__.py /app/app/services/
+COPY app/services/router /app/app/services/router
+
+# Copy Registry (Router needs Shell/Ghost registry logic)
+COPY app/services/registry /app/app/services/registry
+# Copy Queue (Router might use it internally, though scaling suggests stateless)
+COPY app/services/scheduler /app/app/services/scheduler
+# Copy Lib (Required by wrappers)
+COPY app/lib /app/app/lib
+
+# Copy Wrappers (We are moving them, but for now copying to Router service namespace if not shared)
+# The implementation plan said: Copy Provider Wrappers: `app/wrappers/` -> `app/services/router/wrappers/`
+# But typical imports might be `app.wrappers...`.
+# I should check if I should preserve the `app/wrappers` path inside the container OR refactor imports.
+# Easier to preserve `app/wrappers` path in container for legacy compatibility if possible,
+# BUT sticking to the plan: `app/services/router/wrappers/` means refactoring.
+# Let's stick to the plan for clean separation, but I might need to update imports.
+# Wait, actually, the Dockerfile copies `app/services/router`.
+# If I put wrappers in `app/services/router/wrappers`, I need to update imports in `api.py`.
+# Let's assume I will update imports.
+
+# Expose Router port
+EXPOSE 8004
+
+# Run Router service
+CMD ["uvicorn", "app.services.router.main:app", "--host", "0.0.0.0", "--port", "8004"]

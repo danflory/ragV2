@@ -1,0 +1,30 @@
+version: 1.0
+groups:
+  admin:
+    permissions:
+      - action: "*"
+        resource: "*"
+  
+  librarian:
+    permissions:
+      - action: "execute"
+        resource: "shells/*"
+      - action: "read"
+        resource: "vaults/*"
+      - action: "write"
+        resource: "vaults/*"
+      - action: "execute"
+        resource: "tools/librarian/*"
+        
+  scout:
+    permissions:
+      - action: "execute"
+        resource: "shells/l1/*"
+      - action: "read"
+        resource: "vaults/public"
+
+ghost_mappings:
+  "Supervisor_Managed_Agent": ["admin"]
+  "Librarian": ["librarian"]
+  "Scout": ["scout"]
+  "dan_flory": ["admin"]

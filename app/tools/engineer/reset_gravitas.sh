@@ -11,9 +11,8 @@ export DB_HOST="localhost"
 export L1_URL="http://localhost:11434"
 
 # --- PATH ENFORCEMENT ---
-# Use the python executable from your consolidated virtual environment
+# Use the python executable from your virtual environment
 VENV_PY="venv/bin/python3"
-export PYTHONPATH=$PYTHONPATH:$(pwd)
 
 START_TIME=$(date +%s)
 echo "-----------------------------------------------------"
@@ -27,33 +26,27 @@ $VENV_PY ANTIGRAVITY_Scripts/maintenance.py
 # 1. LOG THE RESET
 $VENV_PY scripts/log_entry.py "SYSTEM_RESET" "User_CLI" "Reset sequence initiated"
 
-# 2. CLEAR PORTS (5050 & 8000)
-echo "   [$(date '+%H:%M:%S')] 🚫 Clearing Ports 5050 & 8000..."
+# 2. CLEAR PORT
+echo "   [$(date '+%H:%M:%S')] 🚫 Clearing Port 5050..."
+# Try to kill anything on 5050 with multiple attempts
+for i in {1..3}; do
+  if lsof -i :5050 > /dev/null 2>&1; then
+    # Try SIGTERM then SIGKILL
+    fuser -k -TERM 5050/tcp > /dev/null 2>&1 || sudo fuser -k -TERM 5050/tcp > /dev/null 2>&1
+    sleep 0.5
+    fuser -k -KILL 5050/tcp > /dev/null 2>&1 || sudo fuser -k -KILL 5050/tcp > /dev/null 2>&1
+    sleep 0.5
+  else
+    break
+  fi
+done
+sleep 1 # Extra cushion for OS to release port
 
-kill_port() {
-  local port=$1
-  for i in {1..3}; do
-    if lsof -i :$port > /dev/null 2>&1; then
-      fuser -k -TERM $port/tcp > /dev/null 2>&1 || echo "Skipping sudo kill for $port" # sudo fuser -k -TERM $port/tcp > /dev/null 2>&1
-      sleep 0.5
-      fuser -k -KILL $port/tcp > /dev/null 2>&1 || echo "Skipping sudo kill for $port" # sudo fuser -k -KILL $port/tcp > /dev/null 2>&1
-      sleep 0.5
-    else
-      break
-    fi
-  done
-}
-
-kill_port 5050
-kill_port 8000
-
-sleep 1
-
-# Final check
-if lsof -i :5050 > /dev/null 2>&1 || lsof -i :8000 > /dev/null 2>&1; then
-    echo "   [$(date '+%H:%M:%S')] ❌ ERROR: Ports still in use."
+# Final check before proceeding
+if lsof -i :5050 > /dev/null 2>&1; then
+    echo "   [$(date '+%H:%M:%S')] ❌ ERROR: Port 5050 is still in use by:"
     lsof -i :5050
-    lsof -i :8000
+    echo "   Manual intervention required: 'sudo fuser -k 5050/tcp'"
     exit 1
 fi
 
@@ -84,8 +77,7 @@ docker ps --format "table {{.Names}}\t{{.Status}}" | grep -E "Gravitas|qdrant|mi
 # 5. RESTART OLLAMA (Host Service if exists)
 if systemctl is-active --quiet ollama; then
     echo "   [$(date '+%H:%M:%S')] ♻️  Restarting Host Ollama Service..."
-    # sudo systemctl restart ollama
-    echo "   (Skipping sudo systemctl restart ollama for automated run)"
+    sudo systemctl restart ollama
 fi
 
 # 6. SMART WARM-UP
@@ -104,14 +96,16 @@ $VENV_PY scripts/generate_context.py
 # 9. LOG THE STARTUP
 $VENV_PY scripts/log_entry.py "SERVER_START" "Boot_Script" "FastAPI launching..."
 
-# 10. LAUNCH SUPERVISOR (Background)
-echo "   [$(date '+%H:%M:%S')] 🛡️  Launching Supervisor Service (Port 8000)..."
-$VENV_PY -m uvicorn app.services.supervisor.main:app --host 0.0.0.0 --port 8000 --log-config log_conf.yaml > supervisor.log 2>&1 &
-SUPERVISOR_PID=$!
-echo "   ✅ Supervisor running (PID: $SUPERVISOR_PID)"
-
-# 11. LAUNCH SERVER (Foreground)
-echo "   [$(date '+%H:%M:%S')] 🚀 Launching Gravitas Lobby (Port 5050)..."
+# 10. LAUNCH SERVER
+echo "   [$(date '+%H:%M:%S')] 🚀 Launching FastAPI Server..."
 echo "-----------------------------------------------------"
+
+# Final sanity check for port 5050
+if lsof -i :5050 > /dev/null 2>&1; then
+    echo "❌ FATAL: Cannot start Gravitas because Port 5050 is occupied."
+    echo "   Process using port 5050:"
+    lsof -i :5050
+    exit 1
+fi
 
 $VENV_PY -u -m uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload --reload-dir app --log-config log_conf.yaml

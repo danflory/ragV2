@@ -1,3 +1,0 @@
-START
-CONTAINER LOADED
-PATH: ['/home/dflory/dev_env/Gravitas/docs', '/home/dflory/dev_env/Gravitas/app']

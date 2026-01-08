@@ -1,6 +1,0 @@
-V12 START
-CONTAINER LOADED
-Scout walking /home/dflory/dev_env/Gravitas/docs
-Files: ['TEST_GUIDE.md', 'hardware_rig.md', 'gemini_3_model_guide.md', '001_core_architecture.md', 'STRATEGY_SESSION_2026_01_04.md', '003_security_gatekeeper.md', 'GOOGLE_ANTIGRAVITY_SPEC.md', 'HOWTO_DEV_REMINDERS.md', 'function_cycles.md', 'GRAVITAS_SESSION_CONTEXT.md', 'journals', 'archived', 'TEST_AUDIT.md', 'architecture', 'ROADMAP.md', 'developerNotes.md', '005_development_protocols.md', '004_hardware_operations.md', 'GRAVITAS_NOMENCLATURE.md', '002_vector_memory.md', 'model_integration.md', '000_MASTER_OVERVIEW.md', 'Initial Context Prompt.md']
-Found ROADMAP.md
-Read 5840 chars

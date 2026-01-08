@@ -81,3 +81,4 @@
 - [x] **Journal Rotation:** Implement dated journal snapshots. (Done: `docs/journals/`)
 - [x] **GravitasEngineer:** Standardize cross-platform dependency resolution (VENV Hardening).
 - [x] **GravitasEngineer:** Improve global exception handling for high-latency storage operations.
+- [ ] **Architecture:** Full code review to identify further opportunities for microservice decomposition.

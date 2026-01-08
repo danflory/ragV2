@@ -32,15 +32,21 @@ class Database:
             
             # Ensure table exists (Reflexive Schema)
             async with self.pool.acquire() as conn:
+                # 1. CHAT HISTORY TABLE
                 await conn.execute('''
                     CREATE TABLE IF NOT EXISTS history (
                         id SERIAL PRIMARY KEY,
                         role VARCHAR(50) NOT NULL,
                         content TEXT NOT NULL,
+                        ghost_id VARCHAR(100) DEFAULT 'unknown_ghost',
+                        shell_id VARCHAR(100) DEFAULT 'unknown_shell',
                         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     );
                 ''')
+                await conn.execute('ALTER TABLE history ADD COLUMN IF NOT EXISTS ghost_id VARCHAR(100) DEFAULT \'unknown_ghost\';')
+                await conn.execute('ALTER TABLE history ADD COLUMN IF NOT EXISTS shell_id VARCHAR(100) DEFAULT \'unknown_shell\';')
                 await conn.execute('CREATE INDEX IF NOT EXISTS idx_history_timestamp ON history(timestamp);')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_history_ghost ON history(ghost_id);')
                 
                 # 2. USAGE STATS TABLE
                 await conn.execute('''
@@ -69,6 +75,35 @@ class Database:
                     );
                 ''')
                 await conn.execute('CREATE INDEX IF NOT EXISTS idx_telemetry_timestamp ON system_telemetry(timestamp);')
+
+                # 4. AUDIT LOG TABLE (Phase 7 Security)
+                await conn.execute('''
+                    CREATE TABLE IF NOT EXISTS audit_log (
+                        id SERIAL PRIMARY KEY,
+                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        ghost_id VARCHAR(100) NOT NULL,
+                        shell_id VARCHAR(100),
+                        action VARCHAR(100) NOT NULL,
+                        resource VARCHAR(255) NOT NULL,
+                        result VARCHAR(20) NOT NULL,
+                        reason TEXT,
+                        metadata TEXT
+                    );
+                ''')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_audit_timestamp ON audit_log(timestamp);')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_audit_ghost ON audit_log(ghost_id);')
+
+                # 5. AGENT BADGES TABLE (Phase 7 Identity)
+                await conn.execute('''
+                    CREATE TABLE IF NOT EXISTS agent_badges (
+                        id SERIAL PRIMARY KEY,
+                        ghost_id VARCHAR(100) NOT NULL,
+                        badge_name VARCHAR(100) NOT NULL,
+                        granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(ghost_id, badge_name)
+                    );
+                ''')
+                await conn.execute('CREATE INDEX IF NOT EXISTS idx_badges_ghost ON agent_badges(ghost_id);')
                 
         except Exception as e:
             logger.error(f"❌ DATABASE CONNECTION FAILURE: {e}")

@@ -11,6 +11,7 @@ click>=8.1.0
 httpx==0.28.1
 requests>=2.31.0
 python-multipart>=0.0.9
+openai>=1.12.0
 
 # --- LLM DRIVERS ---
 # Google Gemini (L3)
@@ -20,6 +21,7 @@ google-auth>=2.20.0
 
 # Ollama (L1)
 ollama==0.6.1
+anthropic>=0.18.0
 
 # --- MEMORY & AI (THE FIX) ---
 # CRITICAL: Force Numpy 1.x to prevent "RuntimeError" or "__version__" crashes
@@ -51,3 +53,4 @@ black>=24.2.0
 coloredlogs>=15.0.0
 # --- UTILITIES ---
 gputil==1.4.0
+pyjwt==2.10.1

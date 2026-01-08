@@ -73,7 +73,8 @@ class ShellRegistry:
                 ModelCapability.RAG,
                 ModelCapability.SUMMARIZATION
             ],
-            specialty=None
+            specialty=None,
+            provider="ollama"
         ),
         "llama3:70b": ModelSpec(
             name="llama3:70b",
@@ -87,7 +88,8 @@ class ShellRegistry:
                 ModelCapability.ANALYSIS,
                 ModelCapability.COMPLEX_TASKS
             ],
-            specialty=None
+            specialty=None,
+            provider="ollama"
         ),
         "qwen2.5-coder:32b": ModelSpec(
             name="qwen2.5-coder:32b",
@@ -101,7 +103,8 @@ class ShellRegistry:
                 ModelCapability.DEBUGGING,
                 ModelCapability.REFACTORING
             ],
-            specialty="coding"
+            specialty="coding",
+            provider="ollama"
         )
     }
     
@@ -151,6 +154,16 @@ class ShellRegistry:
             ],
             specialty="speed",
             provider="google"
+        ),
+        "claude-3-5-sonnet": ModelSpec(
+            name="claude-3-5-sonnet",
+            tier=ModelTier.L3,
+            cost_per_1k_tokens=0.015,
+            context_window=200000,
+            avg_latency_ms=1500,
+            capabilities=[ModelCapability.ADVANCED_REASONING, ModelCapability.CODE],
+            specialty="extended_thinking",
+            provider="anthropic"
         )
     }
     

@@ -24,11 +24,6 @@ services:
       - POSTGRES_DB=${DB_NAME:-chat_history}
     ports:
       - "8001:8000" # Maps port 8000 inside to 8001 outside (just in case)
-    depends_on:
-      - Gravitas_postgres
-      - qdrant
-      - ollama
-      - ollama_embed
     networks:
       - Gravitas_net
     restart: unless-stopped
@@ -126,7 +121,7 @@ services:
   # --- API: GRAVITAS LOBBY (PUBLIC ENTRY POINT) ---
   gravitas_lobby:
     build: .
-    container_name: Gravitas_lobby
+    container_name: Gravitas_lobby_v2
     # Optional: If you run the main app via uvicorn
     command: uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload
     volumes:
@@ -138,10 +133,6 @@ services:
       - DB_HOST=Gravitas_postgres
       - L1_URL=http://gravitas_supervisor:8000
       - L1_EMBED_URL=http://Gravitas_ollama_embed:11434
-    depends_on:
-      - Gravitas_postgres
-      - qdrant
-      - gravitas_supervisor
     networks:
       - Gravitas_net
     deploy:
@@ -152,6 +143,62 @@ services:
               count: all
               capabilities: [ gpu ]
 
+  gravitas_gatekeeper:
+    build:
+      context: .
+      dockerfile: Dockerfile.gatekeeper
+    container_name: gravitas_gatekeeper
+    ports:
+      - "8002:8001"
+    environment:
+      - DATABASE_URL=postgresql://Gravitas_user:Gravitas_pass@Gravitas_postgres:5432/chat_history
+      - DB_HOST=Gravitas_postgres
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-jwt-secret-key-change-me}
+      - ACCESS_POLICY_PATH=app/config/access_policies.yaml
+    depends_on:
+      - Gravitas_postgres
+    networks:
+      - Gravitas_net
+
+  gravitas_guardian:
+    build:
+      context: .
+      dockerfile: Dockerfile.guardian
+    container_name: gravitas_guardian
+    command: uvicorn app.services.guardian.main:app --host 0.0.0.0 --port 8003
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./app/.certificates:/app/app/.certificates:ro # Read-only certificate mount
+    environment:
+      - CERTIFICATES_DIR=/app/app/.certificates
+    networks:
+      - Gravitas_net
+    restart: unless-stopped
+
+  gravitas_router:
+    build:
+      context: .
+      dockerfile: Dockerfile.router
+    container_name: gravitas_router
+    ports:
+      - "8005:8004"
+    environment:
+      - OLLAMA_URL=http://Gravitas_ollama:11434/v1/chat/completions
+      - GATEKEEPER_URL=http://gravitas_gatekeeper:8001
+      - GUARDIAN_URL=http://gravitas_guardian:8003
+      - AUTH_DISABLED=true
+      # Add provider keys if needed, e.g. GEMINI_API_KEY from .env
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DEEPINFRA_API_KEY=${DEEPINFRA_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    depends_on:
+      - gravitas_gatekeeper
+      - gravitas_guardian
+    networks:
+      - Gravitas_net
+    restart: unless-stopped
+
   gravitas_supervisor:
     build: .
     container_name: gravitas_supervisor
@@ -160,8 +207,10 @@ services:
       - "8000:8000"
     environment:
       - OLLAMA_URL=http://Gravitas_ollama:11434/v1/chat/completions
+      - GUARDIAN_URL=http://gravitas_guardian:8003
+      - GATEKEEPER_URL=http://gravitas_gatekeeper:8001
     depends_on:
-      - ollama
+      - gravitas_guardian
     networks:
       - Gravitas_net
     restart: unless-stopped

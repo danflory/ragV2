@@ -16,6 +16,9 @@ from app.wrappers.gemini_wrapper import GeminiWrapper
 from app.wrappers.claude_wrapper import ClaudeThinkingWrapper
 from app.wrappers.deepinfra_wrapper import DeepInfraWrapper
 from app.wrappers.ollama_wrapper import OllamaWrapper
+from app.services.security.policy_engine import policy_engine
+from app.services.security.audit_log import audit_logger, AuditEvent
+from app.services.security.deps import get_current_user
 
 logger = logging.getLogger("Gravitas_SUPERVISOR_ROUTER")
 
@@ -64,11 +67,27 @@ class SupervisorEngine:
         """
         Returns the appropriate certified wrapper for the given shell.
         """
+        from urllib.parse import urlparse, urlunparse
+        
         ollama_base_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
-        # Strip '/v1/chat/completions' if present, as Wrapper adds its own paths
-        if "/v1" in ollama_base_url:
-            ollama_base_url = ollama_base_url.split("/v1")[0]
+        # Robustly strip path to get base URL
+        parsed = urlparse(ollama_base_url)
+        ollama_base_url = urlunparse((parsed.scheme, parsed.netloc, '', '', '', ''))
 
+        # Strategy 1: Provider-based routing (Preferred)
+        shell_spec = ShellRegistry.get_model(shell_name)
+        if shell_spec and shell_spec.provider:
+            provider = shell_spec.provider.lower()
+            if provider == "ollama":
+                return OllamaWrapper(session_id=session_id, model_name=shell_name, ollama_url=ollama_base_url)
+            elif provider == "google":
+                return GeminiWrapper(session_id=session_id)
+            elif provider == "anthropic":
+                return ClaudeThinkingWrapper(session_id=session_id)
+            elif provider == "deepinfra":
+                return DeepInfraWrapper(session_id=session_id, model_name=shell_name)
+
+        # Strategy 2: Fallback to Tier + String Matching for unregistered models
         if tier == ModelTier.L1:
             return OllamaWrapper(session_id=session_id, model_name=shell_name, ollama_url=ollama_base_url)
         elif "gemini" in shell_name.lower():
@@ -80,7 +99,7 @@ class SupervisorEngine:
         
         raise ValueError(f"No wrapper found for {shell_name} at tier {tier}")
 
-    async def process_chat(self, request: ChatCompletionRequest):
+    async def process_chat(self, request: ChatCompletionRequest, user_payload: Dict[str, Any]):
         """
         The main processing flow.
         """
@@ -90,15 +109,33 @@ class SupervisorEngine:
         target_tier = self.determine_routing(request)
         
         # 2. Identity Resolution
-        # If 'model' is a Ghost name, resolve preferred shell
-        ghost = GhostRegistry.get_ghost(request.model)
-        if ghost:
-            ghost_name = ghost.name
-            shell_name = ghost.preferred_shell
+        # Trust the token subject as the Ghost Identity.
+        # Fallbacks are only for AUTH_DISABLED mode (handled by get_current_user).
+        ghost_name = user_payload.get("sub", "Supervisor_Managed_Agent")
+        
+        # 'request.model' specifies the TARGET execution shell (e.g. "gemma2:27b")
+        # However, if the user requested a Ghost Name as the model (e.g. "Librarian"),
+        # we resolve that to their preferred shell.
+        
+        target_ghost = GhostRegistry.get_ghost(request.model)
+        if target_ghost:
+            # User asked for "Librarian" -> resolve to "llama3:70b"
+            shell_name = target_ghost.preferred_shell
         else:
-            # Assume 'model' is a Shell name, use a default Ghost identity
-            ghost_name = "Supervisor_Managed_Agent"
+            # User asked for "gemma2:27b" -> use as is
             shell_name = request.model
+
+        # 2.5 Security Check (Phase 7)
+        if not policy_engine.check_permission(ghost_name, "execute", shell_name):
+            await audit_logger.log_event(AuditEvent(
+                ghost_id=ghost_name,
+                shell_id=shell_name,
+                action="execute",
+                resource=shell_name,
+                result="DENIED",
+                reason="Insufficient permissions for this shell"
+            ))
+            raise HTTPException(status_code=403, detail=f"Ghost '{ghost_name}' is not authorized to execute shell '{shell_name}'")
 
         # 3. Wrapper Initialization
         try:
@@ -118,6 +155,15 @@ class SupervisorEngine:
             # We wrap the internal execution to match our spec's task format
             task = {"prompt": request.messages[-1]["content"], "messages": request.messages}
             result = await wrapper.execute_task(task)
+            
+            # Audit success
+            await audit_logger.log_event(AuditEvent(
+                ghost_id=ghost_name,
+                shell_id=shell_name,
+                action="execute",
+                resource=shell_name,
+                result="SUCCESS"
+            ))
             
             # Format to OpenAI response
             return {
@@ -153,14 +199,7 @@ router = APIRouter()
 engine = SupervisorEngine()
 
 @router.post("/v1/chat/completions")
-async def chat_completions(request: ChatCompletionRequest):
-    return await engine.process_chat(request)
+async def chat_completions(request: ChatCompletionRequest, user: Dict = Depends(get_current_user)):
+    return await engine.process_chat(request, user)
 
-@router.get("/health")
-async def health():
-    return {
-        "status": "healthy",
-        "queue_size": engine.queue.qsize(),
-        "active_workers": engine.active_workers,
-        "mode": "standalone"
-    }
+

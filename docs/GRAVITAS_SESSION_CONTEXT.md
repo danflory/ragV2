@@ -1,6 +1,6 @@
 
 # Gravitas Grounded Research - Session Context
-**Generated:** 2026-01-06 07:16:37
+**Generated:** 2026-01-06 22:21:48
 **System:** Titan RTX (Local) + DeepInfra (Cloud)
 **App State:** Docker Microservices
 
@@ -59,161 +59,88 @@ The system runs in a multi-container environment with dedicated services:
 ## STRATEGIC ROADMAP
 
 # GRAVITAS GROUNDED RESEARCH - STRATEGIC ROADMAP
+> **Vision**: Transform from a single-user RAG system into a secure, multi-agent "Knowledge Factory" (The Agentic Enterprise).
 
-## CURRENT STATE: v5.0.0 (DYNAMIC GOVERNANCE)
-The core infrastructure is stable. Phase 5 (Model Governance) is complete, providing a standalone supervisor service, agent registry, and priority-aware routing. Phase 6 (Reasoning Pipes) is currently in early implementation.
-
----
-
-## PHASE COMPLETION CRITERIA
-
-**A phase is NOT considered complete until ALL of the following requirements are met:**
-
-### 1. Documentation Requirements
-- [x] All relevant `docs/00x_*.md` specifications updated
-- [x] Specification version numbers incremented
-- [x] `ROADMAP.md` updated with phase details
-- [x] Phase completion summary document created
-
-### 2. Test Suite Requirements
-- [x] Specification test files created (`test_spec_00X_*.py`)
-- [x] Integration test files created for new features
-- [x] All unit tests passing locally
-- [x] Test runner executes successfully (`python tests/run_spec_tests.py`)
-
-### 3. Docker Integration Requirements
-- [x] All Docker containers configured in `docker-compose.yml`
-- [x] Integration tests pass inside Docker environment
-- [x] **Full reset test passes:** `bash scripts/reset_gravitas.sh` followed by tests
-- [x] Service health checks confirm all containers running
-- [x] Database persistence verified
-
-### 4. Production Readiness
-- [x] No failing tests in test suite
-- [x] No Docker container failures
-- [x] Performance benchmarks met
-- [x] Documentation complete and accurate
+## CURRENT STATUS (v7.0.0 - THE SECURITY TIER)
+- **Active Phase:** Phase 8 (The Acquisition Tier) - *Planning*
+- **Next Up:** Phase 8 (Scout Engine Upgrade & Data Miners)
+- **History:** Completed Phases 1-5 are archived in `docs/archived/COMPLETED_PHASES_1-5.md`.
 
 ---
 
-## COMPLETED PHASES
-
-### PHASE 1: THE FOUNDATION (QDRANT & MINIO)
-- [x] **Hybrid Storage:** Split vectors (Qdrant) from blobs (MinIO) for hardware efficiency.
-- [x] **Verification:** Full ingestion and search pipeline verified in `tests/`.
-
-### PHASE 2: PERSISTENCE & TELEMETRY
-- [x] **Infrastructure:** Provisioned `Gravitas_postgres` for chat history and metrics.
-- [x] **Telemetry:** Implemented `app/telemetry.py` for VRAM tracking and system events.
-
-### PHASE 3: THE GRAVITAS EVOLUTION (REBRANDING)
-- [x] **Consistency:** Global rename of all legacy terms to **Gravitas**.
-- [x] **Automation:** Hooked session context generation into the system startup.
-- [x] **Protocols:** Established `docs/GRAVITAS_NOMENCLATURE.md` and `docs/005_development_protocols.md`.
-
-### PHASE 4: COMMAND & CONTROL (THE NEXUS DASHBOARD)
-- [x] **Master Control Dashboard:** Unified Web UI for service management, model pulling, and system resets.
-- [x] **Real-time Metrics:** Integrated VRAM and Docker health metrics via SSE.
-- [x] **Health API:** Implemented `/health` endpoints for all containers.
-
-### PHASE 4.5: GRANULAR TELEMETRY CALIBRATION (THE SENSORS)
-- [x] **Sensor Implementation:** Upgraded `app/telemetry.py` for Load and Thought latency tracking.
-- [x] **Weighted Aggregation:** Refactored logging to measure Work Units (Tokens) and Efficiency Scores.
-- [x] **Retention Policy:** Established a 60-day historic window in Postgres.
-- [x] **Footprint Monitor:** Added dashboard widget for telemetry disk usage.
-- [x] **Auto-Pruning:** Implemented the 60-day pruning mechanism.
-
-**Verification (2026-01-05):**
-- [x] **Documentation:** `006_TELEMETRY_CALIBRATION.md` created
-- [x] **Integration:** `test_docker_telemetry_integration.py` - **3/3 PASSED**
-- [x] **Efficiency:** 15.01 ms/token performance verified.
-
-### PHASE 5: DYNAMIC MODEL GOVERNANCE (THE SUPERVISOR)
-- [x] **Standalone Supervisor:** Built `gravitas_supervisor` Docker proxy service for L1/L2/L3 tiers.
-- [x] **Agent Registry:** Defined agent capabilities, costs, and performance metrics in code.
-- [x] **L1 Orbit Logic:** Implemented Request Queuing, Model Locking, and Context Persistence.
-- [x] **Priority Yield:** Added "Mr. Big Guy" logic for high-priority task preemption.
-- [x] **Data-Driven Dispatcher:** Heuristic routing based on complexity and Phase 4.5 telemetry.
-- [x] **Shadow-Audit Loop:** passive self-correction mechanism logging dispatch decisions.
-
-**Verification (2026-01-05):**
-- [x] **Documentation:** `007_model_governance.md` created (v5.0.0)
-- [x] **Integration:** `test_phase5_model_governance.py` - **6/6 PASSED**
-- [x] **Core Services:** RequestQueue, ModelLock, DispatcherRouter, AgentRegistry, ShadowAudit operational.
-
-## ACTIVE PHASE (COMPLETED)
+## ACTIVE PHASES
 
 ### PHASE 6: SELF-LEARNING DATA (REASONING PIPES)
 **Target**: Enable wrapper-certified reasoning capture for L1, L2, and L3 models.
+- [x] **Core Infrastructure:** ReasoningPipe Library, Supervisor Guardian, Markdown Protocol.
+- [x] **Certification System:** Wrapper Certifier, Certificate Issuance, Compliance Auditor.
+- [x] **Agent Wrappers:** L3 Frontier (Gemini/Claude), L2 Specialized, L1 Local.
+- [x] **Validation:** Spec tests, Certification workflow, Performance audit.
+- [x] **Operationalization:** Standalone Supervisor Service (Port 8000) implemented.
+- [x] **Verification:** All tests passed (Unit/Spec/E2E).
 
-**Architecture: Wrapper Certification Model**
-- Supervisor validates agent code (not data).
-- Agents are responsible for parsing and pipe writing.
-- **Benefits**: Scalability, lower latency, distributed parsing.
-
-#### 1. Core Infrastructure
-- [x] **ReasoningPipe Library**: Implement `app/lib/reasoning_pipe.py` (log_thought, log_action, finalize).
-- [x] **Supervisor Guardian**: Implement `app/services/supervisor/guardian.py` for runtime enforcement.
-- [x] **Markdown Protocol**: Standardized `ReasoningPipe_{agent}_{session}.md` format.
-
-#### 2. Certification System
-- [x] **Wrapper Certifier**: Static analysis and dynamic validation of agent wrappers.
-- [x] **Certificate Issuance**: SHA-256 signed certs with 30-day validity.
-- [x] **Compliance Auditor**: Monthly quality scoring and re-certification triggers.
-
-#### 3. Agent Wrapper Implementations
-- [x] **L3 Frontier**: Gemini 2.0 Flash Thinking & Claude 4.5 Sonnet Thinking.
-- [x] **L2 Specialized**: DeepInfra (Qwen2.5-Coder).
-- [x] **L1 Local**: Ollama base wrapper (codellama, llama3, etc.).
-
-#### 4. Testing & Validation
-- [x] **Specification Tests**: 100% coverage for `reasoning_pipe.py` and Guardian.
-- [x] **Certification Workflow**: End-to-end test of the certification process.
-- [x] **Performance Audit**: Ensure < 5% overhead from reasoning capture.
-
-#### 5. Documentation
-- [x] **Wrapper Guide**: `docs/WRAPPER_DEVELOPMENT_GUIDE.md` created.
-- [x] **Governance**: `docs/007_model_governance.md` updated with certification routing.
-
-**Verification Checklist:**
-- [x] All 4 initial wrappers certified (`python certifier.py --list`).
-- [x] Integration tests pass in Docker environment.
-- [x] Reasoning documentation updated to v6.0.0.
+### PHASE 6.5: THE CONCEPTUAL SHIFT (Codebase Alignment) - ✅ CORE COMPLETE
+**Objective:** Align backend architecture (Registry, DB, Infrastructure) with the Gravitas Meta-Model.
+- [x] **Ghost Registry:** Create `app/services/registry/ghost_registry.py` to map Identities to Shells.
+- [x] **Shell Registry:** Rename `agent_registry.py` to `shell_registry.py` and strictly catalog Models.
+- [x] **Backward Compatibility:** Create `agent_registry.py` facade with deprecation warnings.
+- [x] **DB Alignment:** Update Postgres `history` table with `ghost_id` and `shell_id` columns (98 records backfilled).
+- [x] **Infrastructure:** Create `app/services/supervisor/main.py` (The Intelligent Gateway).
+- [x] **Refactor:** Move orphaned `scripts/` into Agent Tool definitions. ✅ (2026-01-06)
+- [x] **Refactor:** Decommission legacy routing logic in `app/router.py`. ✅ (2026-01-06)
 
 ---
 
-## UPCOMING PHASES
+## STRATEGIC HORIZON (THE AGENTIC ENTERPRISE)
 
-### PHASE 7: THEOLOGY ENGINE (KNOWLEDGE GRAPH)
-- [ ] **Infrastructure:** Deploy **Neo4j** (Graph DB) alongside Qdrant (Vector DB).
-- [ ] **The Librarian:** Implement the `GravitasLibrarian` agent responsible for knowledge ingestion and retrieval.
-- [ ] **Entity Extraction Pipeline:** Build the "Ingestion Engine" to parse books, extract theological concepts, and link them (Graph-ETL).
-- [ ] **GraphRAG:** Implement Graph-Augmented Retrieval to answer complex, multi-hop theological queries.
-- [ ] **Orchestration:** Update Supervisor to route "Knowledge Queries" to the Librarian.
+### PHASE 7: THE SECURITY TIER (GATEWAY TO ENTERPRISE) - ✅ COMPLETE
+*Infrastructure hardening before scaling.*
+- [x] **7.1 The Security Officer:** Implement Access Control Policy engine (`access_groups`).
+- [x] **7.2 The Security Cop:** Implement Runtime enforcement and audit logs.
+- [x] **7.3 Identity Management:** JWT-based Auth and "Badge" System for Agents.
+- [x] **7.4 Supervisor Hardening (Code Review Debt):**
+  - [x] Replace `"created": 0` with actual timestamp in `router.py:125`.
+  - [x] Use `urllib.parse` for OLLAMA_URL manipulation.
+  - [x] Replace string matching (`"gemini" in`) with `ModelSpec.provider` lookup.
 
-### PHASE 8: THE AGENTIC ENTERPRISE (SPECIALIZATION)
-- [ ] **Agent Registry 2.0:** Formalize "Job Descriptions" for all agents (Librarian, Scout, Theologian, Engineer).
-- [ ] **Cloud Bursting:** Implement Supervisor logic to overflow heavy reasoning tasks to L3 Cloud Agents (e.g., DeepInfra/Gemini).
-- [ ] **The Scout:** Implement `GravitasScout` for live web probing and external research.
-- [ ] **Iterative Reasoning:** Formalize "Scout-to-Theologian" feedback loops for deep research tasks.
+### PHASE 8: THE ACQUISITION TIER (THE HORSES)
+*Equipping the Scout with real power.*
+- [ ] **8.1 Scout Engine Upgrade:** Migrate Scout to `gemini-2.0-flash`.
+- [ ] **8.2 The Crawler:** Implement `GravitasCrawler` (Headless Browser).
+- [ ] **8.3 The Transcriber:** Implement `GravitasMiner` with `yt-dlp` + Whisper.
+- [ ] **8.4 The OCR Specialist:** Implement Tesseract pipeline for PDF ingestion.
 
-### PHASE 9: GRAVITAS AGENTIC INFRASTRUCTURE
-- [ ] **Mirroring Protocols:** Standardized `.gravitas_agent` directory structures.
-- [ ] **Recon Protocol:** Generalized startup sequence for all agents to sync with project state.
-- [ ] **Verification:** Dockerized execution of standardized agent startup.
+### PHASE 9: THE REFINEMENT TIER (THE TWO HEMISPHERES)
+*Building the Theology Engine.*
+- [ ] **9.1 Neo4j Integration:** Deploy Graph DB container alongside Qdrant.
+- [ ] **9.2 Dual-Write Protocol:** Update Librarian to write to R-Brain (Vectors) and L-Brain (Graph).
+- [ ] **9.3 Graph RAG:** Implement multi-hop retrieval logic.
 
-### PHASE 10: INTELLIGENCE AUDIT & BENCHMARKING
-- [ ] **Bi-Weekly Pulse:** Automated sweep of Ollama/DeepInfra/Google for new releases.
-- [ ] **Independent Benchmarking:** Project-specific RAG/Coding performance scoring.
-- [ ] **Automation:** Automated promotion/demotion logic based on scores.
+### PHASE 10: THE WRITERS GUILD (THE ARTISTS)
+*Specialized Output Engines.*
+- [ ] **10.1 The Persona Engine:** Framework for defining Agent Personality (Tone, Vocabulary).
+- [ ] **10.2 The Tech Writer:** Implement the "Private Room Interface" agent.
+- [ ] **10.3 The Author:** Implement Long-Context book writing pipeline.
+
+### PHASE 11: THE OFFICE (USER EXPERIENCE)
+*The "VSCode for Knowledge" UI.*
+- [ ] **11.1 The Lobby:** Public-facing dashboard with "Chat Twins" (Simulation Mode).
+- [ ] **11.2 The Workbench:** "Dark Mode" IDE interface (Monaco Editor Integration).
+- [ ] **11.3 The Vaults:** Multi-tenant storage logic (User ID separation).
+
+### PHASE 12: THE AGENTIC MARKETPLACE
+*Scaling the workforce.*
+- [ ] **12.1 Agent Registry 2.0:** Dynamic loading of Agent Profiles from YAML.
+- [ ] **12.2 Brain Swapping:** Hot-swap logic for upgrading Agent Models.
+- [ ] **12.3 The "Cooler":** Intra-agent messaging bus for social simulation.
 
 ---
 
 ## BACKLOG / TECH DEBT
-- [ ] **Secret Hygiene:** Scan codebase for hardcoded keys.
+- [x] **SecurityCop:** Scan codebase for hardcoded keys (Secret Hygiene).
 - [x] **Journal Rotation:** Implement dated journal snapshots. (Done: `docs/journals/`)
-- [ ] **VENV Hardening:** Standardize cross-platform dependency resolution.
-- [ ] **Error Boundary:** Improve global exception handling for high-latency storage operations.
+- [x] **GravitasEngineer:** Standardize cross-platform dependency resolution (VENV Hardening).
+- [x] **GravitasEngineer:** Improve global exception handling for high-latency storage operations.
 
 
 ---
@@ -225,6 +152,7 @@ Gravitas/
     rag_memory.db
     gravitas_mcp_config.json
     READ_ME_GRAVITAS_MASTER_MANUAL.md
+    pyproject.toml
     docker-compose.yml
     requirements.txt
     .env
@@ -232,6 +160,7 @@ Gravitas/
     PHASE_6_IMPLEMENTATION_SUMMARY.md
     .dockerignore
     Dockerfile
+    supervisor.log
     PHASE_7_TODO.md
     log_conf.yaml
     debug_rag_retrieval.py
@@ -241,6 +170,7 @@ Gravitas/
             switch_brain.py
         docs/
             TEST_GUIDE.md
+            TEST_AUDIT_SUMMARY.md
             PHASE_4_5_FINAL_VALIDATION_REPORT.md
             PHASE_5_IMPLEMENTATION_REVIEW.md
             hardware_rig.md
@@ -252,8 +182,10 @@ Gravitas/
             001_core_architecture.md
             STRATEGY_SESSION_2026_01_04.md
             RESET_SCRIPT_UPDATE.md
+            009_access_control.md
             ROADMAP_COMPLETION_CRITERIA_UPDATE.md
             003_security_gatekeeper.md
+            TEST_AUDIT_PHASE6.md
             GOOGLE_ANTIGRAVITY_SPEC.md
             HOWTO_DEV_REMINDERS.md
             SESSION_COMPLETE_SUMMARY.md
@@ -270,16 +202,30 @@ Gravitas/
             developerNotes.md
             005_development_protocols.md
             004_hardware_operations.md
+            TESTING_GUIDE.md
             GRAVITAS_NOMENCLATURE.md
             TELEMETRY_INTEGRATION_TEST_RESULTS.md
             002_vector_memory.md
+            TEST_AUDIT_PHASE6_FINAL.md
             FAQ.md
+            TODO7.md
             model_integration.md
             000_MASTER_OVERVIEW.md
             Phase_6_Value.md
             Initial Context Prompt.md
             007_model_governance.md
             RAG_REFUSAL_RESOLUTION.md
+            Phase_6_TODO/
+                todo6.0Debt.md
+            handovers/
+                2026-01-06_Conceptual_Review_Request.md
+                2026-01-06_Phase_6.5_Complete.md
+                2026-01-06_Conceptual_Review_Response.md
+            Phase_6.5_TODO/
+                EXECUTION_SUMMARY.md
+                README.md
+                PROGRESS.md
+                QUICK_REFERENCE.md
             Phase_6TODO/
                 Priority_2_Wrappers.md
                 Task_5_2_Update_Existing_Specs.md
@@ -302,6 +248,9 @@ Gravitas/
                 Task_3_1_Wrapper_Certifier.md
                 Priority_5_Documentation.md
             journals/
+                Ollama_codellama_7b_dd97fe22-9e96-4aaf-a964-44548291c737.md
+                Ollama_codellama_7b_journal.md
+                Ollama_codellama_7b_bd7d8c0f-1714-4348-b3f7-ed7dcd19f76e.md
                 ReasoningPipe_Ollama_model-for-testing_test_session_20260105_232045.md
                 ReasoningPipe_Ollama_model-for-testing_test_session_20260105_232510.md
                 ReasoningPipe_MockAgent_test_session_20260105_231220.md
@@ -309,16 +258,21 @@ Gravitas/
                 ReasoningPipe_Claude_Thinking_test_session_123.md
                 PHASE_5_STRATEGIC_ASSESSMENT.md
                 ReasoningPipe_Claude_Thinking_test_session_20260105_232117.md
+                Ollama_codellama_7b_be1a7e14-a835-4761-a446-369adc96b2a3.md
                 ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_231947.md
                 ReasoningPipe_Gemini_Thinking_test_session_20260105_232044.md
+                Ollama_codellama_7b_3c12a719-d91d-4c30-ad95-7b7617e42a8c.md
                 ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_deepinfra_789.md
                 ReasoningPipe_Ollama_codellama_7b_test_ollama_456.md
                 2026-01-04_executive.md
                 ReasoningPipe_Gemini_Thinking_test_session_20260105_232016.md
                 ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232046.md
+                ValidAgent_test_session_20260106_204312.md
+                ValidAgent_journal.md
                 ReasoningPipe_Claude_Thinking.md
                 ReasoningPipe_ValidAgent_test_session_20260105_232505.md
                 ReasoningPipe_Claude_Thinking_test_session_20260105_232045.md
+                Ollama_codellama_7b_e1a0e848-85b0-4492-85ba-b55507ae5c3f.md
                 ReasoningPipe_ValidAgent.md
                 ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232117.md
                 current_session.md
@@ -326,7 +280,9 @@ Gravitas/
                 2026-01-05_thoughts.md
                 ReasoningPipe_Claude_Thinking_test_session_20260105_231946.md
                 2026-01-05_executive.md
+                Ollama_codellama_7b_d17edc15-7b51-4484-8620-45dc2d1b5535.md
                 ReasoningPipe_DeepInfra_Qwen2.5-Coder.md
+                Ollama_codellama_7b_a8206e0b-6e45-47aa-831b-224875b0b6f3.md
                 ReasoningPipe_Gemini_Thinking_test_session_20260105_232510.md
                 ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232017.md
                 ReasoningPipe_MockAgent.md
@@ -334,13 +290,25 @@ Gravitas/
                 ReasoningPipe_Gemini_Thinking_test_session_20260105_232117.md
                 ReasoningPipe_Ollama_model-for-testing_test_session_20260105_232117.md
                 ReasoningPipe_Gemini_Thinking.md
+                Ollama_codellama_7b_3f2d0e28-2d24-44e7-bf42-45da42148175.md
                 ReasoningPipe_DeepInfra_Qwen2.5-Coder_test_session_20260105_232511.md
                 ReasoningPipe_Claude_Thinking_test_session_20260105_232016.md
+                Ollama_codellama_7b_98088501-5df0-49e6-9479-69d3adf84e1b.md
                 ReasoningPipe_Ollama_model-for-testing.md
+                Ollama_codellama_7b_b0db77d6-3526-4225-8afa-d770f2a0e4a1.md
                 2026-01-04_thoughts.md
             archived/
+                COMPLETED_PHASES_1-5.md
                 todo9.md
                 completed_phase9.md
+                ROADMAP_ENTERPRISE_draft.md
+            concepts/
+                002_intuition_and_logic.md
+                006_the_user_experience.md
+                005_infrastructure_and_vaults.md
+                001_enterprise_agent_taxonomy.md
+                004_identity_and_engine.md
+                003_cognitive_tiers.md
             architecture/
                 thinking_transparency.md
         gravitas_supervisor/
@@ -363,7 +331,7 @@ Gravitas/
             02-dev-workflow.md
             00-identity-and-hardware.md
         app/
-            config.py
+            __init__.py
             mcp_server.py
             interfaces.py
             main.py
@@ -381,6 +349,38 @@ Gravitas/
             reflex.py
             container.py
             memory.py
+            tools/
+                __init__.py
+                engineer/
+                    __init__.py
+                    log_entry.py
+                    inventory.sh
+                    debug_import.py
+                    global_rename.py
+                    reset_gravitas.sh
+                    mcp_entrypoint.sh
+                    audit_gravitas.sh
+                    monitor.sh
+                    debug_network.py
+                    manager.py
+                librarian/
+                    __init__.py
+                    generate_context.py
+                    load_knowledge.py
+                    manual_ingest.py
+                    ingestor.py
+                    sync_external_context.py
+                    init_db.sql
+                    migrations/
+                        001_add_identity_columns.sql
+                accountant/
+                    __init__.py
+                    usage_stats.py
+                supervisor/
+                    __init__.py
+                    model_inventory.py
+                    warmup.py
+                    check_models.py
             lib/
                 __init__.py
                 reasoning_pipe.py
@@ -402,24 +402,41 @@ Gravitas/
                 Claude_Thinking.json
                 Ollama_codellama_7b.json
                 MockAgent.json
+                Supervisor_Managed_Agent.json
             governance/
                 inspector.py
                 global_renamer.py
                 accountant.py
+            config/
+                __init__.py
+                access_policies.yaml
             services/
+                __init__.py
                 audit/
                     shadow_audit.py
                 scheduler/
                     lock.py
                     queue.py
                 registry/
+                    __init__.py
+                    ghost_registry.py
                     agent_registry.py
+                    shell_registry.py
                 dispatcher/
                     router.py
+                security/
+                    __init__.py
+                    badges.py
+                    deps.py
+                    policy_engine.py
+                    auth.py
+                    audit_log.py
                 supervisor/
                     __init__.py
                     auditor.py
+                    main.py
                     guardian.py
+                    router.py
                     certifier.py
             utils/
                 repo_walker.py
@@ -492,11 +509,22 @@ Gravitas/
                 test_base_wrapper.py
                 test_gemini_wrapper.py
                 test_reasoning_pipe.py
+                test_supervisor_router.py
                 test_repo_walker.py
+                test_claude_wrapper.py
                 test_queue_basic.py
             integration/
                 test_reasoning_pipe_e2e.py
                 test_phase5_model_governance.py
+                test_phase7_security.py
+            scripts/
+                verify_repo_walker.py
+                verify_chat.py
+                test_minio.py
+                test_connections.py
+                verify_phase5.py
+                titan_stress.py
+                test_qwen3_connection.py
             manual/
                 test_deepinfra_wrapper_mock.py
                 test_ollama_wrapper_mock.py
@@ -508,72 +536,10 @@ Gravitas/
             maintenance.py
             reasoning_pipe.py
         scripts/
-            verify_repo_walker.py
             log_entry.py
             generate_context.py
-            verify_chat.py
-            load_knowledge.py
-            ingest.py
-            inventory.sh
-            manual_ingest.py
             warmup.py
-            debug_import.py
-            global_rename.py
-            list_all_models.py
             reset_gravitas.sh
-            manage.py
-            mcp_entrypoint.sh
-            stats.py
-            test_minio.py
-            test_connections.py
-            verify_phase5.py
-            audit_gravitas.sh
-            monitor.sh
-            check_models.py
-            debug_network.py
-            sync_external_context.py
-            init_db.sql
-            titan_stress.py
-            test_qwen3_connection.py
-            experimental/
-                test_ingest_v2.py
-                test_minimal.py
-                test_final_metal.py
-                test_memory_ingest.py
-                test_rag_v3.py
-                v12_log.txt
-                fix_memory.py
-                test_ingest.py
-                check_vram.py
-                test_ingest_v5.py
-                test_ingest_v11.py
-                test_ingestor.py
-                test_output_metal.log
-                test_rag.py
-                test_final.py
-                test_retrieval.py
-                ingest_v5_output.txt
-                test_ingest_v6.py
-                test_ingest_v4.py
-                test_ingest_v10.py
-                test_rag_v4.py
-                test_output.log
-                test_ingest_v8.py
-                test_ingest_v12.py
-                test_ingest_v9.py
-                test_ingest_v7.py
-                test_db.py
-                test_sentence_transformers.py
-                test_rag_diagnostics_results.txt
-                test_ingest_v3.py
-                test_rag_direct.py
-                final_ingest_log.txt
-                test_rag_query.py
-                test_sentence_transformers_v2.py
-                ingest_v8_output.txt
-                test_rag_results.txt
-                test_rag_v2.py
-                test_ollama.py
         .pytest_cache/
             .gitignore
             README.md
@@ -582,6 +548,7 @@ Gravitas/
                 cache/
                     lastfailed
                     nodeids
+                    stepwise
 ```
 
 ---
@@ -659,79 +626,7 @@ if os.path.exists(dashboard_path):
 ```
 
 ### File: `app/config.py`
-```python
-import os
-from pydantic_settings import BaseSettings
-
-class Settings(BaseSettings):
-    # === GLOBAL IDENTITY ===
-    USER_NAME: str = "Dan"
-    PORT: int = 5050
-    
-    # === LAYER 1 (Local - Titan RTX) ===
-    L1_URL: str = "http://Gravitas_ollama:11434"
-    L1_EMBED_URL: str = "http://Gravitas_ollama_embed:11434"
-    L1_MODEL: str = "codellama:7b"
-    VRAM_THRESHOLD_GB: float = 2.0
-
-    # === MODES (State Machine) ===
-    MODE_RAG: str = "rag"
-    MODE_DEV: str = "dev"
-    DEFAULT_MODE: str = "rag"
-    MODEL_MAP: dict[str, str] = {
-        "rag": "gemma2:27b",
-        "dev": "deepseek-coder-v2"
-    }
-    
-    # === LAYER 2 (Cloud - Reasoning/Coding) ===
-    L2_KEY: str | None = None
-    L2_URL: str = "https://api.deepinfra.com/v1/openai/chat/completions"
-    L2_MODEL: str = "Qwen/Qwen2.5-Coder-32B-Instruct"
-
-    # === LAYER 3 (Agents - Google Gemini 3) ===
-    L3_KEY: str | None = None
-    L3_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent"
-    L3_MODEL: str = "gemini-3-pro-preview"
-
-    # === MEMORY & STORAGE (Gravitas Grounded Research) ===
-    QDRANT_HOST: str = "Gravitas_qdrant"
-    QDRANT_PORT: int = 6333
-    
-    MINIO_ENDPOINT: str = "Gravitas_minio:9000"
-    MINIO_ACCESS_KEY: str = "minioadmin"
-    MINIO_SECRET_KEY: str = "minioadmin"
-    MINIO_BUCKET: str = "gravitas-blobs"
-    MINIO_SECURE: bool = False
-
-    # Deprecated (Chroma)
-    CHROMA_URL: str = "http://chroma_db:8000" 
-    CHROMA_COLLECTION: str = "Gravitas_knowledge"
-    DOCS_PATH: list[str] = [
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs"),
-        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app")
-    ]
-
-
-
-    # === DATABASE (Postgres) ===
-    DB_HOST: str = "Gravitas_postgres"
-    DB_PORT: int = 5432
-    DB_USER: str = "Gravitas_user"
-    DB_PASS: str = "Gravitas_pass"
-    DB_NAME: str = "chat_history"
-
-    # === GOVERNANCE (The Accountant) ===
-    REF_COST_INPUT_1K: float = 0.0025
-    REF_COST_OUTPUT_1K: float = 0.0100
-    GRAVITAS_COST_KWH: float = 0.15
-
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
-
-config = Settings()
-
-```
+*Not Found*
 
 ### File: `app/L1_local.py`
 ```python
@@ -1017,303 +912,40 @@ class DeepInfraDriver(LLMDriver):
 ```python
 import logging
 import re
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse
 import httpx
 from pydantic import BaseModel
 import asyncio
 import json
 import subprocess
+import os
 
 from .container import container
-from .reflex import execute_shell, write_file, execute_git_sync
 from .config import config
+from .database import db
 
-logger = logging.getLogger("Gravitas_ROUTER")
-
-class ChatRequest(BaseModel):
-    message: str
-
-class ModeRequest(BaseModel):
-    mode: str
-
-class ResearchRequest(BaseModel):
-    query: str
+logger = logging.getLogger("Gravitas_LEGACY_ROUTER")
 
 router = APIRouter()
 
-def parse_reflex_action(response_text: str):
-    """
-    Robustly scans response for XML-style reflex tags.
-    Supports both <reflex action="..."/> (self-closing) and 
-    <reflex action="...">content</reflex> formats.
-    """
-    # 1. Check for Shell Command
-    shell_match = re.search(r'<reflex action="shell">(.*?)</reflex>', response_text, re.DOTALL)
-    if shell_match:
-        return "shell", shell_match.group(1).strip()
-    
-    # 2. Check for File Write
-    write_match = re.search(r'<reflex action="write" path="(.*?)">(.*?)</reflex>', response_text, re.DOTALL)
-    if write_match:
-        path = write_match.group(1).strip()
-        content = write_match.group(2).strip()
-        return "write", (path, content)
-
-    # 3. Check for Git Sync (Supports both formats)
-    git_match_full = re.search(r'<reflex action="git_sync">(.*?)</reflex>', response_text, re.DOTALL)
-    if git_match_full:
-        return "git_sync", git_match_full.group(1).strip()
-    
-    if '<reflex action="git_sync"' in response_text:
-        return "git_sync", "Automated sync from system."
-
-    return None, None
-
-def strip_reflex_tags(text: str) -> str:
-    """
-    Removes all <reflex> tags from the response text to leave only the conversational chat.
-    """
-    # Remove full tags with content
-    text = re.sub(r'<reflex action=".*?">.*?</reflex>', '', text, flags=re.DOTALL)
-    # Remove self-closing tags
-    text = re.sub(r'<reflex action=".*?"\s*/>', '', text)
-    return text.strip()
+# --- DEPRECATION NOTICE ---
+# This router is being decommissioned in Phase 7.
+# All clients should migrate to the Supervisor on Port 8000.
 
 @router.post("/chat")
-async def chat_endpoint(request: ChatRequest):
-    logger.info(f"📨 USER: {request.message}")
-
-    # 1. FORCED ESCALATION CHECK
-    forced_escalate = request.message.strip().startswith("\\L2")
-    l1_response = ""
-
-    # --- SAVE USER MESSAGE TO HISTORY ---
-    from .database import db
-    if not forced_escalate:
-        await db.save_history("user", request.message)
-    
-    # 0. RETRIEVAL (RAG)
-    context_hint = ""
-    if container.memory:
-        try:
-            docs = await container.memory.search(request.message, top_k=3)
-            if docs:
-                context_hint = "--- KNOWLEDGE BASE ---\n" + "\n".join(docs) + "\n\n"
-                logger.info(f"🧠 RAG: Retrieved {len(docs)} chunks.")
-        except Exception as e:
-            logger.error(f"⚠️ RAG SEARCH FAILED: {e}")
-
-    # 1. LAYER 1: LOCAL GENERATION (The Reflex)
-    # Skip L1 if we are forcing escalation
-    if forced_escalate:
-        l1_response = "ESCALATE"
-    else:
-        l1_response = await container.l1_driver.generate(f"{context_hint}{request.message}")
-    
-    # 2. PARSE ACTION (Unified)
-    action_type, payload = parse_reflex_action(l1_response)
-    clean_l1_text = strip_reflex_tags(l1_response)
-    
-    # 3. INTERCEPT & EXECUTE
-    if action_type:
-        logger.info(f"⚡ ACTION DETECTED: {action_type}")
-        result_msg = ""
-        if action_type == "git_sync":
-            sync_result = await execute_git_sync(payload) 
-            result_msg = f"🤖 **Git Sync Triggered:**\n\n{sync_result}"
-        elif action_type == "shell":
-            result_msg = await execute_shell(payload)
-        elif action_type == "write":
-            path, content = payload
-            result_msg = await write_file(path, content)
-
-        final_msg = f"{clean_l1_text}\n\n{result_msg}".strip()
-        return {"response": final_msg, "layer": "L1"}
-
-    # 4. ESCALATION CHECK
-    # If L1 says ESCALATE, returns an error, or is too short, we go to L2
-    if "ESCALATE" in l1_response or "L1 Error" in l1_response or len(l1_response) < 2:
-        logger.info("🚀 ESCALATING TO L2 (with History)...")
-        
-        # --- CONTEXT BUILDING (History) ---
-        from .database import db
-        history_rows = await db.get_recent_history(limit=5)
-        history_block = ""
-        if history_rows:
-            history_block = "--- RECENT CONVERSATION HISTORY ---\n"
-            for h in history_rows:
-                history_block += f"{h['role'].upper()}: {h['content']}\n"
-            history_block += "---\n\n"
-
-        system_hint = (
-            "You are an Agentic AI with Full Situational Awareness. "
-            "Use the conversation history and knowledge base provided to give the best answer. "
-            "To run shell: <reflex action=\"shell\">command</reflex> "
-            "To write file: <reflex action=\"write\" path=\"filename\">content</reflex> "
-            "To save work: <reflex action=\"git_sync\">Commit Message</reflex>\n\n"
-        )
-        
-        # If forced, strip the trigger word from the prompt we send to L2
-        actual_msg = request.message
-        if forced_escalate:
-            actual_msg = actual_msg.replace("\\L2", "", 1).strip()
-
-        full_prompt = f"{system_hint}{history_block}{context_hint}User: {actual_msg}"
-        l2_response = await container.l2_driver.generate(full_prompt)
-        
-        # Parse potential L2 actions
-        l2_action, l2_payload = parse_reflex_action(l2_response)
-        clean_l2_text = strip_reflex_tags(l2_response)
-
-        if l2_action:
-             result_msg = ""
-             if l2_action == "git_sync":
-                 sync_result = await execute_git_sync(l2_payload)
-                 result_msg = sync_result
-             elif l2_action == "shell":
-                 result_msg = await execute_shell(l2_payload)
-             elif l2_action == "write":
-                 path, content = l2_payload
-                 result_msg = await write_file(path, content)
-            
-             final_msg = f"{clean_l2_text}\n\n{result_msg}".strip()
-             await db.save_history("ai", final_msg)
-             return {"response": final_msg, "layer": "L2"}
-        
-        await db.save_history("ai", l2_response)
-        return {"response": l2_response, "layer": "L2"}
-
-    await db.save_history("ai", l1_response)
-    return {"response": l1_response, "layer": "L1"}
-
-@router.post("/ingest")
-async def trigger_ingestion():
-    """
-    Manually triggers the Document Ingestor.
-    Purges existing memory first to ensure fresh data.
-    Restricted to RAG mode only.
-    """
-    if container.current_mode != config.MODE_RAG:
-        return {"status": "error", "message": "Ingestion is restricted to RAG mode."}
-
-    if not container.ingestor:
-        return {"status": "error", "message": "Ingestor not initialized (Vector Store missing?)"}
-    
-    try:
-        # 1. PURGE EXISTING DATA (Prevent staleness)
-        if container.memory:
-            logger.info("🧹 Purging old memory before re-scan...")
-            await container.memory.purge()
-
-        # 2. RUN INGESTION
-        summary = await container.ingestor.ingest_all()
-        
-        if summary["status"] == "success":
-            msg = f"Knowledge memory purged and re-ingested. Processed {summary['files_processed']} files ({summary['chunks_ingested']} chunks)."
-            return {"status": "success", "message": msg, "summary": summary}
-        else:
-            return summary
-    except Exception as e:
-        logger.error(f"❌ INGESTION ENDPOINT ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
-@router.delete("/history")
-async def clear_chat_history():
-    """
-    Clears the short-term chat history from the database.
-    """
-    try:
-        from .database import db
-        count = await db.clear_history()
-        return {"status": "success", "message": f"Chat history cleared ({count} messages purged)."}
-    except Exception as e:
-        logger.error(f"❌ CLEAR HISTORY ENDPOINT ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
-@router.get("/stats/summary")
-async def get_stats_summary():
-    """
-    Returns a high-level summary of usage statistics for the dashboard.
-    """
-    try:
-        from .database import db
-        if not db.pool:
-            return {"status": "error", "message": "Database not connected"}
-            
-        async with db.pool.acquire() as conn:
-            totals = await conn.fetchrow('''
-                SELECT 
-                    COUNT(*) as total_requests,
-                    SUM(prompt_tokens) as total_prompt,
-                    SUM(completion_tokens) as total_completion,
-                    AVG(duration_ms) as avg_latency,
-                    SUM(CASE WHEN layer = 'L2' THEN prompt_tokens + completion_tokens ELSE 0 END) as l2_tokens
-                FROM usage_stats
-            ''')
-            
-            breakdown = await conn.fetch('''
-                SELECT model, layer, COUNT(*) as count
-                FROM usage_stats
-                GROUP BY model, layer
-            ''')
-            
-            return {
-                "status": "success",
-                "summary": {
-                    "total_requests": totals["total_requests"] or 0,
-                    "total_tokens": (totals["total_prompt"] or 0) + (totals["total_completion"] or 0),
-                    "l2_tokens": totals["l2_tokens"] or 0,
-                    "avg_latency_ms": float(totals["avg_latency"] or 0),
-                },
-                "breakdown": [dict(row) for row in breakdown]
-            }
-    except Exception as e:
-        logger.error(f"❌ STATS SUMMARY ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
-@router.get("/telemetry/footprint")
-async def get_telemetry_footprint():
-    """
-    Returns telemetry database footprint metrics for monitoring.
-    """
-    try:
-        from .telemetry import telemetry
-        footprint = await telemetry.get_telemetry_footprint()
-        
-        if footprint:
-            return {"status": "success", "footprint": footprint}
-        else:
-            return {"status": "error", "message": "Failed to retrieve telemetry footprint"}
-    except Exception as e:
-        logger.error(f"❌ TELEMETRY FOOTPRINT ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
-@router.get("/telemetry/60day")
-async def get_60day_telemetry():
-    """
-    Returns 60-day historic telemetry statistics for performance analysis.
-    """
-    try:
-        from .telemetry import telemetry
-        stats = await telemetry.get_60day_statistics()
-        
-        if stats:
-            return {"status": "success", "statistics": stats}
-        else:
-            return {"status": "error", "message": "Failed to retrieve 60-day statistics"}
-    except Exception as e:
-        logger.error(f"❌ 60-DAY TELEMETRY ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
+async def chat_endpoint():
+    raise HTTPException(
+        status_code=410, 
+        detail="The /chat endpoint is DEPRECATED. Please use the Supervisor at http://localhost:8000/v1/chat/completions"
+    )
 
 @router.get("/health/detailed")
 async def get_detailed_health():
     """
     Checks connectivity for all microservices and GPU stats.
+    Legacy fallback for dashboard.
     """
-    from .database import db
-    
     health = {
         "api": "online",
         "postgres": "online" if db.is_ready() else "offline",
@@ -1364,126 +996,21 @@ async def get_detailed_health():
 @router.get("/health/stream")
 async def health_stream(request: Request):
     """
-    Server-Sent Events (SSE) stream for real-time health and telemetry metrics.
+    SSE stream fallback for dashboard.
     """
     async def event_generator():
-        from .database import db
         while True:
-            # If client closes connection, stop sending
             if await request.is_disconnected():
                 break
-
-            # 1. Fetch Health Data (Reuse logic but faster)
             health_data = await get_detailed_health()
-            
-            # 2. Fetch Recent Stats (Optional: Add real-time tokens etc)
-            # For now, just send health
-            
             yield f"event: update\ndata: {json.dumps(health_data)}\n\n"
-            
-            await asyncio.sleep(2) # Stream every 2 seconds
+            await asyncio.sleep(5) # Reduced frequency for legacy endpoint
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
-@router.post("/system/reset")
-async def reset_system():
-    """
-    Warms up the reset script to restore Gravitas to a clean state.
-    """
-    try:
-        # Trigger the reset script in the background
-        subprocess.Popen(["bash", "scripts/reset_gravitas.sh"])
-        return {"status": "success", "message": "System reset sequence initiated. Containers will restart."}
-    except Exception as e:
-        logger.error(f"❌ RESET FAILURE: {e}")
-        return {"status": "error", "message": str(e)}
-
-class PullRequest(BaseModel):
-    model: str
-
-@router.post("/model/pull")
-async def pull_model_endpoint(request: PullRequest):
-    """
-    Triggers an asynchronous model pull in the Ollama container.
-    """
-    try:
-        # We temporarily change the driver's target model to the requested one
-        old_model = container.l1_driver.model_name
-        container.l1_driver.model_name = request.model
-        
-        # Trigger pull (non-blocking in our implementation)
-        success = await container.l1_driver.ensure_model()
-        
-        # Revert driver model (the endpoint is for management, not permanent switch)
-        container.l1_driver.model_name = old_model
-        
-        if success:
-            return {"status": "success", "message": f"Pulling {request.model}..."}
-        else:
-            return {"status": "error", "message": f"Failed to initiate pull for {request.model}"}
-    except Exception as e:
-        logger.error(f"❌ MODEL PULL ENDPOINT ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
-@router.post("/system/mode")
-async def switch_system_mode(request: ModeRequest):
-    """
-    Switches the system between RAG and DEV modes (Mutually Exclusive).
-    """
-    success = await container.switch_mode(request.mode)
-    if success:
-        return {
-            "status": "success", 
-            "message": f"System switched to {request.mode} mode.",
-            "current_mode": container.current_mode,
-            "model": container.l1_driver.model_name
-        }
-    else:
-        return {"status": "error", "message": f"Failed to switch to {request.mode} mode."}
-
-@router.get("/governance/financials")
-async def get_financial_report():
-    """
-    Returns the ROI and savings report from the Cost Accountant.
-    """
-    try:
-        from .governance.accountant import accountant
-        report = await accountant.calculate_roi()
-        return report
-    except Exception as e:
-        logger.error(f"❌ FINANCIALS ENDPOINT ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
-@router.post("/agents/librarian/run")
-async def run_librarian():
-    """
-    Manually triggers the Librarian Agent to process docs/ and app/.
-    Restricted to RAG mode only.
-    """
-    if container.current_mode != config.MODE_RAG:
-        return {"status": "error", "message": "Librarian is restricted to RAG mode."}
-
-    try:
-        result = await container.librarian.process_docs()
-        return result
-    except Exception as e:
-        logger.error(f"❌ LIBRARIAN ENDPOINT ERROR: {e}")
-        return {"status": "error", "message": str(e)}
-
-@router.post("/agents/scout/research")
-async def scout_research(request: ResearchRequest):
-    """
-    Triggers the Scout Agent for Deep Research.
-    """
-    try:
-        if not container.scout:
-             return {"status": "error", "message": "Scout Agent not initialized."}
-        
-        report = await container.scout.research(request.query)
-        return {"status": "success", "report": report}
-    except Exception as e:
-        logger.error(f"❌ SCOUT ENDPOINT ERROR: {e}")
-        return {"status": "error", "message": str(e)}
+@router.get("/health")
+async def health_check():
+    return {"status": "healthy", "router": "legacy"}
 ```
 
 ### File: `app/container.py`
@@ -1807,10 +1334,10 @@ services:
       - Gravitas_net
     restart: always
 
-  # --- API: RAG BACKEND (LEGACY/ROUTER) ---
-  rag_app:
+  # --- API: GRAVITAS LOBBY (PUBLIC ENTRY POINT) ---
+  gravitas_lobby:
     build: .
-    container_name: Gravitas_rag_backend
+    container_name: Gravitas_lobby
     # Optional: If you run the main app via uvicorn
     command: uvicorn app.main:app --host 0.0.0.0 --port 5050 --reload
     volumes:
@@ -1836,11 +1363,10 @@ services:
               count: all
               capabilities: [ gpu ]
 
-  # --- SUPERVISOR: DISPATCH AND QUEUE ---
   gravitas_supervisor:
-    build:
-      context: ./gravitas_supervisor
+    build: .
     container_name: gravitas_supervisor
+    command: uvicorn app.services.supervisor.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     environment:
@@ -1889,59 +1415,4 @@ DB_NAME=chat_history
 ```
 
 ### File: `scripts/monitor.sh`
-```python
-#!/bin/bash
-# Gravitas Resource Watcher
-# Monitors GPU VRAM and Docker Container overhead in real-time.
-
-clear
-echo "🚀 Initializing Gravitas Resource Watcher..."
-echo "Press CTRL+C to stop."
-sleep 1
-
-while true; do
-    # 1. Gather all data into a buffer first
-    GPU_DATA=$(nvidia-smi --query-gpu=index,name,memory.used,memory.total,utilization.gpu --format=csv,noheader,nounits | \
-    awk -F', ' '{printf "GPU %d: %-15s | VRAM (Used / Total): %4.1f / %4.1f GB | Real Load: %3s%%\n", $1, $2, $3/1024, $4/1024, $5}')
-    
-    DOCKER_DATA=$(docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" | grep -v "gravitas_mcp")
-    
-    # Read heartbeat if it exists
-    if [ -f /tmp/gravitas_heartbeat ]; then
-        ACTIVE_FILE=$(cat /tmp/gravitas_heartbeat)
-        # Only show last 50 chars of path
-        DISPLAY_FILE="...${ACTIVE_FILE: -50}"
-    else
-        DISPLAY_FILE="IDLE"
-    fi
-
-    # 2. Now move cursor home and overwrite
-    tput home
-    echo "=========================================================================="
-    echo "🧪 REFACTOR STATUS"
-    echo "=========================================================================="
-    echo "Active File: $DISPLAY_FILE"
-    echo ""
-    echo "=========================================================================="
-    echo "📟 GPU TELEMETRY"
-    echo "=========================================================================="
-    echo "$GPU_DATA"
-    
-    echo ""
-    echo "=========================================================================="
-    echo "🐳 CONTAINER RESOURCE CONSUMPTION"
-    echo "=========================================================================="
-    echo "$DOCKER_DATA"
-    
-    echo ""
-    echo "=========================================================================="
-    echo "🕒 Last Updated: $(date '+%H:%M:%S')"
-    echo "=========================================================================="
-    
-    # 3. Clear any leftover lines below
-    tput ed
-    
-    sleep 1
-done
-
-```
+*Not Found*

@@ -2,8 +2,38 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+.cache
+.hypothesis/
+
+# Virtual Envs
 venv/
+venv/
+.venv/
+env/
 .env
+
+# IDEs
+.vscode/
+.idea/
 
 # Docker
 .docker_info
@@ -16,6 +46,9 @@ data/ollama_models/
 data/ollama_embed_models/
 data/chroma_db/
 data/huggingface/
+data/archive/
+*.db
+!rag_memory.db
 
 # Logs
 *.log
