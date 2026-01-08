@@ -3,7 +3,7 @@
 **Status**: COMPLETE ✅  
 **Created**: 2026-01-07  
 **Author**: Antigravity  
-**Triggered By**: Strategic Initiative ([Phase 2: Scaling & Migrations](file:///home/dflory/dev_env/Gravitas/docs/phases/PHASE_2_SCALING_AND_MIGRATIONS.md))
+**Triggered By**: Strategic Initiative ([Scaling & Migrations Phase 2](file:///home/dflory/dev_env/Gravitas/docs/phases/Scaling_And_Migrations_Phase_2.md))
 
 ---
 

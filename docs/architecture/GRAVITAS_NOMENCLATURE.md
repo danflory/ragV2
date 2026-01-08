@@ -34,3 +34,8 @@ When renaming or creating new components:
 1. Always prefix with `Gravitas_` if it's a globally accessible service.
 2. Maintain camelCase or snake_case as per the existing file standard (snake_case for Python, camelCase for JS).
 3. Update the `GRAVITAS_SESSION_CONTEXT.md` after any major naming changes.
+## 6. DOCUMENTATION NAMING POLICY
+- **Phase Documents:** Any document representing a project phase must lead with the human-readable phase name, followed by the phase designated number.
+- **Format:** `[Phase_Name]_Phase_XX.md`
+- **Example:** `Scaling_And_Migrations_Phase_2.md`
+- **Rule:** No document shall be introduced with `Phase_XX` unless preceded by a phase name.
