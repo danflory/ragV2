@@ -9,12 +9,14 @@ from datetime import datetime
 #           2. Session Transition & Archival (Phase A & B)
 
 JOURNAL_DIR = "docs/journals"
-CURRENT_SESSION_FILE = os.path.join(JOURNAL_DIR, "current_session.md")
+EXECUTIVE_DIR = os.path.join(JOURNAL_DIR, "executive")
+THOUGHTS_DIR = os.path.join(JOURNAL_DIR, "thoughts")
+CURRENT_SESSION_FILE = os.path.join(THOUGHTS_DIR, "current_session.md")
 
 def get_dated_filenames():
     today = datetime.now().strftime("%Y-%m-%d")
-    thoughts_log = os.path.join(JOURNAL_DIR, f"{today}_thoughts.md")
-    executive_log = os.path.join(JOURNAL_DIR, f"{today}_executive.md")
+    thoughts_log = os.path.join(THOUGHTS_DIR, f"{today}_thoughts.md")
+    executive_log = os.path.join(EXECUTIVE_DIR, f"{today}_executive.md")
     return thoughts_log, executive_log
 
 def get_next_id():
@@ -37,8 +39,8 @@ def get_next_id():
 
 def log_thought(content):
     """Appends verbatim content with auto-incrementing ID to the current session buffer."""
-    if not os.path.exists(JOURNAL_DIR):
-        os.makedirs(JOURNAL_DIR)
+    if not os.path.exists(THOUGHTS_DIR):
+        os.makedirs(THOUGHTS_DIR)
     
     # Auto-numbering logic
     entry_id = get_next_id()
@@ -76,8 +78,10 @@ def handle_session_transition():
     print("Status: [itj-000] Session Transition Complete. Thinking Transparency Active.")
 
 if __name__ == "__main__":
-    if not os.path.exists(JOURNAL_DIR):
-        os.makedirs(JOURNAL_DIR)
+    if not os.path.exists(EXECUTIVE_DIR):
+        os.makedirs(EXECUTIVE_DIR)
+    if not os.path.exists(THOUGHTS_DIR):
+        os.makedirs(THOUGHTS_DIR)
 
     # Mode Selection
     if len(sys.argv) > 1:
