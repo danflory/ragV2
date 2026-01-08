@@ -55,11 +55,5 @@ data/model_backup/
 *.log
 system.log
 
-# Journals - INTENTIONALLY NOT GITIGNORED
-# Reason: Antigravity models hide .gitignore'd paths from AI context.
-# Journals must remain visible to Antigravity for session continuity.
-# Policy: Journals are temporal research items - manually exclude at commit time.
-# docs/journals/
-
 # Antigravity Scripts
 # ANTIGRAVITY_Scripts/ is essential for the construction assistant
