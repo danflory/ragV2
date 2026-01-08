@@ -1,0 +1,108 @@
+# Gravitas Model Registry Configuration
+# This file defines all available LLM models (Shells) across L1, L2, and L3 tiers.
+# 
+# A Shell is the execution engine (LLM model) that powers a Ghost (Agent Identity).
+# This registry maps Shell identifiers to their performance characteristics,
+# costs, and capabilities to enable intelligent routing decisions.
+
+models:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # L1 MODELS - Local (Ollama)
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: "gemma2:27b"
+    tier: "L1"
+    provider: "ollama"
+    cost_per_1k_tokens: 0.0
+    context_window: 8192
+    avg_latency_ms: 150
+    vram_required_gb: 16
+    capabilities:
+      - "general"
+      - "rag"
+      - "summarization"
+    specialty: null
+  
+  - name: "llama3:70b"
+    tier: "L1"
+    provider: "ollama"
+    cost_per_1k_tokens: 0.0
+    context_window: 8192
+    avg_latency_ms: 800
+    vram_required_gb: 42
+    capabilities:
+      - "reasoning"
+      - "analysis"
+      - "complex_tasks"
+    specialty: null
+  
+  - name: "qwen2.5-coder:32b"
+    tier: "L1"
+    provider: "ollama"
+    cost_per_1k_tokens: 0.0
+    context_window: 32768
+    avg_latency_ms: 300
+    vram_required_gb: 20
+    capabilities:
+      - "code"
+      - "debugging"
+      - "refactoring"
+    specialty: "coding"
+  
+  # ═══════════════════════════════════════════════════════════════════════════
+  # L2 MODELS - Cloud (DeepInfra)
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: "meta-llama/Meta-Llama-3-70B-Instruct"
+    tier: "L2"
+    provider: "deepinfra"
+    cost_per_1k_tokens: 0.0007
+    context_window: 8192
+    avg_latency_ms: 400
+    vram_required_gb: null
+    capabilities:
+      - "general"
+      - "analysis"
+      - "summarization"
+    specialty: null
+  
+  # ═══════════════════════════════════════════════════════════════════════════
+  # L3 MODELS - Frontier (Google, Anthropic)
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  - name: "gemini-1.5-pro"
+    tier: "L3"
+    provider: "google"
+    cost_per_1k_tokens: 0.01
+    context_window: 2000000
+    avg_latency_ms: 2500
+    vram_required_gb: null
+    capabilities:
+      - "advanced_reasoning"
+      - "massive_context"
+      - "code_review"
+    specialty: "frontier_intelligence"
+  
+  - name: "gemini-1.5-flash"
+    tier: "L3"
+    provider: "google"
+    cost_per_1k_tokens: 0.002
+    context_window: 1000000
+    avg_latency_ms: 800
+    vram_required_gb: null
+    capabilities:
+      - "fast_reasoning"
+      - "large_context"
+    specialty: "speed"
+  
+  - name: "claude-3-5-sonnet"
+    tier: "L3"
+    provider: "anthropic"
+    cost_per_1k_tokens: 0.015
+    context_window: 200000
+    avg_latency_ms: 1500
+    vram_required_gb: null
+    capabilities:
+      - "advanced_reasoning"
+      - "code"
+    specialty: "extended_thinking"

@@ -13,14 +13,23 @@ The Shell Registry is purely about MODELS, not AGENTS.
 For agent identities, see ghost_registry.py.
 """
 
+import os
+import yaml
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from enum import Enum
+import logging
+
+from app.services.registry.model_schema import ModelsConfig, ModelDefinition
+
+logger = logging.getLogger("Gravitas_SHELL_REGISTRY")
+
 
 class ModelTier(Enum):
     L1 = "L1"  # Local (Ollama)
     L2 = "L2"  # Cloud (DeepInfra)
     L3 = "L3"  # Frontier (Gemini)
+
 
 class ModelCapability(Enum):
     GENERAL = "general"
@@ -38,6 +47,7 @@ class ModelCapability(Enum):
     FAST_REASONING = "fast_reasoning"
     LARGE_CONTEXT = "large_context"
 
+
 @dataclass
 class ModelSpec:
     """Specification for a single model."""
@@ -51,125 +61,94 @@ class ModelSpec:
     vram_required_gb: Optional[int] = None
     provider: Optional[str] = None
 
+
 class ShellRegistry:
     """
     Central registry of all available LLM model Shells across L1, L2, and L3 tiers.
     
     A Shell is the compute resource (model) that executes a Ghost's (agent's) intelligence.
     This registry provides specifications for routing, cost estimation, and VRAM management.
+    
+    Loads model definitions from app/config/models.yaml for dynamic configuration.
     """
     
-    # L1: Local Models (Ollama)
-    L1_MODELS = {
-        "gemma2:27b": ModelSpec(
-            name="gemma2:27b",
-            tier=ModelTier.L1,
-            cost_per_1k_tokens=0.0,
-            context_window=8192,
-            vram_required_gb=16,
-            avg_latency_ms=150,
-            capabilities=[
-                ModelCapability.GENERAL,
-                ModelCapability.RAG,
-                ModelCapability.SUMMARIZATION
-            ],
-            specialty=None,
-            provider="ollama"
-        ),
-        "llama3:70b": ModelSpec(
-            name="llama3:70b",
-            tier=ModelTier.L1,
-            cost_per_1k_tokens=0.0,
-            context_window=8192,
-            vram_required_gb=42,
-            avg_latency_ms=800,
-            capabilities=[
-                ModelCapability.REASONING,
-                ModelCapability.ANALYSIS,
-                ModelCapability.COMPLEX_TASKS
-            ],
-            specialty=None,
-            provider="ollama"
-        ),
-        "qwen2.5-coder:32b": ModelSpec(
-            name="qwen2.5-coder:32b",
-            tier=ModelTier.L1,
-            cost_per_1k_tokens=0.0,
-            context_window=32768,
-            vram_required_gb=20,
-            avg_latency_ms=300,
-            capabilities=[
-                ModelCapability.CODE,
-                ModelCapability.DEBUGGING,
-                ModelCapability.REFACTORING
-            ],
-            specialty="coding",
-            provider="ollama"
-        )
-    }
+    # Class variables to store loaded models
+    L1_MODELS: Dict[str, ModelSpec] = {}
+    L2_MODELS: Dict[str, ModelSpec] = {}
+    L3_MODELS: Dict[str, ModelSpec] = {}
+    _loaded: bool = False
     
-    # L2: Cloud Models (DeepInfra)
-    L2_MODELS = {
-        "meta-llama/Meta-Llama-3-70B-Instruct": ModelSpec(
-            name="meta-llama/Meta-Llama-3-70B-Instruct",
-            tier=ModelTier.L2,
-            cost_per_1k_tokens=0.0007,
-            context_window=8192,
-            avg_latency_ms=400,
-            capabilities=[
-                ModelCapability.GENERAL,
-                ModelCapability.ANALYSIS,
-                ModelCapability.SUMMARIZATION
-            ],
-            specialty=None,
-            provider="deepinfra"
+    @classmethod
+    def _load_models_from_yaml(cls):
+        """Load models from YAML configuration file."""
+        if cls._loaded:
+            return
+        
+        # Get config file path
+        config_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            "config",
+            "models.yaml"
         )
-    }
-    
-    # L3: Frontier Models (Gemini)
-    L3_MODELS = {
-        "gemini-1.5-pro": ModelSpec(
-            name="gemini-1.5-pro",
-            tier=ModelTier.L3,
-            cost_per_1k_tokens=0.01,
-            context_window=2000000,
-            avg_latency_ms=2500,
-            capabilities=[
-                ModelCapability.ADVANCED_REASONING,
-                ModelCapability.MASSIVE_CONTEXT,
-                ModelCapability.CODE_REVIEW
-            ],
-            specialty="frontier_intelligence",
-            provider="google"
-        ),
-        "gemini-1.5-flash": ModelSpec(
-            name="gemini-1.5-flash",
-            tier=ModelTier.L3,
-            cost_per_1k_tokens=0.002,
-            context_window=1000000,
-            avg_latency_ms=800,
-            capabilities=[
-                ModelCapability.FAST_REASONING,
-                ModelCapability.LARGE_CONTEXT
-            ],
-            specialty="speed",
-            provider="google"
-        ),
-        "claude-3-5-sonnet": ModelSpec(
-            name="claude-3-5-sonnet",
-            tier=ModelTier.L3,
-            cost_per_1k_tokens=0.015,
-            context_window=200000,
-            avg_latency_ms=1500,
-            capabilities=[ModelCapability.ADVANCED_REASONING, ModelCapability.CODE],
-            specialty="extended_thinking",
-            provider="anthropic"
-        )
-    }
+        
+        if not os.path.exists(config_path):
+            logger.error(f"❌ Model config not found: {config_path}")
+            logger.warning("⚠️ Using empty model registry")
+            cls._loaded = True
+            return
+        
+        try:
+            # Load and parse YAML
+            with open(config_path, 'r') as f:
+                yaml_data = yaml.safe_load(f)
+            
+            # Validate with Pydantic
+            config = ModelsConfig(**yaml_data)
+            
+            # Convert to ModelSpec objects and organize by tier
+            for model_def in config.models:
+                # Convert capability strings to enums
+                capabilities = []
+                for cap_str in model_def.capabilities:
+                    try:
+                        capabilities.append(ModelCapability(cap_str))
+                    except ValueError:
+                        logger.warning(f"⚠️ Unknown capability '{cap_str}' for model {model_def.name}")
+                
+                # Create ModelSpec
+                spec = ModelSpec(
+                    name=model_def.name,
+                    tier=ModelTier(model_def.tier),
+                    cost_per_1k_tokens=model_def.cost_per_1k_tokens,
+                    context_window=model_def.context_window,
+                    avg_latency_ms=model_def.avg_latency_ms,
+                    capabilities=capabilities,
+                    specialty=model_def.specialty,
+                    vram_required_gb=model_def.vram_required_gb,
+                    provider=model_def.provider
+                )
+                
+                # Add to appropriate tier
+                if spec.tier == ModelTier.L1:
+                    cls.L1_MODELS[model_def.name] = spec
+                elif spec.tier == ModelTier.L2:
+                    cls.L2_MODELS[model_def.name] = spec
+                elif spec.tier == ModelTier.L3:
+                    cls.L3_MODELS[model_def.name] = spec
+            
+            cls._loaded = True
+            logger.info(f"✅ Loaded {len(config.models)} models from {config_path}")
+            logger.info(f"   L1: {len(cls.L1_MODELS)}, L2: {len(cls.L2_MODELS)}, L3: {len(cls.L3_MODELS)}")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to load model config: {e}")
+            logger.warning("⚠️ Using empty model registry")
+            cls._loaded = True
     
     @classmethod
     def get_all_models(cls) -> Dict[str, ModelSpec]:
         """Return all models across all tiers."""
+        cls._load_models_from_yaml()
         return {
             **cls.L1_MODELS,
             **cls.L2_MODELS,
@@ -179,12 +158,14 @@ class ShellRegistry:
     @classmethod
     def get_model(cls, model_name: str) -> Optional[ModelSpec]:
         """Get a specific model by name."""
+        cls._load_models_from_yaml()
         all_models = cls.get_all_models()
         return all_models.get(model_name)
     
     @classmethod
     def get_models_by_tier(cls, tier: ModelTier) -> Dict[str, ModelSpec]:
         """Get all models for a specific tier."""
+        cls._load_models_from_yaml()
         if tier == ModelTier.L1:
             return cls.L1_MODELS
         elif tier == ModelTier.L2:
@@ -196,6 +177,7 @@ class ShellRegistry:
     @classmethod
     def get_models_by_capability(cls, capability: ModelCapability) -> List[ModelSpec]:
         """Find all models that have a specific capability."""
+        cls._load_models_from_yaml()
         all_models = cls.get_all_models()
         return [
             spec for spec in all_models.values()
@@ -225,3 +207,13 @@ class ShellRegistry:
         if not spec or not spec.vram_required_gb:
             return True  # Assume cloud models don't need local VRAM
         return spec.vram_required_gb <= available_vram_gb
+    
+    @classmethod
+    def reload_config(cls):
+        """Force reload of model configuration from YAML."""
+        cls._loaded = False
+        cls.L1_MODELS = {}
+        cls.L2_MODELS = {}
+        cls.L3_MODELS = {}
+        cls._load_models_from_yaml()
+        logger.info("🔄 Model registry reloaded from config")

@@ -3,8 +3,9 @@
 | Metadata | Value |
 | :--- | :--- |
 | **RFC ID** | RFC-002 |
-| **Status** | PROPOSED |
+| **Status** | ✅ COMPLETE |
 | **Created** | 2026-01-08 |
+| **Completed** | 2026-01-08 |
 | **Author** | Antigravity |
 | **Topic** | Microservices Architecture |
 
@@ -52,3 +53,70 @@ Refactor `app/telemetry.py` to remove `asyncpg` dependency.
 ## 5. Alternatives Considered
 - **Sidecar Pattern**: Run a fluentd/vector sidecar. Rejected for now to keep the stack simple (Python/Postgres).
 - **Message Queue**: Push to Redis/RabbitMQ. Valid, but adds infrastructure complexity (Phase 8+).
+
+---
+
+# Implementation Walkthrough (2026-01-08)
+
+## Overview
+Successfully extracted telemetry logic from in-process database access to standalone `gravitas-telemetry` microservice.
+
+## Key Components Created
+
+**Service**: `app/services/telemetry/`
+- FastAPI service on port `8006` (internal) / `8007` (external)
+- Background worker with asyncio queue for batched writes
+- Endpoints: `/health`, `/v1/telemetry/log`, `/v1/telemetry/events`, `/v1/telemetry/stats`
+
+**Client**: `app/telemetry.py`
+- HTTP-based with circuit breaker pattern
+- Fire-and-forget async requests (< 2ms)
+- Fallback to stdout logging when service unavailable
+- Backward compatible - same method signatures
+
+**Infrastructure**:
+- `Dockerfile.telemetry`
+- Updated `docker-compose.yml` with telemetry service
+- Database migration to drop old tables from router
+
+## Architecture
+
+```mermaid
+graph LR
+    Services[Router/Gatekeeper/Guardian] -->|HTTP| TelemetryAPI[Telemetry :8006]
+    TelemetryAPI -->|Queue| Worker[Batch Writer]
+    Worker -->|Bulk Insert| DB[(PostgreSQL)]
+```
+
+## Testing
+```bash
+# Build and start service
+docker-compose up -d gravitas_telemetry
+
+# Check health
+curl http://localhost:8007/health
+
+# Query events
+curl http://localhost:8007/v1/telemetry/events?limit=5
+```
+
+## Files Changed
+
+**Created**:
+- `app/services/telemetry/main.py`
+- `app/services/telemetry/database.py`
+- `app/services/telemetry/models.py`
+- `app/services/telemetry/__init__.py`
+- `Dockerfile.telemetry`
+- `app/services/router/migrations/versions/a1b2c3d4e5f6_drop_telemetry_tables.py`
+
+**Modified**:
+- `app/telemetry.py` - HTTP client refactor
+- `docker-compose.yml` - Added telemetry service
+
+## Success Criteria
+- [x] Telemetry service runs on port 8006
+- [x] HTTP client maintains backward compatibility
+- [x] Circuit breaker prevents cascading failures
+- [x] Database migration complete
+- [x] Docker configuration ready

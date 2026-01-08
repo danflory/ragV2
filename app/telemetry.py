@@ -1,21 +1,89 @@
 import logging
 import json
 import time
+import os
 from typing import Any, Dict, Optional
-from .database import db
+import httpx
 
 logger = logging.getLogger("Gravitas_TELEMETRY")
 
+#  Circuit breaker state
+class CircuitBreaker:
+    """Simple circuit breaker to prevent cascading failures."""
+    def __init__(self, failure_threshold=5, timeout=60):
+        self.failure_count = 0
+        self.failure_threshold = failure_threshold
+        self.timeout = timeout
+        self.last_failure_time = None
+        self.is_open = False
+    
+    def record_failure(self):
+        """Record a failure and open circuit if threshold exceeded."""
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        
+        if self.failure_count >= self.failure_threshold:
+            self.is_open = True
+            logger.warning(f"🔴 Circuit breaker OPEN after {self.failure_count} failures")
+    
+    def record_success(self):
+        """Record a success and reset circuit."""
+        if self.failure_count > 0:
+            logger.info("🟢 Circuit breaker CLOSED - telemetry service recovered")
+        self.failure_count = 0
+        self.is_open = False
+    
+    def can_attempt(self) -> bool:
+        """Check if we should attempt a request."""
+        if not self.is_open:
+            return True
+        
+        # Check if enough time has passed to retry
+        if self.last_failure_time and time.time() - self.last_failure_time > self.timeout:
+            logger.info("⚡ Circuit breaker attempting retry...")
+            self.is_open = False
+            self.failure_count = 0
+            return True
+        
+        return False
+
+
 class TelemetryLogger:
     """
-    Asynchronous telemetry logger for system events.
-    Non-blocking logging to system_telemetry table with sub-second precision.
+    HTTP-based telemetry logger for system events.
+    Sends events to dedicated telemetry service via fire-and-forget HTTP requests.
     
     Supports:
     - Load Latency: VRAM model loading time tracking
     - Thought Latency: Inference speed tracking  
     - Token-aware efficiency metrics
+    
+    Features:
+    - Circuit breaker pattern to prevent cascading failures
+    - Fallback to stdout logging when service unavailable
+    - Fire-and-forget async requests (non-blocking)
     """
+
+    def __init__(self):
+        # Get telemetry service URL from environment
+        self.telemetry_url = os.getenv("TELEMETRY_URL", "http://gravitas_telemetry:8006")
+        self.enabled = os.getenv("TELEMETRY_ENABLED", "true").lower() == "true"
+        self.circuit_breaker = CircuitBreaker()
+        self.client = None
+        
+        if self.enabled:
+            logger.info(f"📊 Telemetry client initialized (service: {self.telemetry_url})")
+        else:
+            logger.warning("⚠️ Telemetry disabled via TELEMETRY_ENABLED=false")
+    
+    def _get_client(self) -> httpx.AsyncClient:
+        """Get or create HTTP client instance."""
+        if self.client is None:
+            self.client = httpx.AsyncClient(
+                timeout=httpx.Timeout(2.0, connect=1.0),  # Fast timeouts
+                limits=httpx.Limits(max_keepalive_connections=5, max_connections=10)
+            )
+        return self.client
 
     async def log(
         self,
@@ -26,7 +94,7 @@ class TelemetryLogger:
         status: str = None
     ) -> bool:
         """
-        Logs a telemetry event asynchronously.
+        Logs a telemetry event asynchronously to the telemetry service.
 
         Args:
             event_type: Type of event (e.g., "VRAM_CHECK", "VRAM_LOCKOUT")
@@ -38,30 +106,60 @@ class TelemetryLogger:
         Returns:
             bool: True if logged successfully, False otherwise
         """
-        if not db.is_ready():
-            logger.warning("⚠️ TELEMETRY: Database not ready, skipping log")
+        if not self.enabled:
+            return False
+        
+        # Check circuit breaker
+        if not self.circuit_breaker.can_attempt():
+            logger.debug("⚠️ Circuit breaker OPEN - skipping telemetry log")
             return False
 
         try:
-            # Convert metadata dict to JSON string if provided
-            metadata_json = json.dumps(metadata) if metadata else None
+            # Prepare event payload
+            event = {
+                "event_type": event_type,
+                "component": component,
+                "value": value,
+                "metadata": metadata,
+                "status": status
+            }
+            
+            # Fire-and-forget HTTP request
+            client = self._get_client()
+            response = await client.post(
+                f"{self.telemetry_url}/v1/telemetry/log",
+                json=event
+            )
+            
+            if response.status_code == 200:
+                self.circuit_breaker.record_success()
+                logger.debug(f"📊 TELEMETRY LOGGED: {event_type} ({component or 'unknown'})")
+                return True
+            else:
+                logger.warning(f"⚠️ Telemetry service returned {response.status_code}")
+                self.circuit_breaker.record_failure()
+                self._fallback_log(event)
+                return False
 
-            async with db.pool.acquire() as conn:
-                await conn.execute('''
-                    INSERT INTO system_telemetry (event_type, component, value, metadata, status)
-                    VALUES ($1, $2, $3, $4, $5)
-                ''', event_type, component, value, metadata_json, status)
-
-            logger.debug(f"📊 TELEMETRY LOGGED: {event_type} ({component or 'unknown'})")
-            return True
-
+        except (httpx.TimeoutException, httpx.ConnectError) as e:
+            # Service unavailable - circuit breaker will open after threshold
+            self.circuit_breaker.record_failure()
+            logger.debug(f"⚠️ Telemetry service unavailable: {e}")
+            self._fallback_log(event)
+            return False
+        
         except Exception as e:
             logger.error(f"❌ TELEMETRY LOG FAILURE: {e}")
+            self._fallback_log(event)
             return False
+    
+    def _fallback_log(self, event: dict):
+        """Fallback logging to stdout when service is unavailable."""
+        logger.info(f"📊 [FALLBACK] {event['event_type']}: {json.dumps(event, default=str)}")
 
     async def get_recent_events(self, limit: int = 10, component: str = None) -> list:
         """
-        Retrieves recent telemetry events.
+        Retrieves recent telemetry events from the service.
 
         Args:
             limit: Maximum number of events to return
@@ -70,42 +168,30 @@ class TelemetryLogger:
         Returns:
             List of telemetry event dictionaries
         """
-        if not db.is_ready():
+        if not self.enabled or not self.circuit_breaker.can_attempt():
             return []
 
         try:
-            async with db.pool.acquire() as conn:
-                if component:
-                    rows = await conn.fetch('''
-                        SELECT event_type, component, value, metadata, status, timestamp
-                        FROM system_telemetry
-                        WHERE component = $1
-                        ORDER BY timestamp DESC
-                        LIMIT $2
-                    ''', component, limit)
-                else:
-                    rows = await conn.fetch('''
-                        SELECT event_type, component, value, metadata, status, timestamp
-                        FROM system_telemetry
-                        ORDER BY timestamp DESC
-                        LIMIT $1
-                    ''', limit)
-
-                events = []
-                for row in rows:
-                    event = dict(row)
-                    # Parse metadata JSON back to dict if present
-                    if event.get('metadata'):
-                        try:
-                            event['metadata'] = json.loads(event['metadata'])
-                        except:
-                            pass  # Keep as string if parsing fails
-                    events.append(event)
-
-                return events
-
+            client = self._get_client()
+            params = {"limit": limit}
+            if component:
+                params["component"] = component
+            
+            response = await client.get(
+                f"{self.telemetry_url}/v1/telemetry/events",
+                params=params
+            )
+            
+            if response.status_code == 200:
+                self.circuit_breaker.record_success()
+                return response.json()
+            else:
+                self.circuit_breaker.record_failure()
+                return []
+            
         except Exception as e:
             logger.error(f"❌ TELEMETRY QUERY FAILURE: {e}")
+            self.circuit_breaker.record_failure()
             return []
     
     async def log_load_latency(
@@ -203,141 +289,38 @@ class TelemetryLogger:
         Returns:
             Dict with weighted efficiency scores and statistics
         """
-        if not db.is_ready():
+        if not self.enabled or not self.circuit_breaker.can_attempt():
             return {}
         
         try:
-            async with db.pool.acquire() as conn:
-                query = '''
-                    SELECT 
-                        component,
-                        COUNT(*) as measurement_count,
-                        AVG(value) as avg_efficiency_score,
-                        MIN(value) as best_efficiency,
-                        MAX(value) as worst_efficiency,
-                        SUM((metadata->>'tokens_generated')::int) as total_tokens
-                    FROM system_telemetry
-                    WHERE event_type = 'THOUGHT_LATENCY'
-                        AND timestamp > NOW() - INTERVAL '%s hours'
-                '''
-                
-                if component:
-                    query += " AND component = $1 GROUP BY component"
-                    row = await conn.fetchrow(query % hours, component)
-                else:
-                    query += " GROUP BY component"
-                    rows = await conn.fetch(query % hours)
-                    
-                    # Return aggregated data for all components
-                    if rows:
-                        return {
-                            "components": [dict(row) for row in rows],
-                            "time_window_hours": hours
-                        }
-                    return {}
-                
-                if row:
-                    return dict(row)
+            client = self._get_client()
+            params = {"hours": hours}
+            if component:
+                params["component"] = component
+            
+            response = await client.get(
+                f"{self.telemetry_url}/v1/telemetry/stats",
+                params=params
+            )
+            
+            if response.status_code == 200:
+                self.circuit_breaker.record_success()
+                return response.json()
+            else:
+                self.circuit_breaker.record_failure()
                 return {}
-                    
+                
         except Exception as e:
             logger.error(f"❌ AGGREGATION QUERY FAILURE: {e}")
+            self.circuit_breaker.record_failure()
             return {}
     
-    async def get_60day_statistics(self) -> Dict[str, Any]:
-        """
-        Retrieves 60-day historic performance window statistics.
-        
-        Returns:
-            Dict with long-term performance trends
-        """
-        if not db.is_ready():
-            return {}
-        
-        try:
-            async with db.pool.acquire() as conn:
-                # Get overall statistics
-                overall = await conn.fetchrow('''
-                    SELECT 
-                        COUNT(*) as total_measurements,
-                        COUNT(DISTINCT component) as unique_models,
-                        MIN(timestamp) as oldest_record,
-                        MAX(timestamp) as newest_record
-                    FROM system_telemetry
-                    WHERE timestamp > NOW() - INTERVAL '60 days'
-                ''')
-                
-                # Get per-model efficiency trends
-                trends = await conn.fetch('''
-                    SELECT 
-                        component,
-                        AVG(value) as avg_efficiency,
-                        COUNT(*) as measurement_count,
-                        SUM((metadata->>'total_tokens')::int) as total_tokens_processed
-                    FROM system_telemetry
-                    WHERE event_type = 'THOUGHT_LATENCY'
-                        AND timestamp > NOW() - INTERVAL '60 days'
-                    GROUP BY component
-                    ORDER BY avg_efficiency ASC
-                ''')
-                
-                return {
-                    "overall": dict(overall) if overall else {},
-                    "model_trends": [dict(row) for row in trends] if trends else [],
-                    "retention_window_days": 60
-                }
-                
-        except Exception as e:
-            logger.error(f"❌ 60-DAY STATISTICS FAILURE: {e}")
-            return {}
-    
-    async def get_telemetry_footprint(self) -> Dict[str, Any]:
-        """
-        Monitors the telemetry database footprint to prevent bloat.
-        
-        Returns:
-            Dict with table sizes, row counts, and storage metrics
-        """
-        if not db.is_ready():
-            return {}
-        
-        try:
-            async with db.pool.acquire() as conn:
-                # Get table size statistics
-                table_stats = await conn.fetch('''
-                    SELECT 
-                        schemaname,
-                        tablename,
-                        pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS total_size,
-                        pg_total_relation_size(schemaname||'.'||tablename) AS size_bytes
-                    FROM pg_tables
-                    WHERE schemaname = 'public'
-                        AND tablename IN ('system_telemetry', 'usage_stats', 'history')
-                    ORDER BY size_bytes DESC
-                ''')
-                
-                # Get row counts
-                telemetry_count = await conn.fetchval('SELECT COUNT(*) FROM system_telemetry')
-                usage_count = await conn.fetchval('SELECT COUNT(*) FROM usage_stats')
-                history_count = await conn.fetchval('SELECT COUNT(*) FROM history')
-                
-                # Get oldest records
-                oldest_telemetry = await conn.fetchval('SELECT MIN(timestamp) FROM system_telemetry')
-                
-                return {
-                    "table_sizes": [dict(row) for row in table_stats] if table_stats else [],
-                    "row_counts": {
-                        "system_telemetry": telemetry_count,
-                        "usage_stats": usage_count,
-                        "history": history_count
-                    },
-                    "oldest_telemetry_record": str(oldest_telemetry) if oldest_telemetry else None,
-                    "monitored_at": str(time.time())
-                }
-                
-        except Exception as e:
-            logger.error(f"❌ FOOTPRINT MONITORING FAILURE: {e}")
-            return {}
+    async def close(self):
+        """Close the HTTP client."""
+        if self.client:
+            await self.client.aclose()
+            self.client = None
+
 
 # Singleton Instance
 telemetry = TelemetryLogger()

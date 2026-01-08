@@ -187,6 +187,7 @@ services:
       - OLLAMA_URL=http://Gravitas_ollama:11434/v1/chat/completions
       - GATEKEEPER_URL=http://gravitas_gatekeeper:8001
       - GUARDIAN_URL=http://gravitas_guardian:8003
+      - TELEMETRY_URL=http://gravitas_telemetry:8006
       - AUTH_DISABLED=false
       # Add provider keys if needed, e.g. GEMINI_API_KEY from .env
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -195,6 +196,27 @@ services:
     depends_on:
       - gravitas_gatekeeper
       - gravitas_guardian
+      - gravitas_telemetry
+    networks:
+      - Gravitas_net
+    restart: unless-stopped
+
+  gravitas_telemetry:
+    build:
+      context: .
+      dockerfile: Dockerfile.telemetry
+    container_name: gravitas_telemetry
+    ports:
+      - "8007:8006"
+    environment:
+      - DATABASE_URL=postgresql://Gravitas_user:Gravitas_pass@Gravitas_postgres:5432/chat_history
+      - DB_HOST=Gravitas_postgres
+      - DB_PORT=5432
+      - DB_USER=Gravitas_user
+      - DB_PASS=Gravitas_pass
+      - DB_NAME=chat_history
+    depends_on:
+      - Gravitas_postgres
     networks:
       - Gravitas_net
     restart: unless-stopped

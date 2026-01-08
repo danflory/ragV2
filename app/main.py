@@ -57,6 +57,45 @@ async def health():
         "mode": container.current_mode
     }
 
+@app.get("/v1/registry/models")
+async def get_models(tier: str = None, provider: str = None):
+    """
+    Get all available models from the registry.
+    Optional filters: tier (L1/L2/L3), provider (ollama/google/anthropic/deepinfra)
+    """
+    from .services.registry.shell_registry import ShellRegistry, ModelTier
+    
+    # Get all models
+    all_models = ShellRegistry.get_all_models()
+    
+    # Apply filters
+    filtered_models = {}
+    for name, spec in all_models.items():
+        # Tier filter
+        if tier and spec.tier.value != tier:
+            continue
+        # Provider filter  
+        if provider and spec.provider != provider:
+            continue
+        
+        # Convert to dict for JSON response
+        filtered_models[name] = {
+            "name": spec.name,
+            "tier": spec.tier.value,
+            "provider": spec.provider,
+            "cost_per_1k_tokens": spec.cost_per_1k_tokens,
+            "context_window": spec.context_window,
+            "avg_latency_ms": spec.avg_latency_ms,
+            "capabilities": [cap.value for cap in spec.capabilities],
+            "specialty": spec.specialty,
+            "vram_required_gb": spec.vram_required_gb
+        }
+    
+    return {
+        "models": filtered_models,
+        "count": len(filtered_models)
+    }
+
 if os.path.exists(dashboard_path):
     from fastapi.responses import FileResponse
     
