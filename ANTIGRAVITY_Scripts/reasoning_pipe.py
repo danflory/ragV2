@@ -20,20 +20,23 @@ def get_dated_filenames():
     return thoughts_log, executive_log
 
 def get_next_id():
-    """Reads the current session file to determine the next sequential [itj-XXX] ID."""
-    if not os.path.exists(CURRENT_SESSION_FILE):
+    """Reads both the daily archive and the session buffer to ensure global ID uniqueness."""
+    thoughts_log, _ = get_dated_filenames()
+    sources = [thoughts_log, CURRENT_SESSION_FILE]
+    all_ids = []
+
+    for source in sources:
+        if os.path.exists(source):
+            with open(source, "r") as f:
+                content = f.read()
+                matches = re.findall(r"\[itj-(\d+)\]", content)
+                if matches:
+                    all_ids.extend([int(m) for m in matches])
+    
+    if not all_ids:
         return "itj-001"
     
-    with open(CURRENT_SESSION_FILE, "r") as f:
-        content = f.read()
-    
-    # Find all [itj-XXX] tags
-    matches = re.findall(r"\[itj-(\d+)\]", content)
-    
-    if not matches:
-        return "itj-001"
-    
-    last_id = int(matches[-1])
+    last_id = max(all_ids)
     next_id = last_id + 1
     return f"itj-{next_id:03d}"
 
