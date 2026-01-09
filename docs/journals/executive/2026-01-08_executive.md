@@ -45,3 +45,21 @@ The shift from "formatting" to "high-resolution content" is a response to the hu
 - **Editor Live-Feed Reliability**: Dependency on editor auto-reload remains; we should consider if a dedicated "Dev Dashboard" view for journals would be more reliable than standard MD files for real-time streaming.
 
 ---
+
+## [2026-01-08 19:10] - STRATEGIC RESOLUTION: ID PERSISTENCE & PROACTIVE SYNTHESIS
+**Objective**: Resolve Strategic Crossroads #1 and #2.
+
+### Actions Taken
+- **ID Persistence Fixed**: Updated `reasoning_pipe.py` to scan dated archives, ensuring `[itj-XXX]` IDs remain unique across session resets.
+- **Proactive Protocol**: Formally transitioned the **Executive Synthesis** from a manual workflow to a proactive agent requirement.
+- **Workflow Codification**: Updated `reason.md` with the mandatory proactive trigger requirement.
+- **Crossroads Management**: Marked Crossroads #1 (ID Collision) and #2 (Synthesis Automation) as **RESOLVED** in the developer-tool database.
+
+### Reasoning Strategy
+The decision to make synthesis proactive addresses the "Strategic Lag" problem where important crossroads might be buried in the thoughts log for too long. By anchoring synthesis to project milestones, we ensure the Human Lead always has a current strategic map without having to remember technical archival commands. The ID persistence fix ensures the forensics log remains a coherent, sequential data source for future AI self-learning (Phase 6).
+
+### Strategic Crossroads
+- **Proactive Milestone Thresholds**: We need to define exactly what constitutes a "major milestone." Over-synthesis could lead to repetitive executive entries; under-synthesis leads to data lag.
+- **Unhandled Crossroads Visibility**: Now that the database is live, should I proactively print a "Crossroads Status" every time a workspace is re-opened (recon)?
+
+---
