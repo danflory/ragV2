@@ -63,3 +63,21 @@ The decision to make synthesis proactive addresses the "Strategic Lag" problem w
 - **Unhandled Crossroads Visibility**: Now that the database is live, should I proactively print a "Crossroads Status" every time a workspace is re-opened (recon)?
 
 ---
+
+## [2026-01-08 19:15] - STRATEGIC RESOLUTION: TELEMETRY OVERHEAD MANAGED
+**Objective**: Resolve Strategic Crossroad #3 (Telemetry Network Overhead).
+
+### Actions Taken
+- **Infrastructure Verification**: Audited `app/telemetry.py` and confirmed implementation of an **Asynchronous HTTP Client** (`httpx`) with multi-stage timeouts (1s connect / 2s total).
+- **Resilience Hardware**: Verified the **Circuit Breaker** implementation which prevents telemetry service failures from blocking core system reasoning.
+- **Metric Calibration**: Confirmed that **Thought Latency** is already calculated as a token-aware 'Efficiency Score' (ms/token), resolving the data-quality concern.
+- **Crossroads Management**: Formally marked Crossroad #3 as **RESOLVED** in the developer-tool database.
+
+### Reasoning Strategy
+The move to a decoupled telemetry service was a strategic risk due to potential "thought latency" introduced by the network stack. However, the use of a fire-and-forget async client combined with a fail-fast circuit breaker successfully mitigates this risk. By anchoring metrics to tokens rather than just time, we've future-proofed the system for Phase 4.5/6 without introducing "observer effect" lag into the AI's internal monologue.
+
+### Strategic Crossroads
+- **Editor Live-Feed Reliability**: This remains our primary UX hurdle. The current file-based streaming depends on inconsistent editor auto-reload behavior.
+- **Proactive Milestone Thresholds**: Continued need to define "major milestone" triggers to keep the proactive synthesis relevant.
+
+---
